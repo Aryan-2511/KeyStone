@@ -50,3 +50,22 @@ it as a subprocess. It is **not** listed in `pyproject.toml` dependencies.
 
 **Consequences.** No transitive-dep contamination of the core resolution.
 Garak's version is managed separately from `uv.lock`.
+
+---
+
+## ADR-0004 — Run pre-commit (incl. detect-secrets) as a first-class CI gate
+
+**Status:** Accepted · **Date:** 2026-06-15
+
+**Context.** The harness advertised detect-secrets + hygiene hooks as gates, but
+they ran nowhere automatically: not in CI, and `pre-commit install` had never
+been run. A committed secret would have passed CI. `make check` deliberately
+does not include pre-commit (it mirrors the test/type/lint/audit gate).
+
+**Decision.** Add a dedicated `pre-commit` job to `ci.yml` that runs
+`uvx pre-commit run --all-files` on every push and PR. Keep it separate from the
+`check` job so the secret/hygiene gate fails independently and visibly. Install
+the local git hook (`pre-commit install`) for fast feedback.
+
+**Consequences.** Secret scanning and hygiene are enforced on every PR, not by
+convention. CI now has two gates: `pre-commit` and `check`.

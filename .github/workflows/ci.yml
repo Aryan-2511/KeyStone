@@ -7,6 +7,22 @@ on:
 
 # Single Python (3.12) — no version matrix by design (single-developer demo).
 jobs:
+  # Hooks (detect-secrets, hygiene, ruff) run as a first-class CI gate — not
+  # just locally. Without this, a committed secret would pass CI.
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Run pre-commit hooks
+        run: uvx pre-commit run --all-files --show-diff-on-failure
+
   check:
     runs-on: ubuntu-latest
     steps:
