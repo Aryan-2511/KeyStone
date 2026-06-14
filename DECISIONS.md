@@ -15,6 +15,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0004 | Run pre-commit (incl. detect-secrets) as a CI gate | Accepted |
 | 0005 | Progressive-disclosure docs: thin `CLAUDE.md` + `docs/` tree | Accepted |
 | 0006 | Machine-checkable feature list + validator | Accepted |
+| 0007 | Verification loop: `make verify` + e2e + QUALITY.md | Accepted |
 
 ---
 
@@ -135,3 +136,33 @@ human-readable views and point at the JSON.
 work must add a feature entry with done-criteria before it can be marked beyond
 `planned`. The validator is the place to harden future rules (e.g. requiring a
 milestone test per phase).
+
+---
+
+## ADR-0007 — Verification loop: `make verify`, e2e layer, QUALITY.md
+
+**Status:** Accepted · **Date:** 2026-06-15
+
+**Context.** The only gate was `make check` (fast inner loop). The harness
+philosophy wants a *separate, skeptical* evaluator step, real end-to-end
+assertions on actual surfaces, and acceptance criteria that don't reduce to a
+coverage percentage.
+
+**Decision.**
+- Add `make verify` and a dedicated CI `verify` job: an independent acceptance
+  gate that runs the scope validator standalone plus the **full** test suite
+  (incl. `slow`/`milestone`/`e2e`) with the blocking coverage floor. Kept
+  separate from `check` so verification isn't entangled with the inner loop.
+- Seed `tests/e2e/` with a subprocess test of the **installed `keystone`
+  console script** (per the e2e policy: exercise the real entry point, not
+  `import main`). Breadth deferred. Add an `e2e` marker; scope a per-file ruff
+  ignore for `S603` (subprocess) to `tests/e2e/**`, mirroring the existing
+  `S101` precedent — spawning the built artifact is the point, not a finding.
+- Add `docs/QUALITY.md`: the evaluator's rubric, with an explicit banner that
+  **coverage is a floor, not a grade**, and guidance demanding adversarial tests
+  for critical code (ledger tamper-detection, inference switch, guardrails).
+
+**Consequences.** Two complementary CI gates (`check` fast, `verify` thorough).
+The validator was confirmed to fail loudly on duplicate ids, done-without-tests,
+and missing test refs. Acceptance is now defined in writing and partly
+mechanical; `make verify` grows as enforcement (e.g. the import contract) lands.

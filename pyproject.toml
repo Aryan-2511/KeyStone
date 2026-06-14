@@ -64,6 +64,9 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 # Asserts are the point of a test file; S101 would flag every one.
 "tests/**" = ["S101"]
+# E2E tests legitimately spawn the built console script with fixed, trusted
+# argv and no shell; S603 (subprocess review) is noise here, not a finding.
+"tests/e2e/**" = ["S101", "S603"]
 
 # --------------------------------------------------------------------------- #
 # mypy                                                                        #
@@ -98,6 +101,7 @@ addopts = "--cov=keystone --cov-report=term-missing --cov-fail-under=70 --strict
 markers = [
     "slow: deselect with -m 'not slow' for the fast gate",
     "milestone: end-to-end checks that prove a phase milestone",
+    "e2e: exercises a real entry point (e.g. the installed console script)",
 ]
 
 [tool.coverage.run]

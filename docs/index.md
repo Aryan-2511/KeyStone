@@ -27,8 +27,8 @@ reachable from here — orphans are flagged by the doc-freshness check.
 | Path | Purpose |
 | --- | --- |
 | [exec-plans/](./exec-plans/) | Live session state: `active/` and `completed/` plans |
-| _QUALITY.md_ | Grading/acceptance criteria (added in verification phase) |
-| _feature_list.json_ | Machine-checkable feature/done-criteria (added next phase) |
+| [QUALITY.md](./QUALITY.md) | Grading/acceptance criteria (the evaluator's rubric) |
+| [feature_list.json](./feature_list.json) | Machine-checkable features + done-criteria (source of truth) |
 
 ## Reference & generated
 

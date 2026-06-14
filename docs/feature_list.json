@@ -35,10 +35,12 @@
       "area": "packaging",
       "status": "done",
       "done_criteria": [
-        "main() prints a line containing __version__"
+        "main() prints a line containing __version__",
+        "the installed console script, run as a subprocess, prints the version"
       ],
       "tests": [
-        "tests/test_smoke.py::test_main_prints_version"
+        "tests/test_smoke.py::test_main_prints_version",
+        "tests/e2e/test_cli.py::test_console_script_prints_version"
       ]
     },
     {
