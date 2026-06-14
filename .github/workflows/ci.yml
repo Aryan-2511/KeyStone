@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Single Python (3.12) — no version matrix by design (single-developer demo).
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync --all-groups
+
+      # Mirrors `make check` exactly: lint -> typecheck -> fast tests -> audit.
+      - name: Lint (format check + ruff)
+        run: |
+          uv run ruff format --check src tests
+          uv run ruff check src tests
+
+      - name: Typecheck (mypy strict)
+        run: uv run mypy
+
+      - name: Test (fast)
+        run: uv run pytest -m "not slow"
+
+      - name: Audit dependencies
+        run: uv run pip-audit

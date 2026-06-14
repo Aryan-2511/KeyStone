@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# uv / virtualenv
+.venv/
+# NOTE: uv.lock IS committed — do not ignore it.
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Type / lint caches
+.mypy_cache/
+.ruff_cache/
+
+# Tooling
+.pre-commit-cache/
+
+# Secrets & local env (never commit)
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+
+# Evidence ledger / generated artifacts (synthetic, regenerable)
+*.db
+*.sqlite
+*.sqlite3
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
