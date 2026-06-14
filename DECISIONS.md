@@ -16,6 +16,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0005 | Progressive-disclosure docs: thin `CLAUDE.md` + `docs/` tree | Accepted |
 | 0006 | Machine-checkable feature list + validator | Accepted |
 | 0007 | Verification loop: `make verify` + e2e + QUALITY.md | Accepted |
+| 0008 | Enforce deterministic-core import boundary (import-linter) | Accepted |
 
 ---
 
@@ -166,3 +167,31 @@ coverage percentage.
 The validator was confirmed to fail loudly on duplicate ids, done-without-tests,
 and missing test refs. Acceptance is now defined in writing and partly
 mechanical; `make verify` grows as enforcement (e.g. the import contract) lands.
+
+---
+
+## ADR-0008 — Enforce the deterministic-core import boundary with import-linter
+
+**Status:** Accepted · **Date:** 2026-06-15
+
+**Context.** `ARCHITECTURE.md` describes a deterministic core / LLM edge split,
+but prose drifts from code. The decision (Q2) was to activate enforcement now,
+minimally, rather than defer it — materializing only the layers ARCHITECTURE
+already names.
+
+**Decision.** Materialize the named layers as empty packages under
+`src/keystone/` (`core`, `llm`, `policy`, `agents`, `assurance`, `ui`). Add
+`import-linter` (dev group) with a thin `forbidden` contract: `keystone.core`
+may not import `agents`/`policy`/`llm`/`ui`/`assurance`. The contract name
+doubles as the remediation message. Enforce it in four places: `make
+arch`/`check`/`verify`, a `local` pre-commit hook, the CI `check` job, and
+`tests/test_architecture.py` (which runs the `lint-imports` CLI as a subprocess —
+the canonical interface; the programmatic API needs undocumented init and trips
+mypy's no-untyped-call, so the CLI is both simpler and more faithful). Scope an
+`S603` per-file ignore to that test, mirroring the e2e precedent.
+
+**Consequences.** A forbidden import now fails the build with the offending
+chain. Confirmed non-vacuous: injecting `keystone.core -> keystone.llm` is
+reported BROKEN. Grow the contract (e.g. layered ordering among edge packages)
+as real modules land. import-linter is typed, so it is not in the mypy
+`ignore_missing_imports` list.

@@ -95,13 +95,15 @@
       "description": "import-linter contract: the deterministic core must not import the agent/guardrails/LLM-edge layers. Wired into pre-commit + CI.",
       "phase": "0 — Harness",
       "area": "architecture",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "import-linter contract exists in pyproject.toml",
         "lint-imports passes against the materialized layer packages",
         "the contract runs in pre-commit and CI"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_architecture.py::test_import_contract_passes"
+      ]
     },
     {
       "id": "KS-0101",

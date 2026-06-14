@@ -36,6 +36,7 @@ dev = [
     "ruff>=0.13",
     "mypy>=1.13",
     "pre-commit>=4.0",
+    "import-linter>=2.11",
 ]
 test = [
     "pytest>=8.0",
@@ -64,9 +65,11 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 # Asserts are the point of a test file; S101 would flag every one.
 "tests/**" = ["S101"]
-# E2E tests legitimately spawn the built console script with fixed, trusted
-# argv and no shell; S603 (subprocess review) is noise here, not a finding.
+# Tests that legitimately spawn a built/installed console script with fixed,
+# trusted argv and no shell; S603 (subprocess review) is noise here, not a
+# finding. (e2e CLI test; architecture test runs the lint-imports CLI.)
 "tests/e2e/**" = ["S101", "S603"]
+"tests/test_architecture.py" = ["S603"]
 
 # --------------------------------------------------------------------------- #
 # mypy                                                                        #
@@ -110,3 +113,24 @@ source = ["keystone"]
 
 [tool.coverage.report]
 show_missing = true
+
+# --------------------------------------------------------------------------- #
+# import-linter — architecture boundaries (deterministic core / LLM edge)      #
+# See docs/design/architecture-boundaries.md. Run via `make arch`, pre-commit, #
+# CI, and tests/test_architecture.py. Grow as modules land.                    #
+# --------------------------------------------------------------------------- #
+[tool.importlinter]
+root_package = "keystone"
+
+[[tool.importlinter.contracts]]
+# The contract name doubles as the failure message / remediation hint.
+name = "Deterministic core must not import the edge (agents/policy/llm/ui/assurance) — move shared logic into keystone.core or invert the dependency"
+type = "forbidden"
+source_modules = ["keystone.core"]
+forbidden_modules = [
+    "keystone.agents",
+    "keystone.policy",
+    "keystone.llm",
+    "keystone.ui",
+    "keystone.assurance",
+]

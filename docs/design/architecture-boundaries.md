@@ -9,17 +9,37 @@ See [core-principles.md](./core-principles.md) for the *why* and
 
 ## The rule
 
-> The deterministic core must not import the agent, guardrails, or LLM-edge
-> layers. Dependencies point **inward**, toward the core — never outward.
+> The deterministic core (`keystone.core`) must not import the edge layers
+> (`keystone.agents`, `keystone.policy`, `keystone.llm`, `keystone.ui`,
+> `keystone.assurance`). Dependencies point **inward**, toward the core — never
+> outward.
 
 This makes the auditable, reproducible parts of Keystone testable without a
 model in the loop.
 
-## Status
+## The layer packages
 
-> **Phase 1:** stub. The contract and the empty layer packages are materialized
-> in the architecture-enforcement phase (see `ROADMAP.md`). The
-> `importlinter` config in `pyproject.toml` is the source of truth once active.
+All materialized as (currently empty) packages under `src/keystone/`:
 
-_The concrete contract (layers, allowed/forbidden imports) is filled in when the
-packages are created._
+| Package | Layer | Depends on core? |
+| --- | --- | --- |
+| `keystone.core` | Deterministic core (logic, scoring, evidence ledger) | — (lowest) |
+| `keystone.llm` | LLM edge (extraction, inference switch) | may |
+| `keystone.policy` | NeMo Guardrails rails | may |
+| `keystone.agents` | NeMo Agent Toolkit orchestration | may |
+| `keystone.assurance` | Garak red-team subprocess driver | may |
+| `keystone.ui` | Streamlit front-end | may |
+
+## Enforcement (active)
+
+A `forbidden` contract in `[tool.importlinter]` (`pyproject.toml`) is the source
+of truth. It runs in four places:
+
+- `make arch` / `make check` / `make verify` → `uv run lint-imports`
+- the `import-linter` **pre-commit** hook
+- the **CI** `check` job
+- `tests/test_architecture.py::test_import_contract_passes` (programmatic)
+
+On violation, import-linter prints the offending import chain and the contract
+name, which states the remediation. **Grow the contract** (e.g. add layered
+ordering among the edge packages) as real modules land.

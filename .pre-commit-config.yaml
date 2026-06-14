@@ -24,3 +24,14 @@ repos:
     hooks:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
+
+  # Architecture boundaries (deterministic core must not import the edge).
+  # Local hook so it uses the project's pinned import-linter via uv.
+  - repo: local
+    hooks:
+      - id: import-linter
+        name: import-linter (architecture boundaries)
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        files: ^src/keystone/.*\.py$|^pyproject\.toml$

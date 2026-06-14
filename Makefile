@@ -2,7 +2,7 @@
 # Recipe lines use real tabs (required by make). `check` mirrors CI exactly.
 
 .DEFAULT_GOAL := check
-.PHONY: setup format lint typecheck test test-all audit check verify phase-check demo clean
+.PHONY: setup format lint typecheck arch test test-all audit check verify phase-check demo clean
 
 setup:  ## Pin Python, sync all groups, install garak as an isolated tool
 	uv python pin 3.12
@@ -19,6 +19,9 @@ lint:  ## Check formatting + lint rules (no writes)
 typecheck:  ## Strict static type check
 	uv run mypy
 
+arch:  ## Enforce architecture import boundaries (import-linter)
+	uv run lint-imports
+
 test:  ## Fast test suite (excludes slow-marked tests)
 	uv run pytest -m "not slow"
 
@@ -28,12 +31,12 @@ test-all:  ## Full test suite including slow tests
 audit:  ## Audit dependencies for known vulnerabilities
 	uv run pip-audit
 
-check: lint typecheck test audit  ## Fast inner-loop gate: lint + typecheck + fast tests + audit
+check: lint typecheck arch test audit  ## Fast inner-loop gate: lint + typecheck + arch + fast tests + audit
 
 # verify is the skeptical, independent acceptance gate (generator/evaluator
 # separation). It runs the FULL test suite (incl. slow/milestone/e2e) and the
 # standalone scope validator — see docs/QUALITY.md. It must fail loudly.
-verify: lint typecheck  ## Acceptance gate: scope validation + full test suite
+verify: lint typecheck arch  ## Acceptance gate: scope validation + full test suite
 	uv run python scripts/validate_feature_list.py
 	uv run pytest
 	uv run pip-audit

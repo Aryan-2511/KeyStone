@@ -46,6 +46,9 @@ jobs:
       - name: Typecheck (mypy strict)
         run: uv run mypy
 
+      - name: Architecture (import-linter)
+        run: uv run lint-imports
+
       - name: Test (fast)
         run: uv run pytest -m "not slow"
 
