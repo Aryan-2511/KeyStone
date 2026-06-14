@@ -14,6 +14,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0003 | Install `garak` as an isolated CLI subprocess | Accepted |
 | 0004 | Run pre-commit (incl. detect-secrets) as a CI gate | Accepted |
 | 0005 | Progressive-disclosure docs: thin `CLAUDE.md` + `docs/` tree | Accepted |
+| 0006 | Machine-checkable feature list + validator | Accepted |
 
 ---
 
@@ -108,3 +109,29 @@ budget low. Some pointers (`feature_list.json`, `QUALITY.md`, `make verify`,
 `.claude/commands/`) are forward references fulfilled in later phases this
 session. Doc drift is a new risk → a freshness check is added in the continuity
 phase.
+
+---
+
+## ADR-0006 — Machine-checkable feature list + validator
+
+**Status:** Accepted · **Date:** 2026-06-15
+
+**Context.** Scope lived only as prose in `ROADMAP.md`/`TASKS.md`, which cannot
+be asserted against. Agents need a structured artifact with explicit
+done-criteria and links to the tests that prove each item.
+
+**Decision.** Add `docs/feature_list.json` as the source of truth: ~16 items at
+medium granularity (ROADMAP phases decomposed one level into verifiable slices),
+each with id, title, description, phase, status, `done_criteria`, and `tests`.
+Items are derived **only** from existing roadmap scope. A typed validator
+(`scripts/validate_feature_list.py`) enforces the schema and, critically, fails
+if an item past `planned` has no tests or references a nonexistent test/node
+(AST-collected). It runs in `pytest` (so the `check` gate covers it) and is
+runnable standalone for `make verify`. `scripts/` is now linted/typed (added to
+ruff, mypy `files`, and pytest `pythonpath`). `ROADMAP.md`/`TASKS.md` remain the
+human-readable views and point at the JSON.
+
+**Consequences.** "Done" is now mechanically checkable and tied to tests. New
+work must add a feature entry with done-criteria before it can be marked beyond
+`planned`. The validator is the place to harden future rules (e.g. requiring a
+milestone test per phase).

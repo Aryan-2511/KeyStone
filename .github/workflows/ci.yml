@@ -40,8 +40,8 @@ jobs:
       # Mirrors `make check` exactly: lint -> typecheck -> fast tests -> audit.
       - name: Lint (format check + ruff)
         run: |
-          uv run ruff format --check src tests
-          uv run ruff check src tests
+          uv run ruff format --check src tests scripts
+          uv run ruff check src tests scripts
 
       - name: Typecheck (mypy strict)
         run: uv run mypy

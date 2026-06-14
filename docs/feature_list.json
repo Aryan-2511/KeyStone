@@ -1,0 +1,218 @@
+{
+  "$schema_note": "Source of truth for what Keystone builds. Human views: ROADMAP.md (phases) and TASKS.md. Validated by scripts/validate_feature_list.py (run in pytest + CI). Derived only from existing roadmap scope — do not invent features here.",
+  "version": 1,
+  "updated": "2026-06-15",
+  "status_values": ["planned", "in_progress", "done"],
+  "rules": [
+    "id matches KS-NNNN and is unique",
+    "done_criteria is a non-empty list for every item (state how we'll know it's done)",
+    "tests must be non-empty once status passes 'planned' (in_progress | done)",
+    "every test ref 'path' or 'path::node' must resolve to a real file (and node) in tests/"
+  ],
+  "features": [
+    {
+      "id": "KS-0001",
+      "title": "src-layout package importable, versioned, typed",
+      "description": "src/keystone/ imports cleanly, exposes __version__, ships py.typed.",
+      "phase": "0 — Harness",
+      "area": "packaging",
+      "status": "done",
+      "done_criteria": [
+        "import keystone succeeds",
+        "keystone.__version__ is a non-empty str",
+        "py.typed is shipped in the package"
+      ],
+      "tests": [
+        "tests/test_smoke.py::test_package_imports",
+        "tests/test_smoke.py::test_version_is_set"
+      ]
+    },
+    {
+      "id": "KS-0002",
+      "title": "Console entry point reports version",
+      "description": "keystone.__main__:main prints the version (placeholder CLI).",
+      "phase": "0 — Harness",
+      "area": "packaging",
+      "status": "done",
+      "done_criteria": [
+        "main() prints a line containing __version__"
+      ],
+      "tests": [
+        "tests/test_smoke.py::test_main_prints_version"
+      ]
+    },
+    {
+      "id": "KS-0003",
+      "title": "Strict quality gates enforced",
+      "description": "ruff (incl. security S rules), mypy strict, and a blocking coverage floor run as one gate (make check / CI check job).",
+      "phase": "0 — Harness",
+      "area": "tooling",
+      "status": "done",
+      "done_criteria": [
+        "make check runs ruff + mypy + fast tests + audit and exits 0",
+        "coverage below the floor fails the build"
+      ],
+      "tests": [
+        "tests/test_harness.py::test_coverage_floor_configured"
+      ]
+    },
+    {
+      "id": "KS-0004",
+      "title": "Secret/hygiene hooks enforced in CI",
+      "description": "pre-commit (detect-secrets + hygiene) runs as its own CI gate, not only locally.",
+      "phase": "0 — Harness",
+      "area": "tooling",
+      "status": "done",
+      "done_criteria": [
+        "ci.yml has a pre-commit job running on push/PR",
+        "detect-secrets uses a committed baseline"
+      ],
+      "tests": [
+        "tests/test_harness.py::test_ci_runs_pre_commit"
+      ]
+    },
+    {
+      "id": "KS-0005",
+      "title": "Progressive-disclosure docs",
+      "description": "Thin CLAUDE.md map + structured, cross-linked docs/ tree; no orphans.",
+      "phase": "0 — Harness",
+      "area": "docs",
+      "status": "done",
+      "done_criteria": [
+        "CLAUDE.md is <= 120 lines and links to every governance doc",
+        "every docs/*.md is reachable and has no broken relative links"
+      ],
+      "tests": [
+        "tests/test_docs.py::test_claude_md_is_thin",
+        "tests/test_docs.py::test_no_broken_relative_links"
+      ]
+    },
+    {
+      "id": "KS-0006",
+      "title": "Deterministic-core import boundary enforced",
+      "description": "import-linter contract: the deterministic core must not import the agent/guardrails/LLM-edge layers. Wired into pre-commit + CI.",
+      "phase": "0 — Harness",
+      "area": "architecture",
+      "status": "planned",
+      "done_criteria": [
+        "import-linter contract exists in pyproject.toml",
+        "lint-imports passes against the materialized layer packages",
+        "the contract runs in pre-commit and CI"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0101",
+      "title": "NAT YAML workflow skeleton",
+      "description": "NeMo Agent Toolkit workflow definition as the orchestration entry point.",
+      "phase": "1 — Chassis",
+      "area": "orchestration",
+      "status": "planned",
+      "done_criteria": [
+        "a NAT workflow YAML loads/validates",
+        "an entry point can resolve and invoke the workflow"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0102",
+      "title": "Hash-chained evidence ledger — append",
+      "description": "Append-only SQLite ledger where each entry commits to the prior entry's hash.",
+      "phase": "1 — Chassis",
+      "area": "core",
+      "status": "planned",
+      "done_criteria": [
+        "appending an event stores a row whose hash includes the previous hash",
+        "the first entry chains from a defined genesis value"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0103",
+      "title": "Evidence ledger — tamper detection",
+      "description": "Chain verification detects any modification/insertion/deletion.",
+      "phase": "1 — Chassis",
+      "area": "core",
+      "status": "planned",
+      "done_criteria": [
+        "verify() returns true for an intact chain",
+        "verify() returns false when any entry is altered"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0104",
+      "title": "Inference config switch (NIM / Ollama)",
+      "description": "One code path; configuration selects hosted NIM (demo) vs local Ollama (production).",
+      "phase": "1 — Chassis",
+      "area": "inference",
+      "status": "planned",
+      "done_criteria": [
+        "config selects the backend without branching the code path",
+        "an invalid backend value is rejected with a clear error"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0201",
+      "title": "Compliance/assurance agent on the workflow",
+      "description": "At least one agent runs on the NAT workflow producing findings.",
+      "phase": "2 — Agents & policy",
+      "area": "agents",
+      "status": "planned",
+      "done_criteria": [
+        "the agent runs end-to-end on synthetic input and emits a finding into the ledger"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0202",
+      "title": "Guardrails rails (input/output/dialog)",
+      "description": "NeMo Guardrails rails applied at the LLM edge.",
+      "phase": "2 — Agents & policy",
+      "area": "policy",
+      "status": "planned",
+      "done_criteria": [
+        "an input rail blocks a disallowed prompt",
+        "an output rail blocks a disallowed completion"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0301",
+      "title": "Garak red-team as subprocess",
+      "description": "Garak invoked as an isolated subprocess against the deployed surface.",
+      "phase": "3 — Assurance & red-team",
+      "area": "assurance",
+      "status": "planned",
+      "done_criteria": [
+        "a garak run is launched via subprocess and its report is captured"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0302",
+      "title": "Milestone test: end-to-end assurance loop",
+      "description": "A milestone-marked test proving ingest -> policy -> finding -> ledger.",
+      "phase": "3 — Assurance & red-team",
+      "area": "assurance",
+      "status": "planned",
+      "done_criteria": [
+        "a -m milestone test exercises the full loop and asserts a verifiable ledger entry"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0401",
+      "title": "Streamlit demo UI",
+      "description": "Streamlit front-end over the workflow and evidence ledger.",
+      "phase": "4 — Demo UI",
+      "area": "ui",
+      "status": "planned",
+      "done_criteria": [
+        "the app launches and renders ledger contents from synthetic data"
+      ],
+      "tests": []
+    }
+  ]
+}

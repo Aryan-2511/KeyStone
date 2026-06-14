@@ -71,8 +71,8 @@ ignore = ["E501"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["src", "tests"]
-mypy_path = "src"
+files = ["src", "tests", "scripts"]
+mypy_path = ["src", "scripts"]
 warn_unused_configs = true
 
 # Untyped third-party libraries. Override per-module so we never blanket-silence
@@ -93,6 +93,7 @@ ignore_missing_imports = true
 # --------------------------------------------------------------------------- #
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["scripts"]
 addopts = "--cov=keystone --cov-report=term-missing --cov-fail-under=70 --strict-markers"
 markers = [
     "slow: deselect with -m 'not slow' for the fast gate",

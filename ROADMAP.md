@@ -1,6 +1,9 @@
 # ROADMAP.md
 
 > High-level phases. Each phase is a clean checkpoint — verify before advancing.
+> The verifiable per-item breakdown lives in
+> [`docs/feature_list.json`](docs/feature_list.json) (the source of truth);
+> this file is the human-readable phase view.
 
 ## Phase 0 — Harness (current)
 

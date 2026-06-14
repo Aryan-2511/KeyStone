@@ -10,11 +10,11 @@ setup:  ## Pin Python, sync all groups, install garak as an isolated tool
 	uv tool install garak
 
 format:  ## Auto-format the codebase
-	uv run ruff format src tests
+	uv run ruff format src tests scripts
 
 lint:  ## Check formatting + lint rules (no writes)
-	uv run ruff format --check src tests
-	uv run ruff check src tests
+	uv run ruff format --check src tests scripts
+	uv run ruff check src tests scripts
 
 typecheck:  ## Strict static type check
 	uv run mypy

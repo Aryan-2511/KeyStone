@@ -1,6 +1,8 @@
 # TASKS.md
 
-> Working task list. Keep it short; move shipped items out.
+> Human-readable task view. The **machine-checkable source of truth** is
+> [`docs/feature_list.json`](docs/feature_list.json) (validated in CI); agents
+> check work against that. Keep this file as the readable summary.
 
 ## In progress
 
