@@ -18,6 +18,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0007 | Verification loop: `make verify` + e2e + QUALITY.md | Accepted |
 | 0008 | Enforce deterministic-core import boundary (import-linter) | Accepted |
 | 0009 | Continuity + entropy control: exec-plans, commands, freshness | Accepted |
+| 0010 | Chassis layout + NAT untyped-boundary mypy relaxation | Accepted |
 
 ---
 
@@ -228,3 +229,35 @@ and a drift guard — and the loop should be *operable*, not just documented.
 build instead of rotting silently; the golden principles in
 `core-principles.md` plus the cleanup checklist guard against entropy. Adding an
 ADR now requires updating the index (enforced).
+
+---
+
+## ADR-0010 — Chassis layout + NAT untyped-boundary mypy relaxation
+
+**Status:** Accepted · **Date:** 2026-06-15
+
+**Context.** The Phase-1 chassis (ledger, inference switch, NAT orchestrator,
+Streamlit shell) had to land somewhere. Phase 4 already created enforced layer
+packages (`keystone.core`, `keystone.llm`, `keystone.agents`, `keystone.ui`).
+Separately, `nvidia-nat` ships **no `py.typed`**, which collides with mypy
+strict.
+
+**Decision.**
+- **Layout (per user choice):** nest the chassis under the layer packages —
+  ledger=`keystone.core.ledger`, inference=`keystone.llm.inference`,
+  orchestrator=`keystone.agents.orchestrator`, shell=`keystone.ui.app`, run
+  entrypoint=`keystone.agents.run`. This reuses the enforced architecture; the
+  existing import-linter contract already forbids the core (ledger) from
+  importing the edge. The literal task command `python -m keystone.orchestrator`
+  becomes `python -m keystone.agents.run`; `make demo` runs the UI module.
+- **NAT untyped boundary:** rather than scatter `# type: ignore`, relax exactly
+  two strict sub-flags (`disallow_subclassing_any`, `disallow_untyped_decorators`)
+  for ONLY `keystone.agents.orchestrator.*`, plus a `call-arg` waiver on
+  `…orchestrator.config` (the `name=` class kwarg). Everything else stays fully
+  strict; no inline ignores anywhere.
+
+**Consequences.** The chassis is architecturally coherent and the boundary
+contract covers it for free. The NAT relaxation is confined to the one
+integration module and documented; `keystone.core`/`llm`/`ui` and all tests
+remain under unmodified strict. The Streamlit shell is omitted from coverage
+(UI glue verified by `make demo`). NAT API quirks recorded in `MEMORY.md`.

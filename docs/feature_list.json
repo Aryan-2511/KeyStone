@@ -111,12 +111,14 @@
       "description": "NeMo Agent Toolkit workflow definition as the orchestration entry point.",
       "phase": "1 — Chassis",
       "area": "orchestration",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "a NAT workflow YAML loads/validates",
         "an entry point can resolve and invoke the workflow"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_orchestrator.py::test_chassis_runs_three_layers_and_chain_verifies"
+      ]
     },
     {
       "id": "KS-0102",
@@ -124,12 +126,15 @@
       "description": "Append-only SQLite ledger where each entry commits to the prior entry's hash.",
       "phase": "1 — Chassis",
       "area": "core",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "appending an event stores a row whose hash includes the previous hash",
         "the first entry chains from a defined genesis value"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_ledger.py::test_append_returns_entry_and_chains_from_genesis",
+        "tests/test_ledger.py::test_append_orders_and_links_entries"
+      ]
     },
     {
       "id": "KS-0103",
@@ -137,12 +142,16 @@
       "description": "Chain verification detects any modification/insertion/deletion.",
       "phase": "1 — Chassis",
       "area": "core",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "verify() returns true for an intact chain",
         "verify() returns false when any entry is altered"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_ledger.py::test_verify_chain_true_on_good_chain",
+        "tests/test_ledger.py::test_verify_chain_false_when_payload_mutated",
+        "tests/test_ledger.py::test_verify_chain_false_when_entry_deleted"
+      ]
     },
     {
       "id": "KS-0104",
@@ -150,12 +159,16 @@
       "description": "One code path; configuration selects hosted NIM (demo) vs local Ollama (production).",
       "phase": "1 — Chassis",
       "area": "inference",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "config selects the backend without branching the code path",
         "an invalid backend value is rejected with a clear error"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_inference.py::test_default_backend_is_ollama",
+        "tests/test_inference.py::test_backend_switch_to_nim",
+        "tests/test_inference.py::test_unknown_backend_raises"
+      ]
     },
     {
       "id": "KS-0201",

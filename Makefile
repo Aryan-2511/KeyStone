@@ -45,8 +45,8 @@ verify: lint typecheck arch  ## Acceptance gate: scope validation + full test su
 phase-check:  ## Run milestone tests that prove a phase is complete
 	uv run pytest -m milestone
 
-demo:  ## Run the Keystone demo (placeholder until a later phase)
-	@echo "demo target is a Phase 0 placeholder — wired up in a later phase"
+demo:  ## Run the Streamlit chassis shell
+	uv run streamlit run src/keystone/ui/app.py
 
 clean:  ## Remove caches and build artifacts
 	rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage coverage.xml htmlcov build dist

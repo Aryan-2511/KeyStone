@@ -19,16 +19,16 @@ model in the loop.
 
 ## The layer packages
 
-All materialized as (currently empty) packages under `src/keystone/`:
+Materialized under `src/keystone/` (Phase-1 chassis content noted):
 
-| Package | Layer | Depends on core? |
-| --- | --- | --- |
-| `keystone.core` | Deterministic core (logic, scoring, evidence ledger) | — (lowest) |
-| `keystone.llm` | LLM edge (extraction, inference switch) | may |
-| `keystone.policy` | NeMo Guardrails rails | may |
-| `keystone.agents` | NeMo Agent Toolkit orchestration | may |
-| `keystone.assurance` | Garak red-team subprocess driver | may |
-| `keystone.ui` | Streamlit front-end | may |
+| Package | Layer | Depends on core? | Chassis content |
+| --- | --- | --- | --- |
+| `keystone.core` | Deterministic core (logic, scoring, evidence ledger) | — (lowest) | `core.ledger` |
+| `keystone.llm` | LLM edge (extraction, inference switch) | may | `llm.inference` |
+| `keystone.policy` | NeMo Guardrails rails | may | _empty (Phase 2)_ |
+| `keystone.agents` | NeMo Agent Toolkit orchestration | may | `agents.orchestrator`, `agents.run` |
+| `keystone.assurance` | Garak red-team subprocess driver | may | _empty (Phase 3)_ |
+| `keystone.ui` | Streamlit front-end | may | `ui.app` |
 
 ## Enforcement (active)
 

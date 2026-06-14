@@ -63,8 +63,9 @@ select = ["E", "F", "I", "B", "UP", "SIM", "S", "PL"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-# Asserts are the point of a test file; S101 would flag every one.
-"tests/**" = ["S101"]
+# Asserts are the point of a test file; S101 would flag every one. Comparing
+# against literal expected values (PLR2004) is also normal in assertions.
+"tests/**" = ["S101", "PLR2004"]
 # Tests that legitimately spawn a built/installed console script with fixed,
 # trusted argv and no shell; S603 (subprocess review) is noise here, not a
 # finding. (e2e CLI test; architecture test runs the lint-imports CLI.)
@@ -94,6 +95,22 @@ module = [
 ]
 ignore_missing_imports = true
 
+# NAT integration boundary: nvidia-nat ships no py.typed, so subclassing its
+# FunctionBaseConfig and using its @register_function decorator are "untyped"
+# under strict. Relax ONLY those two sub-flags, ONLY for this one module — the
+# rest of the codebase stays fully strict. See ADR-0010.
+[[tool.mypy.overrides]]
+module = ["keystone.agents.orchestrator.*"]
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+
+# The config classes pass NAT's `name=` class keyword to __init_subclass__,
+# which mypy resolves against object's signature (the base is untyped). This
+# module is class-defs only, so scoping the call-arg relaxation here is safe.
+[[tool.mypy.overrides]]
+module = ["keystone.agents.orchestrator.config"]
+disable_error_code = ["call-arg"]
+
 # --------------------------------------------------------------------------- #
 # pytest + coverage                                                           #
 # --------------------------------------------------------------------------- #
@@ -110,6 +127,9 @@ markers = [
 [tool.coverage.run]
 branch = true
 source = ["keystone"]
+# The Streamlit shell is UI glue (no logic); it is verified by `make demo`, not
+# unit tests. Excluding it keeps the floor meaningful for the deterministic core.
+omit = ["*/keystone/ui/app.py"]
 
 [tool.coverage.report]
 show_missing = true

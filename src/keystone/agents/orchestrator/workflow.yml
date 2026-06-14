@@ -1,0 +1,21 @@
+# Keystone chassis — NAT workflow skeleton.
+# No LLMs: the orchestrator fans out to three layer stubs that each write one
+# ledger entry. The ledger location comes from KEYSTONE_LEDGER_DB.
+
+functions:
+  layer1_stub:
+    _type: keystone_layer_stub
+    layer: layer1
+  layer2_stub:
+    _type: keystone_layer_stub
+    layer: layer2
+  layer3_stub:
+    _type: keystone_layer_stub
+    layer: layer3
+
+workflow:
+  _type: keystone_orchestrator
+  layers:
+    - layer1_stub
+    - layer2_stub
+    - layer3_stub
