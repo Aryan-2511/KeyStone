@@ -1,6 +1,19 @@
 # DECISIONS.md — Architecture Decision Records
 
 Lightweight ADRs. Newest at the bottom. Status: Accepted unless noted.
+Linked from [`ARCHITECTURE.md`](ARCHITECTURE.md) and indexed in
+[`docs/index.md`](docs/index.md).
+
+**Format (every ADR):** `## ADR-NNNN — <title>`, then `**Status:**` · `**Date:**`,
+then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
+
+| ADR | Title | Status |
+| --- | --- | --- |
+| 0001 | Pin Python to 3.12 (only) | Accepted |
+| 0002 | Use `uv` for dependency management | Accepted |
+| 0003 | Install `garak` as an isolated CLI subprocess | Accepted |
+| 0004 | Run pre-commit (incl. detect-secrets) as a CI gate | Accepted |
+| 0005 | Progressive-disclosure docs: thin `CLAUDE.md` + `docs/` tree | Accepted |
 
 ---
 
@@ -69,3 +82,29 @@ the local git hook (`pre-commit install`) for fast feedback.
 
 **Consequences.** Secret scanning and hygiene are enforced on every PR, not by
 convention. CI now has two gates: `pre-commit` and `check`.
+
+---
+
+## ADR-0005 — Progressive-disclosure docs: thin `CLAUDE.md` + `docs/` tree
+
+**Status:** Accepted · **Date:** 2026-06-15
+
+**Context.** `CLAUDE.md` mixed map and doctrine (hard constraints + cross-cutting
+principles inline), `docs/` was empty, and governance files were reachable only
+by name, not by path. The harness philosophy wants the entry file to be a *map*
+and depth to live in versioned, cross-linked docs.
+
+**Decision.** Rewrite `CLAUDE.md` as a thin (~80-line) map: one-liner,
+non-negotiables (pointers), where-to-look table, the three-way state split, agent
+operating rules, and commands. Move depth into a structured `docs/` tree:
+`index.md`, `design/` (`core-principles.md`, `architecture-boundaries.md`),
+`exec-plans/{active,completed}/`, `references/`, `generated/`. Cross-link
+everything; normalize ADRs with an index table and link them from
+`ARCHITECTURE.md`. Document the three-way state split (`MEMORY.md` = durable
+facts, `exec-plans/` = live state, agent memory store = runtime).
+
+**Consequences.** Agents read a small map and follow pointers, keeping context
+budget low. Some pointers (`feature_list.json`, `QUALITY.md`, `make verify`,
+`.claude/commands/`) are forward references fulfilled in later phases this
+session. Doc drift is a new risk → a freshness check is added in the continuity
+phase.

@@ -1,62 +1,81 @@
-# CLAUDE.md — standing rules for Keystone
+# CLAUDE.md — entry map for Keystone
 
-Read this first. It is the context anchor for every task in this repo.
+> **Keystone** is a single-developer demo of a multi-agent **compliance &
+> assurance** system on the NVIDIA agentic stack (NeMo Agent Toolkit +
+> Guardrails, Garak for red-teaming). Deterministic core, LLM edge, synthetic
+> data, hash-chained evidence ledger.
 
-## Hard constraints (do not deviate; ask if blocked)
+This file is a **map, not an encyclopedia**. Read the pointer for your task —
+don't load the whole tree. Depth lives in [`docs/`](docs/index.md).
 
-- **Python 3.12 only.** `requires-python = ">=3.12,<3.13"`. Verified intersection
-  of nvidia-nat (`>=3.11,<3.14`), nemoguardrails, and garak. Never 3.13+, never
-  <3.12. See `ADR-0001`.
-- **`uv` is the package manager.** Use `uv sync`, `uv add`, `uv run`, `uv tool`.
-  Never pip/poetry/conda. Commit `uv.lock`. See `ADR-0002`.
-- **`garak` is NOT a project dependency.** It is installed as an isolated CLI
-  (`uv tool install garak`) and called as a subprocess. See `ADR-0003`.
-- **Strict gates, never weakened.** mypy `strict = true`; Ruff with security
-  rules (`S`); pytest `--cov-fail-under=70`. Fix the code or ask — never relax a
-  gate, never add a blanket `# type: ignore` / `noqa` to go green.
-- **Synthetic data only.** No real data, no secrets, ever. The detect-secrets
-  hook must block credentials.
+## Non-negotiables (full rationale → [core-principles](docs/design/core-principles.md))
+
+- **Python 3.12 only** (`>=3.12,<3.13`). `ADR-0001`.
+- **`uv` only** as package manager; commit `uv.lock`. `ADR-0002`.
+- **`garak` is not a project dependency** — isolated CLI, called as a subprocess. `ADR-0003`.
+- **Strict gates, never weakened.** mypy strict, Ruff security rules, coverage
+  floor. Fix the code or ask — never relax a gate or add a blanket
+  `# type: ignore` / `noqa`.
+- **Synthetic data only.** No real data, no secrets, ever.
 - **Out of scope:** Docker, tox, Sphinx, multi-version CI matrices.
+
+## Where to look
+
+| Your task | Start here |
+| --- | --- |
+| Orient / find any doc | [`docs/index.md`](docs/index.md) |
+| Understand the principles | [`docs/design/core-principles.md`](docs/design/core-principles.md) |
+| Architecture & layer boundaries | [`ARCHITECTURE.md`](ARCHITECTURE.md), [`docs/design/architecture-boundaries.md`](docs/design/architecture-boundaries.md) |
+| Why a choice was made | [`DECISIONS.md`](DECISIONS.md) (ADRs) |
+| What to build / done-criteria | `docs/feature_list.json` (source of truth), [`ROADMAP.md`](ROADMAP.md) / [`TASKS.md`](TASKS.md) (human view) |
+| Acceptance / grading criteria | `docs/QUALITY.md` |
+| Resume or hand off a task | [`docs/exec-plans/`](docs/exec-plans/) |
+| Durable project facts | [`MEMORY.md`](MEMORY.md) |
+| Changing deps / tooling | [`pyproject.toml`](pyproject.toml), [`DECISIONS.md`](DECISIONS.md) |
+
+_(Italic paths are added in later phases; see [`ROADMAP.md`](ROADMAP.md).)_
+
+## State: three separate stores (don't conflate)
+
+1. **`MEMORY.md`** — durable, versioned facts true across all sessions.
+2. **`docs/exec-plans/`** — live per-task state that survives context resets.
+3. **Agent memory store** — runtime/ephemeral; not the system of record.
+   Promote anything durable into 1 or 2.
+
+## Operating rules for agents
+
+1. **Audit before you build.** Understand the current state before changing it.
+2. **Mechanical enforcement over prose.** Prefer a linter / structural test / CI
+   check to a written rule.
+3. **Generator/evaluator separation.** Verification is a separate, skeptical
+   step — don't grade your own work leniently.
+4. **Simplest thing that works.** Don't add a component unless it earns its
+   place; mark premature ones as explicit *deferred*.
+5. **Record decisions.** Every structural choice → an ADR in `DECISIONS.md`.
+6. **Leave a clean handoff.** Update the exec-plan and run the verify gate before
+   finishing.
+7. **Don't invent scope.** Infer from code/docs and state the inference; list
+   unknowns as open questions rather than filling them.
 
 ## Commands
 
-| Command         | What it does                                            |
-| --------------- | ------------------------------------------------------- |
-| `make setup`    | Pin 3.12, `uv sync --all-groups`, install garak tool    |
-| `make check`    | The gate: lint + typecheck + fast tests + audit (= CI)  |
-| `make test`     | Fast tests (`-m "not slow"`)                            |
-| `make test-all` | Full suite incl. slow                                   |
-| `make demo`     | Run the demo (placeholder in Phase 0)                   |
+| Command | What it does |
+| --- | --- |
+| `make setup` | Pin 3.12, `uv sync --all-groups`, install garak tool |
+| `make check` | Gate: lint + typecheck + fast tests + audit (mirrors CI `check` job) |
+| `make verify` | Skeptical, independent verification gate (see `docs/QUALITY.md`) |
+| `make test` / `make test-all` | Fast tests / full suite |
+| `make demo` | Run the demo (placeholder until a later phase) |
+
+CI runs two gates on every push/PR: **`pre-commit`** (detect-secrets + hygiene)
+and **`check`**. Both must be green.
 
 ## Directory map
 
 ```
-src/keystone/      # application package (src-layout); py.typed shipped
-tests/             # pytest suite; markers: slow, milestone
-docs/              # design notes
-pyproject.toml     # deps, dependency-groups, Ruff/mypy/pytest config
-Makefile           # task runner (check mirrors CI)
-.pre-commit-config.yaml
-.github/workflows/ci.yml
+src/keystone/   # application package (src-layout); py.typed shipped
+tests/          # pytest suite; markers: slow, milestone
+docs/           # knowledge base — start at docs/index.md
+.claude/        # commands/ (agent loop ops) + settings
+pyproject.toml  Makefile  .pre-commit-config.yaml  .github/workflows/ci.yml
 ```
-
-## Which files to read for which task (context budget)
-
-- **Changing deps / tooling:** `pyproject.toml`, `DECISIONS.md`.
-- **Architecture / data flow:** `ARCHITECTURE.md`.
-- **What to build next:** `ROADMAP.md`, `TASKS.md`.
-- **Why a choice was made:** `DECISIONS.md` (ADRs).
-- **Durable project facts:** `MEMORY.md`.
-
-Don't read the whole tree for a scoped task — start from the file above.
-
-## Cross-cutting principles
-
-- **Deterministic core / LLM edge.** Business logic, the evidence ledger, and
-  policy decisions are deterministic and testable. LLMs live only at the edges
-  (extraction, summarization, NL interaction).
-- **Synthetic data only.** Fixtures and examples never use real data.
-- **Inference is a config switch.** Hosted NIM = demo mode; local Ollama =
-  production mode. Same code path, different config.
-- **Hash-chained evidence ledger.** Every assurance event is appended to a
-  tamper-evident, hash-chained ledger so the audit trail is verifiable.

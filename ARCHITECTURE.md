@@ -1,6 +1,11 @@
 # ARCHITECTURE.md
 
 > Phase 0 skeleton. Fill in as components land.
+>
+> Related: [`DECISIONS.md`](DECISIONS.md) (ADR log) ·
+> [`docs/design/core-principles.md`](docs/design/core-principles.md) (the *why*) ·
+> [`docs/design/architecture-boundaries.md`](docs/design/architecture-boundaries.md)
+> (the enforced dependency contract).
 
 ## One-line
 
@@ -19,11 +24,16 @@ evidence ledger.
 | Red-team         | Garak (subprocess) probes the deployed surface         | external    |
 | UI               | Streamlit demo front-end                               | n/a         |
 
-## Key decisions (see DECISIONS.md)
+## Key decisions (see [`DECISIONS.md`](DECISIONS.md))
 
-- Python 3.12 only (`ADR-0001`).
-- `uv` for dependency management (`ADR-0002`).
-- garak isolated as a CLI subprocess (`ADR-0003`).
+- Python 3.12 only — [`ADR-0001`](DECISIONS.md#adr-0001--pin-python-to-312-only).
+- `uv` for dependency management — [`ADR-0002`](DECISIONS.md#adr-0002--use-uv-for-dependency-management).
+- garak isolated as a CLI subprocess — [`ADR-0003`](DECISIONS.md#adr-0003--install-garak-as-an-isolated-cli-subprocess-not-a-dependency).
+- pre-commit as a CI gate — [`ADR-0004`](DECISIONS.md#adr-0004--run-pre-commit-incl-detect-secrets-as-a-first-class-ci-gate).
+
+The deterministic-core → edge dependency direction (LLM edge must not be
+imported by the core) is enforced mechanically; see
+[`docs/design/architecture-boundaries.md`](docs/design/architecture-boundaries.md).
 
 ## Inference switch
 
