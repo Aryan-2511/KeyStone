@@ -17,6 +17,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0006 | Machine-checkable feature list + validator | Accepted |
 | 0007 | Verification loop: `make verify` + e2e + QUALITY.md | Accepted |
 | 0008 | Enforce deterministic-core import boundary (import-linter) | Accepted |
+| 0009 | Continuity + entropy control: exec-plans, commands, freshness | Accepted |
 
 ---
 
@@ -195,3 +196,35 @@ chain. Confirmed non-vacuous: injecting `keystone.core -> keystone.llm` is
 reported BROKEN. Grow the contract (e.g. layered ordering among edge packages)
 as real modules land. import-linter is typed, so it is not in the mypy
 `ignore_missing_imports` list.
+
+---
+
+## ADR-0009 — Continuity + entropy control: exec-plans, commands, freshness
+
+**Status:** Accepted · **Date:** 2026-06-15
+
+**Context.** Sessions lose state across context resets, and governance docs rot
+when they silently diverge from reality. The harness needs a structured handoff
+and a drift guard — and the loop should be *operable*, not just documented.
+
+**Decision.**
+- **Exec-plan handoff:** `docs/exec-plans/TEMPLATE.md` carries goal/acceptance,
+  context, plan, progress log, decisions, blockers, next-steps, and a handoff
+  section. Plans live in `active/` then move to `completed/` on finish.
+- **Three-way state split** made explicit (`MEMORY.md` durable facts /
+  `exec-plans/` live state / agent memory store runtime) in `MEMORY.md`,
+  `CLAUDE.md`, and `docs/index.md`.
+- **Operable loop:** `.claude/commands/` ships `/new-exec-plan`, `/verify`, and
+  `/finish-task` so the loop ops are runnable, with a cleanup checklist baked
+  into `/finish-task` (entropy control).
+- **Freshness checks** (in `tests/test_docs.py`, so they gate in CI): ADR index
+  table must match the actual ADR sections; the exec-plan template must exist —
+  on top of the existing thin-CLAUDE.md / no-broken-links / governance-link
+  checks.
+- **Observability explicitly deferred** with a documented slot
+  (`docs/design/observability.md`).
+
+**Consequences.** Any session can resume from an exec-plan; doc drift fails the
+build instead of rotting silently; the golden principles in
+`core-principles.md` plus the cleanup checklist guard against entropy. Adding an
+ADR now requires updating the index (enforced).

@@ -10,7 +10,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CLAUDE_MD = REPO_ROOT / "CLAUDE.md"
+DECISIONS_MD = REPO_ROOT / "DECISIONS.md"
 MAX_CLAUDE_LINES = 120
+
+_ADR_HEADING_RE = re.compile(r"^## ADR-(\d{4}) ", re.MULTILINE)
+_ADR_INDEX_ROW_RE = re.compile(r"^\| (\d{4}) \|", re.MULTILINE)
 
 # Governance docs that must remain reachable from the entry map.
 GOVERNANCE_LINKS = [
@@ -56,3 +60,23 @@ def test_no_broken_relative_links() -> None:
             if not (md.parent / link).resolve().exists():
                 broken.append(f"{md.relative_to(REPO_ROOT)} -> {link}")
     assert not broken, "broken relative links:\n" + "\n".join(broken)
+
+
+def test_adr_index_matches_sections() -> None:
+    """The DECISIONS.md index table must match the actual ADR sections.
+
+    Catches the common drift of adding an ADR but forgetting the index (or vice
+    versa) — a governance doc no longer matching reality.
+    """
+    text = DECISIONS_MD.read_text(encoding="utf-8")
+    sections = set(_ADR_HEADING_RE.findall(text))
+    index_rows = set(_ADR_INDEX_ROW_RE.findall(text))
+    assert sections == index_rows, (
+        f"ADR index/section mismatch: only in sections={sections - index_rows}, "
+        f"only in index={index_rows - sections}"
+    )
+
+
+def test_exec_plan_template_exists() -> None:
+    """The continuity handoff template must be present (Phase 5)."""
+    assert (REPO_ROOT / "docs" / "exec-plans" / "TEMPLATE.md").is_file()

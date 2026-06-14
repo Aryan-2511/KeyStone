@@ -12,11 +12,13 @@ runtime agent memory store. See the three-way split in [../index.md](../index.md
 
 ## Lifecycle
 
-1. Start a task → create `active/<slug>.md` from the template (see the
-   `new-exec-plan` command, added in the continuity phase).
+1. Start a task → copy [`TEMPLATE.md`](./TEMPLATE.md) to `active/<slug>.md`
+   (the [`/new-exec-plan`](../../.claude/commands/new-exec-plan.md) command does
+   this).
 2. Work → keep the plan's progress log and decision log current as you go.
 3. Finish → run the verify gate, then move the plan to `completed/` with a final
-   handoff (see the `finish-task` command).
+   handoff (the [`/finish-task`](../../.claude/commands/finish-task.md) command
+   does this).
 
-_The template and the `.claude/commands/` helpers are added in the continuity
-phase; the directories exist now so the structure is stable._
+The [`/verify`](../../.claude/commands/verify.md) command runs the acceptance
+gate at any time.

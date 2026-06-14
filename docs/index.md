@@ -21,6 +21,7 @@ reachable from here — orphans are flagged by the doc-freshness check.
 | --- | --- |
 | [design/core-principles.md](./design/core-principles.md) | Domain + golden principles; non-negotiables |
 | [design/architecture-boundaries.md](./design/architecture-boundaries.md) | The enforced dependency contract (import-linter) |
+| [design/observability.md](./design/observability.md) | Observability — explicitly deferred (documented slot) |
 
 ## Execution & quality
 

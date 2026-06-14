@@ -67,8 +67,14 @@ _(Italic paths are added in later phases; see [`ROADMAP.md`](ROADMAP.md).)_
 | `make test` / `make test-all` | Fast tests / full suite |
 | `make demo` | Run the demo (placeholder until a later phase) |
 
-CI runs two gates on every push/PR: **`pre-commit`** (detect-secrets + hygiene)
-and **`check`**. Both must be green.
+CI runs three gates on every push/PR: **`pre-commit`** (detect-secrets +
+hygiene), **`check`** (fast), and **`verify`** (full suite + scope validation).
+All must be green.
+
+**Loop commands** (in [`.claude/commands/`](.claude/commands/)):
+[`/new-exec-plan`](.claude/commands/new-exec-plan.md) to start a task,
+[`/verify`](.claude/commands/verify.md) to run the gate,
+[`/finish-task`](.claude/commands/finish-task.md) to verify + hand off + archive.
 
 ## Directory map
 

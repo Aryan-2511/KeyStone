@@ -1,7 +1,12 @@
 # MEMORY.md — durable project facts
 
 > Facts that are NOT derivable from the code or git history. One line each.
-> (This is the project's own memory file, distinct from any agent memory store.)
+>
+> **Role (one of three state stores — see [`docs/index.md`](docs/index.md)):**
+> this file holds **durable facts true across all sessions**. Live, per-task
+> state goes in [`docs/exec-plans/`](docs/exec-plans/); ephemeral runtime memory
+> stays in the agent memory store. Don't duplicate exec-plan state here — only
+> promote something to MEMORY.md when it's durable and cross-session.
 
 - Python is pinned to **3.12 only** — verified intersection of nvidia-nat,
   nemoguardrails, and garak. Re-validate before bumping. (ADR-0001)
