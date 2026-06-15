@@ -1,10 +1,11 @@
 {
-  "$schema_note": "Source of truth for what Keystone builds. Human views: ROADMAP.md (phases) and TASKS.md. Validated by scripts/validate_feature_list.py (run in pytest + CI). Derived only from existing roadmap scope — do not invent features here.",
-  "version": 1,
+  "$schema_note": "Source of truth for what Keystone builds. Human views: ROADMAP.md (phases) and TASKS.md. Validated by scripts/validate_feature_list.py (run in pytest + CI). Phases 2–5 are aligned to the three compliance layers (build order = phase number; each phase names its layer) per ADR-0011. Each item carries a 'layer' tag. Do not invent scope beyond the roadmap.",
+  "version": 2,
   "updated": "2026-06-15",
   "status_values": ["planned", "in_progress", "done"],
   "rules": [
     "id matches KS-NNNN and is unique",
+    "id follows KS-0Pnn where P is the phase number",
     "done_criteria is a non-empty list for every item (state how we'll know it's done)",
     "tests must be non-empty once status passes 'planned' (in_progress | done)",
     "every test ref 'path' or 'path::node' must resolve to a real file (and node) in tests/"
@@ -15,6 +16,7 @@
       "title": "src-layout package importable, versioned, typed",
       "description": "src/keystone/ imports cleanly, exposes __version__, ships py.typed.",
       "phase": "0 — Harness",
+      "layer": "Harness (infra)",
       "area": "packaging",
       "status": "done",
       "done_criteria": [
@@ -32,6 +34,7 @@
       "title": "Console entry point reports version",
       "description": "keystone.__main__:main prints the version (placeholder CLI).",
       "phase": "0 — Harness",
+      "layer": "Harness (infra)",
       "area": "packaging",
       "status": "done",
       "done_criteria": [
@@ -48,6 +51,7 @@
       "title": "Strict quality gates enforced",
       "description": "ruff (incl. security S rules), mypy strict, and a blocking coverage floor run as one gate (make check / CI check job).",
       "phase": "0 — Harness",
+      "layer": "Harness (infra)",
       "area": "tooling",
       "status": "done",
       "done_criteria": [
@@ -63,6 +67,7 @@
       "title": "Secret/hygiene hooks enforced in CI",
       "description": "pre-commit (detect-secrets + hygiene) runs as its own CI gate, not only locally.",
       "phase": "0 — Harness",
+      "layer": "Harness (infra)",
       "area": "tooling",
       "status": "done",
       "done_criteria": [
@@ -78,6 +83,7 @@
       "title": "Progressive-disclosure docs",
       "description": "Thin CLAUDE.md map + structured, cross-linked docs/ tree; no orphans.",
       "phase": "0 — Harness",
+      "layer": "Harness (infra)",
       "area": "docs",
       "status": "done",
       "done_criteria": [
@@ -94,6 +100,7 @@
       "title": "Deterministic-core import boundary enforced",
       "description": "import-linter contract: the deterministic core must not import the agent/guardrails/LLM-edge layers. Wired into pre-commit + CI.",
       "phase": "0 — Harness",
+      "layer": "Harness (infra)",
       "area": "architecture",
       "status": "done",
       "done_criteria": [
@@ -110,6 +117,7 @@
       "title": "NAT YAML workflow skeleton",
       "description": "NeMo Agent Toolkit workflow definition as the orchestration entry point.",
       "phase": "1 — Chassis",
+      "layer": "Chassis (infra)",
       "area": "orchestration",
       "status": "done",
       "done_criteria": [
@@ -125,6 +133,7 @@
       "title": "Hash-chained evidence ledger — append",
       "description": "Append-only SQLite ledger where each entry commits to the prior entry's hash.",
       "phase": "1 — Chassis",
+      "layer": "Chassis (infra)",
       "area": "core",
       "status": "done",
       "done_criteria": [
@@ -141,6 +150,7 @@
       "title": "Evidence ledger — tamper detection",
       "description": "Chain verification detects any modification/insertion/deletion.",
       "phase": "1 — Chassis",
+      "layer": "Chassis (infra)",
       "area": "core",
       "status": "done",
       "done_criteria": [
@@ -158,6 +168,7 @@
       "title": "Inference config switch (NIM / Ollama)",
       "description": "One code path; configuration selects hosted NIM (demo) vs local Ollama (production).",
       "phase": "1 — Chassis",
+      "layer": "Chassis (infra)",
       "area": "inference",
       "status": "done",
       "done_criteria": [
@@ -172,62 +183,196 @@
     },
     {
       "id": "KS-0201",
-      "title": "Compliance/assurance agent on the workflow",
-      "description": "At least one agent runs on the NAT workflow producing findings.",
-      "phase": "2 — Agents & policy",
-      "area": "agents",
+      "title": "Curated obligation graph with per-node source citations",
+      "description": "~25–30 obligation nodes spanning EU AI Act Art. 9–15, DORA, India DPDP Act + DPDP Rules 2025, RBI responsible-AI guidance, and PMLA/FIU-IND. Each node carries a source-citation field (instrument + article/section). Re-scoped from the former generic 'compliance agent' (old KS-0201).",
+      "phase": "2 — Layer 3: Obligation Mapper",
+      "layer": "Layer 3 — Obligation Mapper",
+      "area": "compliance",
       "status": "planned",
       "done_criteria": [
-        "the agent runs end-to-end on synthetic input and emits a finding into the ledger"
+        "the graph has 25–30 nodes covering EU AI Act Art. 9–15, DORA, India DPDP Act + DPDP Rules 2025, RBI responsible-AI, and PMLA/FIU-IND, and every node carries a non-empty source citation (instrument + article/section)"
       ],
       "tests": []
     },
     {
       "id": "KS-0202",
-      "title": "Guardrails rails (input/output/dialog)",
-      "description": "NeMo Guardrails rails applied at the LLM edge.",
-      "phase": "2 — Agents & policy",
-      "area": "policy",
+      "title": "Deterministic crosswalk/dedup onto a shared control library",
+      "description": "Deterministic mapping that crosswalks and de-duplicates obligations onto a shared control library keyed to ISO/IEC 42001 + FATF + NIST AI RMF. No LLM in this path (deterministic core).",
+      "phase": "2 — Layer 3: Obligation Mapper",
+      "layer": "Layer 3 — Obligation Mapper",
+      "area": "compliance",
       "status": "planned",
       "done_criteria": [
-        "an input rail blocks a disallowed prompt",
-        "an output rail blocks a disallowed completion"
+        "obligations deterministically and reproducibly map onto the shared control library (ISO/IEC 42001 + FATF + NIST AI RMF) with duplicate controls collapsed"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0203",
+      "title": "EU hard-law vs India self-certification modality contrast",
+      "description": "The EU hard-law-conformity vs. India self-certification regulatory modality is an explicit, surfaced attribute on the relevant obligations — not buried in prose.",
+      "phase": "2 — Layer 3: Obligation Mapper",
+      "layer": "Layer 3 — Obligation Mapper",
+      "area": "compliance",
+      "status": "planned",
+      "done_criteria": [
+        "each affected obligation exposes an explicit modality attribute (hard-law-conformity | self-certification) that the output/UI surfaces"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0204",
+      "title": "LLM-edge obligation-summary phrasing",
+      "description": "The LLM is used ONLY to phrase human-readable obligation summaries; all graph/crosswalk/modality logic stays in the deterministic core (honors the core/edge boundary).",
+      "phase": "2 — Layer 3: Obligation Mapper",
+      "layer": "Layer 3 — Obligation Mapper",
+      "area": "compliance",
+      "status": "planned",
+      "done_criteria": [
+        "obligation summaries are produced at the LLM edge while the import-linter boundary keeps graph/crosswalk logic LLM-free"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0205",
+      "title": "Citation-validation accuracy budget",
+      "description": "A citation-validation test enforces the accuracy budget: every article/section reference is well-formed and sourced; the build fails on any unsourced or malformed node.",
+      "phase": "2 — Layer 3: Obligation Mapper",
+      "layer": "Layer 3 — Obligation Mapper",
+      "area": "compliance",
+      "status": "planned",
+      "done_criteria": [
+        "a validation test fails the build if any obligation node has a missing or malformed source citation"
       ],
       "tests": []
     },
     {
       "id": "KS-0301",
-      "title": "Garak red-team as subprocess",
-      "description": "Garak invoked as an isolated subprocess against the deployed surface.",
-      "phase": "3 — Assurance & red-team",
+      "title": "Mock vulnerable payments agent",
+      "description": "A deliberately vulnerable mock payments agent on the NAT workflow, susceptible to indirect prompt injection — the assurance loop's target surface.",
+      "phase": "3 — Layer 2: AI Assurance Loop",
+      "layer": "Layer 2 — AI Assurance Loop",
       "area": "assurance",
       "status": "planned",
       "done_criteria": [
-        "a garak run is launched via subprocess and its report is captured"
+        "the mock agent runs end-to-end on synthetic input and is demonstrably susceptible to a defined indirect-prompt-injection vector"
       ],
       "tests": []
     },
     {
       "id": "KS-0302",
-      "title": "Milestone test: end-to-end assurance loop",
-      "description": "A milestone-marked test proving ingest -> policy -> finding -> ledger.",
-      "phase": "3 — Assurance & red-team",
+      "title": "NeMo Guardrails rails (input/output/dialog)",
+      "description": "NeMo Guardrails rails applied at the LLM edge around the mock agent. Survives from old KS-0202 (re-phased into the AI Assurance Loop).",
+      "phase": "3 — Layer 2: AI Assurance Loop",
+      "layer": "Layer 2 — AI Assurance Loop",
+      "area": "policy",
+      "status": "planned",
+      "done_criteria": [
+        "an input rail blocks a disallowed prompt and an output rail blocks a disallowed completion"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0303",
+      "title": "Garak red-team as subprocess",
+      "description": "Garak invoked as an isolated subprocess against the deployed mock-agent surface, with its report captured. Survives from old KS-0301 (renumbered within Phase 3).",
+      "phase": "3 — Layer 2: AI Assurance Loop",
+      "layer": "Layer 2 — AI Assurance Loop",
       "area": "assurance",
       "status": "planned",
       "done_criteria": [
-        "a -m milestone test exercises the full loop and asserts a verifiable ledger entry"
+        "a garak run is launched via subprocess against the mock agent and its report is captured"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0304",
+      "title": "Milestone: end-to-end AI assurance loop",
+      "description": "A milestone-marked test proving ingest → guardrails/policy → finding → ledger for the mock agent. Survives from old KS-0302.",
+      "phase": "3 — Layer 2: AI Assurance Loop",
+      "layer": "Layer 2 — AI Assurance Loop",
+      "area": "assurance",
+      "status": "planned",
+      "done_criteria": [
+        "a -m milestone test exercises the full assurance loop and asserts a verifiable ledger entry"
       ],
       "tests": []
     },
     {
       "id": "KS-0401",
-      "title": "Streamlit demo UI",
-      "description": "Streamlit front-end over the workflow and evidence ledger.",
-      "phase": "4 — Demo UI",
+      "title": "Transaction Monitor (Layer 1)",
+      "description": "Deterministic monitoring over a synthetic transaction stream that scores transfers and appends findings to the evidence ledger.",
+      "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
+      "layer": "Layer 1 — Transaction Monitor",
+      "area": "core",
+      "status": "planned",
+      "done_criteria": [
+        "the monitor scores a synthetic transaction stream and appends a verifiable finding to the ledger"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0402",
+      "title": "Planted fraudulent-transfer fixture via prompt-injection path",
+      "description": "A planted fraudulent transfer enters the Transaction Monitor via the SAME indirect-prompt-injection path that Garak exercises against the mock payments agent in Phase 3.",
+      "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
+      "layer": "Layer 1 — Transaction Monitor",
+      "area": "core",
+      "status": "planned",
+      "done_criteria": [
+        "the fraud fixture's entry vector is the indirect-prompt-injection path shared with the Phase 3 mock agent, not an ad-hoc separate input"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0403",
+      "title": "L2↔L1 seam milestone (single owned item)",
+      "description": "One owned task asserting the seam structurally: the planted fraud fixture's injection vector equals the vector Garak flags against the mock payments agent. The link is asserted structurally, so a refactor that decouples the two fails the build.",
+      "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
+      "layer": "Layer 1 — Transaction Monitor",
+      "area": "assurance",
+      "status": "planned",
+      "done_criteria": [
+        "a @pytest.mark.milestone test asserts the fraud fixture's injection vector == the Garak-flagged vector and FAILS if a refactor decouples them (structural, not coincidence of two separate fixtures)"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0501",
+      "title": "Posture dashboard (Streamlit) over workflow + ledger",
+      "description": "Streamlit front-end presenting compliance posture across all three layers, rendering ledger contents from synthetic data. Survives from old KS-0401 (re-phased into Integration & demo).",
+      "phase": "5 — Integration & demo",
+      "layer": "Integration & demo",
       "area": "ui",
       "status": "planned",
       "done_criteria": [
-        "the app launches and renders ledger contents from synthetic data"
+        "the app launches and renders the cross-layer posture and ledger contents from synthetic data"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0502",
+      "title": "Golden-path end-to-end demo run",
+      "description": "A single golden-path run exercising all three layers (obligation mapping → assurance loop → transaction monitor) end to end.",
+      "phase": "5 — Integration & demo",
+      "layer": "Integration & demo",
+      "area": "ui",
+      "status": "planned",
+      "done_criteria": [
+        "one command drives the golden path across all three layers and produces a verifiable ledger trail"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0503",
+      "title": "Offline fallback demo path",
+      "description": "The demo runs without network/hosted NIM by falling back to the local backend, so the golden path works offline.",
+      "phase": "5 — Integration & demo",
+      "layer": "Integration & demo",
+      "area": "ui",
+      "status": "planned",
+      "done_criteria": [
+        "with the hosted backend unavailable, the demo completes via the local fallback without errors"
       ],
       "tests": []
     }

@@ -19,6 +19,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0008 | Enforce deterministic-core import boundary (import-linter) | Accepted |
 | 0009 | Continuity + entropy control: exec-plans, commands, freshness | Accepted |
 | 0010 | Chassis layout + NAT untyped-boundary mypy relaxation | Accepted |
+| 0011 | Realign phases 2–5 to the three compliance layers | Accepted |
 
 ---
 
@@ -261,3 +262,47 @@ contract covers it for free. The NAT relaxation is confined to the one
 integration module and documented; `keystone.core`/`llm`/`ui` and all tests
 remain under unmodified strict. The Streamlit shell is omitted from coverage
 (UI glue verified by `make demo`). NAT API quirks recorded in `MEMORY.md`.
+
+---
+
+## ADR-0011 — Realign phases 2–5 to the three compliance layers
+
+**Status:** Accepted · **Date:** 2026-06-16
+
+**Context.** `ROADMAP.md` and `docs/feature_list.json` carried a generic
+"agents & policy / assurance & red-team / demo UI" decomposition that had dropped
+the **three compliance layers that are the product**. Phase numbers (engineering
+build order) and layer names (product meaning) had drifted into two inconsistent
+axes, and the L2↔L1 seam — the planted fraudulent transfer entering via the same
+indirect-prompt-injection path Garak exercises — was implicit rather than owned.
+
+**Decision.** Make build order and layer naming **one axis**: each phase names the
+layer it delivers. Phases 0 (Harness) and 1 (Chassis) are DONE and unchanged.
+Realign:
+- **Phase 2 — Layer 3: Obligation Mapper** (deterministic-heavy). Re-scope the old
+  generic "compliance agent" (KS-0201) into a curated, source-cited obligation
+  graph + deterministic crosswalk/dedup + an explicit EU-vs-India modality
+  contrast + LLM-edge-only summary phrasing + a citation-validation accuracy
+  budget (KS-0201–0205).
+- **Phase 3 — Layer 2: AI Assurance Loop**: mock vulnerable agent + Guardrails
+  (old KS-0202) + Garak (old KS-0301) + assurance-loop milestone (old KS-0302),
+  renumbered to KS-0301–0304.
+- **Phase 4 — Layer 1: Transaction Monitor + the L2↔L1 seam** (KS-0401–0403). The
+  seam is **one owned item** (KS-0403): a `@pytest.mark.milestone` test asserting
+  the fraud fixture's injection vector == the Garak-flagged vector, structurally,
+  so a refactor that decouples them fails the build.
+- **Phase 5 — Integration & demo**: posture dashboard (old KS-0401), golden path,
+  offline fallback (KS-0501–0503).
+
+IDs follow `KS-0Pnn` (P = phase), so any item that changed phase was renumbered;
+items keep `id, title, phase, layer, status, done_criteria`. A `layer` field was
+added to every feature (Harness/Chassis for the done infra phases); no DONE
+item's id, phase, or status changed. `version` bumped to 2. `ROADMAP.md`,
+`TASKS.md`, and `feature_list.json` now describe the same phases, numbers, layer
+names, and IDs.
+
+**Consequences.** The roadmap reads as the product (three layers) instead of a
+generic agent pipeline; the L2↔L1 seam is a first-class, mechanically-asserted
+deliverable rather than an emergent coincidence; and the accuracy budget for
+obligation citations is an explicit gate. Phase 2 is now the Obligation Mapper.
+No application code, tests, or exec-plans were changed by this realignment.
