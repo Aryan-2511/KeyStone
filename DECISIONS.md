@@ -20,6 +20,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0009 | Continuity + entropy control: exec-plans, commands, freshness | Accepted |
 | 0010 | Chassis layout + NAT untyped-boundary mypy relaxation | Accepted |
 | 0011 | Realign phases 2–5 to the three compliance layers | Accepted |
+| 0012 | Obligation data model and storage (KS-0201) | Accepted |
 
 ---
 
@@ -306,3 +307,131 @@ generic agent pipeline; the L2↔L1 seam is a first-class, mechanically-asserted
 deliverable rather than an emergent coincidence; and the accuracy budget for
 obligation citations is an explicit gate. Phase 2 is now the Obligation Mapper.
 No application code, tests, or exec-plans were changed by this realignment.
+
+---
+
+## ADR-0012 — Obligation data model and storage
+
+**Status:** Accepted · **Date:** 2026-06-16
+
+**Context.** KS-0201 (Phase 2 / Layer 3 — Obligation Mapper) needs a curated
+graph of ~25–30 regulatory obligations, each carrying a verifiable source
+citation. The model + storage shape is referenced forward by KS-0202 (control
+crosswalk/dedup), KS-0203 (modality contrast), KS-0204 (LLM-edge summary
+phrasing), and KS-0205 (the build-failing citation-validation gate). Locking the
+schema once, before any curation or code, keeps those four items consistent and
+lets KS-0205 be implemented as "validate the data file against this schema."
+This module is deterministic core and is bound by ADR-0008 (the core must not
+import the LLM edge) and by QUALITY.md rows #3 (scope/done_criteria), #6
+(architecture boundary), and #8 (synthetic/no-secrets; here: cite public legal
+instruments accurately).
+
+**Decision.**
+
+1. **Storage = a data file loaded through a typed Pydantic model.** Obligations
+   are *content*, not logic, so curated nodes live in a data file shipped in the
+   package data dir (`src/keystone/core/obligations/data/obligations.json`),
+   loaded and validated via a Pydantic v2 model — mirroring how
+   `keystone.core.ledger` models its records and how `workflow.yml` ships as
+   package data (`Path(__file__).parent / ...`). Rationale: content is reviewable
+   without reading code; KS-0205's gate reduces to schema-validating the file
+   (mirroring `scripts/validate_feature_list.py`); Phase 4 adds jurisdictions as
+   *data*, not forked code.
+
+2. **The loader fails loudly — binding invariant.** A malformed node, an unknown
+   enum value, a duplicate `id`, or a node missing a required citation field is a
+   **hard load error**. Obligations are never skipped, never defaulted, never
+   partially loaded. A silently-dropped obligation is precisely the coverage gap
+   this product exists to detect, so degrading gracefully is a defect, not a
+   convenience. (Pydantic strict validation + an explicit duplicate-`id` check.)
+
+3. **Citation is a structured object, not a free-text string.** This lets KS-0205
+   validate mechanically (e.g. all five instruments represented; `provision`
+   matches a per-instrument pattern; `retrieved` is a real date). Free text
+   cannot be gated.
+
+4. **Deterministic-core boundary.** Model, data file, and loader live under
+   `keystone.core.obligations`; import-linter (ADR-0008) forbids any
+   `agents/policy/llm/ui/assurance` import. The `summary` field is the **curated,
+   human-written** source description and is the system of record. KS-0204's LLM
+   phrasing is a SEPARATE, later, edge-side transform that *reads* `summary` and
+   produces a derived presentation string elsewhere — it must never write back
+   into this core data, and no LLM code may be imported here.
+
+5. **Control-library representation = Option A (chosen).** The control library is
+   its own data file (KS-0202's deliverable); obligations reference controls by
+   `control_id` via `control_ids: list[str]`. Rationale: the control is the
+   independently-existing entity that obligations attach to, so the "N obligations
+   → M controls" crosswalk is read directly from the data rather than derived —
+   that crosswalk is the Layer 3 headline, the file is the single source of truth
+   for control text, and it is the shared spine Phase 4's pluggable jurisdictions
+   point at. Two binding conditions make A safe, not merely chosen:
+
+   - **(5a) `control_ids` is optional / may be empty in KS-0201.** Authoring the
+     control library is KS-0202's job. KS-0201 curates obligations whose
+     `control_ids` may be empty; it does NOT author controls and does NOT depend
+     on the library existing. Option A only *reserves* the reference shape now —
+     it does not couple the two tasks.
+   - **(5b) KS-0202 must ship a fail-loud referential-integrity validator.** Once
+     the control library exists, every non-empty `control_id` on any obligation
+     MUST resolve to a real control in the library; an unresolved reference is a
+     hard error — never skipped, never defaulted — the same fail-loud invariant as
+     the loader (decision 2). This is recorded here as a **KS-0202 acceptance
+     criterion**, and `feature_list.json` KS-0202 must carry it as a
+     `done_criterion` when KS-0202 is moved past `planned`.
+
+**Schema (locked).**
+
+```
+Obligation:
+  id: str                        # stable identifier, e.g. "OBL-EUAI-012".
+                                 #   Unique; referenced by other phases. Pattern: ^OBL-[A-Z0-9]+-\d{3}$
+  instrument: Instrument         # enum (see below)
+  citation: Citation             # structured object (see below)
+  summary: str                   # curated human-written source text (NOT LLM-phrased); non-empty
+  enforcement_modality: Modality # enum; feeds KS-0203
+  jurisdiction: Jurisdiction     # enum; feeds Phase 4
+  control_ids: list[str]         # forward ref to KS-0202 control library; OPTIONAL, default []
+                                 #   (see decision 5a/5b)
+
+Citation:
+  instrument: Instrument         # required; MUST equal the parent Obligation.instrument (validated)
+  provision: str                 # required; the article/section, e.g. "Art. 9" / "s. 8(5)".
+                                 #   KS-0205 checks it against a per-instrument pattern
+  title: str                     # required; human-readable provision title
+  url: str | None                # optional; canonical source link
+  retrieved: datetime.date | None # optional; ISO date (YYYY-MM-DD) the citation was last verified
+```
+
+**Enums (full member sets).**
+
+- `Instrument`: `EU_AI_ACT` | `DORA` | `DPDP_ACT` | `DPDP_RULES_2025` |
+  `RBI_GUIDANCE` | `PMLA_FIU_IND`
+- `Modality`: `HARD_LAW` | `SELF_CERTIFICATION`
+- `Jurisdiction`: `EU` | `INDIA`
+
+**Field rules.**
+
+- **Required:** `id`, `instrument`, `citation`, `summary`, `enforcement_modality`,
+  `jurisdiction`. `control_ids` defaults to `[]` (decision 5a).
+- **Citation required:** `instrument`, `provision`, `title`. **Optional:** `url`,
+  `retrieved`.
+- `retrieved` is an **ISO date** so the accuracy budget can surface staleness —
+  KS-0205 can flag citations older than a threshold or missing a `retrieved` date,
+  making stale references visible rather than silently trusted.
+- `id` and `control_ids` are **stable identifiers** other phases reference; renaming
+  an `id` is a breaking change. `citation.instrument` must equal the obligation's
+  `instrument` (a cross-field validator), so the citation can't drift from its node.
+
+**Consequences.** The four downstream items build on a fixed shape: KS-0205
+validates the file against this schema and the per-instrument provision patterns;
+KS-0203 reads `enforcement_modality`; KS-0202 authors the control library and adds
+the referential-integrity check (5b) over `control_ids`; KS-0204 derives
+presentation text from `summary` at the edge. The fail-loud invariants (decisions 2
+and 5b) mean curation and mapping errors block the build instead of shrinking
+coverage silently. Option A costs a second data file and an authoring order
+(controls before references resolve), but condition 5a keeps KS-0201 independent of
+that ordering. JSON is chosen over YAML for the data file: consistency with
+`docs/feature_list.json` (so KS-0205 mirrors `scripts/validate_feature_list.py`)
+and avoidance of YAML type-coercion footguns in a citation file where
+`provision`/codes must stay literal text.
