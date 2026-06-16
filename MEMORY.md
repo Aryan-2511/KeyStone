@@ -19,6 +19,15 @@
   cleanly under 3.12 with `uv`; no hand-edited pins were needed.
 - `annoy` (a Guardrails dependency) builds a native extension — a C/C++ compiler
   is a hard install prerequisite.
+- **Date comparisons in gates must be UTC-explicit**, not `date.today()` (local).
+  KS-0205's `scripts/validate_obligations.py` compares `citation.retrieved`
+  against `datetime.now(timezone.utc).date()`, today-inclusive — a local-clock
+  `today()` made CI (UTC) and local diverge on the same correct data. (2026-06-17)
+- **`retrieved` is advisory (ADR-0012), so a future-dated `retrieved` is a
+  non-fatal WARNING, not a build error** in KS-0205's validator. Substantive
+  checks (instrument match, provision pattern incl. RBI-by-name, required
+  citation fields, duplicate id, https url) stay hard, build-failing errors.
+  `validate()` returns hard errors; `check()` returns `(errors, warnings)`.
 
 ## NAT (nvidia-nat 1.7.0) integration notes — things that surprised us
 

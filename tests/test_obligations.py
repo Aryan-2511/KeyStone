@@ -11,11 +11,13 @@ Fast, deterministic, no inference and no network. Two layers:
 
 from __future__ import annotations
 
+import datetime
 import json
 import re
 from pathlib import Path
 
 import pytest
+from validate_obligations import check as check_citations
 from validate_obligations import validate as validate_citations
 
 from keystone.core.obligations import (
@@ -248,11 +250,42 @@ def test_budget_flags_malformed_provision(tmp_path: Path) -> None:
     assert any("provision" in e for e in errors)
 
 
-def test_budget_flags_future_retrieved(tmp_path: Path) -> None:
+# A fixed "today" injected into the validator so the future-date check is
+# deterministic regardless of the runner's timezone (the bug that flagged
+# 2026-06-17 as future when CI's UTC clock lagged the local one).
+_PINNED_TODAY = datetime.date(2026, 6, 17)
+
+
+def _node_retrieved(value: str) -> dict[str, object]:
     node = _valid_node()
-    node["citation"] = {**node["citation"], "retrieved": "2999-01-01"}  # type: ignore[dict-item]
-    errors = validate_citations(_write(tmp_path, [node]))
-    assert any("future" in e for e in errors)
+    node["citation"] = {**node["citation"], "retrieved": value}  # type: ignore[dict-item]
+    return node
+
+
+def test_budget_retrieved_equal_today_is_valid(tmp_path: Path) -> None:
+    # retrieved == today is valid (today-inclusive) — no error, no warning.
+    errors, warnings = check_citations(
+        _write(tmp_path, [_node_retrieved("2026-06-17")]), today=_PINNED_TODAY
+    )
+    assert errors == []
+    assert warnings == []
+
+
+def test_budget_retrieved_yesterday_is_valid(tmp_path: Path) -> None:
+    errors, warnings = check_citations(
+        _write(tmp_path, [_node_retrieved("2026-06-16")]), today=_PINNED_TODAY
+    )
+    assert errors == []
+    assert warnings == []
+
+
+def test_budget_far_future_retrieved_warns_not_errors(tmp_path: Path) -> None:
+    # A date strictly after today is a non-fatal warning, NOT a build failure.
+    errors, warnings = check_citations(
+        _write(tmp_path, [_node_retrieved("2027-01-01")]), today=_PINNED_TODAY
+    )
+    assert errors == []
+    assert any("after today" in w for w in warnings)
 
 
 def test_budget_flags_non_https_url(tmp_path: Path) -> None:

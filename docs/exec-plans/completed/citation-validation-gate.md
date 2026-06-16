@@ -58,6 +58,12 @@ loader's structural checks.
 
 - 2026-06-17 created plan. KS-0201 (graph) + ADR-0013 (dep hygiene) already
   committed on branch `ks-0201-obligation-graph`. Starting the gate now.
+- 2026-06-17 (follow-up) CI/local divergence: the future-`retrieved` check used
+  local `date.today()`, flagging the correct 2026-06-17 dates as future on CI's
+  UTC clock. Fixed: compare against `datetime.now(UTC).date()`, today-inclusive,
+  and DEMOTE future-dated `retrieved` to a non-fatal WARNING (it is advisory per
+  ADR-0012). `check()` now returns `(errors, warnings)`; `validate()` returns
+  errors only. Added deterministic injected-`today` tests. See [[MEMORY.md]].
 
 ## Decisions
 
@@ -67,8 +73,10 @@ loader's structural checks.
   them differently); PMLA = `^(s\. \d+|Rule \d+), \S.*$`. No ADR: this is an
   implementation detail of the gate ADR-0012 already mandated, not a new
   structural choice.
-- **`retrieved` absence is allowed**, only a *future* date is malformed —
-  ADR-0012 marks `retrieved` optional and the Indian nodes carry null on purpose.
+- **`retrieved` absence is allowed; a future date is a WARNING, not an error** —
+  ADR-0012 marks `retrieved` optional/advisory; the Indian nodes carry null on
+  purpose. The comparison is UTC-explicit and today-inclusive (`retrieved ==
+  today` passes); only strictly-after-today warns.
 - The gate **subsumes the loader's structural failures** (load error => one error
   entry) so `make verify` fails on either a structural or accuracy-budget defect.
 
