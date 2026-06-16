@@ -188,11 +188,19 @@
       "phase": "2 — Layer 3: Obligation Mapper",
       "layer": "Layer 3 — Obligation Mapper",
       "area": "compliance",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "the graph has 25–30 nodes covering EU AI Act Art. 9–15, DORA, India DPDP Act + DPDP Rules 2025, RBI responsible-AI, and PMLA/FIU-IND, and every node carries a non-empty source citation (instrument + article/section)"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_obligations.py::test_node_count_in_range",
+        "tests/test_obligations.py::test_all_instruments_present",
+        "tests/test_obligations.py::test_eu_ai_act_covers_articles_9_to_15",
+        "tests/test_obligations.py::test_every_node_has_non_empty_citation",
+        "tests/test_obligations.py::test_load_is_deterministic",
+        "tests/test_obligations.py::test_loader_rejects_duplicate_id",
+        "tests/test_obligations.py::test_citation_instrument_must_match_obligation"
+      ]
     },
     {
       "id": "KS-0202",
