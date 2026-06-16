@@ -16,6 +16,7 @@ import re
 from pathlib import Path
 
 import pytest
+from validate_obligations import validate as validate_citations
 
 from keystone.core.obligations import (
     Citation,
@@ -229,3 +230,46 @@ def test_empty_summary_rejected() -> None:
 def test_empty_citation_provision_rejected() -> None:
     with pytest.raises(ValueError, match="non-empty"):
         Citation(instrument=Instrument.EU_AI_ACT, provision="  ", title="t")
+
+
+# --- Citation accuracy budget (KS-0205) --------------------------------------
+
+
+def test_shipped_data_passes_citation_budget() -> None:
+    # The single source of validation logic; an empty list means the build
+    # would pass. Run against the shipped data file.
+    assert validate_citations() == []
+
+
+def test_budget_flags_malformed_provision(tmp_path: Path) -> None:
+    node = _valid_node()
+    node["citation"] = {**node["citation"], "provision": "Article 9"}  # type: ignore[dict-item]
+    errors = validate_citations(_write(tmp_path, [node]))
+    assert any("provision" in e for e in errors)
+
+
+def test_budget_flags_future_retrieved(tmp_path: Path) -> None:
+    node = _valid_node()
+    node["citation"] = {**node["citation"], "retrieved": "2999-01-01"}  # type: ignore[dict-item]
+    errors = validate_citations(_write(tmp_path, [node]))
+    assert any("future" in e for e in errors)
+
+
+def test_budget_flags_non_https_url(tmp_path: Path) -> None:
+    node = _valid_node()
+    node["citation"] = {**node["citation"], "url": "http://example.test"}  # type: ignore[dict-item]
+    errors = validate_citations(_write(tmp_path, [node]))
+    assert any("https" in e for e in errors)
+
+
+def test_budget_surfaces_load_error(tmp_path: Path) -> None:
+    # A structural defect (here: a duplicate id) must also fail the budget gate,
+    # not just the loader, so `make verify` catches it.
+    errors = validate_citations(_write(tmp_path, [_valid_node(), _valid_node()]))
+    assert any("failed to load" in e for e in errors)
+
+
+def test_budget_accepts_optional_missing_retrieved(tmp_path: Path) -> None:
+    # `retrieved` is optional (ADR-0012): its absence is NOT a malformed citation.
+    node = _valid_node()  # has no url/retrieved
+    assert validate_citations(_write(tmp_path, [node])) == []

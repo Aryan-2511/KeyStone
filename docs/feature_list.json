@@ -248,11 +248,17 @@
       "phase": "2 — Layer 3: Obligation Mapper",
       "layer": "Layer 3 — Obligation Mapper",
       "area": "compliance",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "a validation test fails the build if any obligation node has a missing or malformed source citation"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_obligations.py::test_shipped_data_passes_citation_budget",
+        "tests/test_obligations.py::test_budget_flags_malformed_provision",
+        "tests/test_obligations.py::test_budget_flags_future_retrieved",
+        "tests/test_obligations.py::test_budget_surfaces_load_error",
+        "tests/test_obligations.py::test_budget_accepts_optional_missing_retrieved"
+      ]
     },
     {
       "id": "KS-0301",
