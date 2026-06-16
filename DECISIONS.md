@@ -21,6 +21,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0010 | Chassis layout + NAT untyped-boundary mypy relaxation | Accepted |
 | 0011 | Realign phases 2–5 to the three compliance layers | Accepted |
 | 0012 | Obligation data model and storage (KS-0201) | Accepted |
+| 0013 | Override transitive cryptography<47 cap to clear GHSA-537c-gmf6-5ccf | Accepted |
 
 ---
 
@@ -435,3 +436,48 @@ that ordering. JSON is chosen over YAML for the data file: consistency with
 `docs/feature_list.json` (so KS-0205 mirrors `scripts/validate_feature_list.py`)
 and avoidance of YAML type-coercion footguns in a citation file where
 `provision`/codes must stay literal text.
+
+## ADR-0013 — Override the transitive cryptography<47 cap to clear GHSA-537c-gmf6-5ccf
+
+**Status:** Accepted · **Date:** 2026-06-17
+
+**Context.** `make verify`'s `pip-audit` gate flags transitive `cryptography`
+46.0.7 (GHSA-537c-gmf6-5ccf; OSV range introduced 0.5.0, **fixed only in
+48.0.1** — no patched line below 48). `cryptography` is pulled in by
+`nvidia-nat-core`, `authlib`, and `joserfc`; `authlib`/`joserfc` accept ≥48, but
+**`nvidia-nat-core` 1.7.0 declares `cryptography<47,>=46.0.6`**, which strands us
+on the vulnerable line. This is pre-existing on `main` (no project dependency
+introduced it). A strict gate must not be silenced (CLAUDE.md), so the fix has to
+remove the actual vulnerable package, not the finding.
+
+**Investigation (live PyPI metadata, not assumed versions).**
+
+1. **No `nvidia-nat` bump helps.** Latest *stable* `nvidia-nat`/`nat-core` is
+   **1.7.0** (our pin); everything newer is a prerelease (1.8.0rcN, 1.9.0aN). The
+   `cryptography<47,>=46.0.6` cap is present at 1.7.0 **and** through the newest
+   prereleases. The only cap-free version is the older 1.6.0 (a downgrade), and no
+   patched cryptography exists below 48 regardless.
+2. **The cap is conservative, not a real incompatibility.** Forcing
+   `cryptography>=48.0.1` (resolves to 49.0.0) and running the **full** gate —
+   incl. the chassis milestone `test_chassis_runs_three_layers_and_chain_verifies`
+   that exercises the NAT workflow API — passes, and `pip-audit` reports no
+   vulnerabilities.
+
+**Decision.** Add a uv override in `pyproject.toml`:
+`[tool.uv] override-dependencies = ["cryptography>=48.0.1"]`. This raises the
+resolved `cryptography` above `nat-core`'s declared upper bound while keeping the
+NVIDIA stack on its stable 1.7.0 line. It is a security override, not a gate
+relaxation: the `pip-audit` gate stays strict and now passes because the
+vulnerable package is gone.
+
+**Removal trigger.** Drop the override once a stable `nvidia-nat` ships a
+`nat-core` whose declared `cryptography` constraint allows ≥48 (re-check the
+`nat-core` `requires_dist` on a future bump). Tracked in
+`docs/exec-plans/completed/dependency-hygiene-cryptography.md`.
+
+**Consequences.** We assume responsibility for an out-of-declared-range
+`cryptography` for `nat-core`; the risk is bounded because the full gate
+(including the NAT-exercising milestone) is green on 49.0.0, and the override is
+narrowly scoped to one package with a floor (`>=48.0.1`) rather than a pin, so
+routine patch upgrades still flow. If a future `nat-core` genuinely needs
+`cryptography<47` at runtime, the milestone test is the tripwire.
