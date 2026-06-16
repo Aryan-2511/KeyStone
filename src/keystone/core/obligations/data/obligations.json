@@ -1,0 +1,422 @@
+[
+  {
+    "id": "OBL-EUAI-009",
+    "instrument": "EU_AI_ACT",
+    "citation": {
+      "instrument": "EU_AI_ACT",
+      "provision": "Art. 9",
+      "title": "Risk management system",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "A risk management system shall be established, implemented, documented and maintained for high-risk AI systems as a continuous, iterative process across the lifecycle, identifying and evaluating known and reasonably foreseeable risks and adopting appropriate risk-management measures.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-EUAI-010",
+    "instrument": "EU_AI_ACT",
+    "citation": {
+      "instrument": "EU_AI_ACT",
+      "provision": "Art. 10",
+      "title": "Data and data governance",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "High-risk AI systems trained with data shall use training, validation and testing data sets that meet quality criteria; data governance practices must examine bias, gaps, and the relevance and representativeness of data for the intended purpose.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-EUAI-011",
+    "instrument": "EU_AI_ACT",
+    "citation": {
+      "instrument": "EU_AI_ACT",
+      "provision": "Art. 11",
+      "title": "Technical documentation",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Technical documentation for a high-risk AI system shall be drawn up before it is placed on the market and kept up to date, demonstrating conformity with the requirements of the Regulation and containing the elements set out in Annex IV.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-EUAI-012",
+    "instrument": "EU_AI_ACT",
+    "citation": {
+      "instrument": "EU_AI_ACT",
+      "provision": "Art. 12",
+      "title": "Record-keeping",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system to ensure a level of traceability appropriate to the intended purpose.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-EUAI-013",
+    "instrument": "EU_AI_ACT",
+    "citation": {
+      "instrument": "EU_AI_ACT",
+      "provision": "Art. 13",
+      "title": "Transparency and provision of information to deployers",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "High-risk AI systems shall be designed and developed to be sufficiently transparent to enable deployers to interpret a system's output and use it appropriately, and shall be accompanied by concise, complete and accessible instructions for use.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-EUAI-014",
+    "instrument": "EU_AI_ACT",
+    "citation": {
+      "instrument": "EU_AI_ACT",
+      "provision": "Art. 14",
+      "title": "Human oversight",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "High-risk AI systems shall be designed so they can be effectively overseen by natural persons during use, including the ability to monitor operation, correctly interpret output, and intervene in or interrupt the system.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-EUAI-015",
+    "instrument": "EU_AI_ACT",
+    "citation": {
+      "instrument": "EU_AI_ACT",
+      "provision": "Art. 15",
+      "title": "Accuracy, robustness and cybersecurity",
+      "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "High-risk AI systems shall be designed to achieve appropriate levels of accuracy, robustness and cybersecurity and to perform consistently in those respects throughout their lifecycle, with relevant metrics declared in the instructions for use.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DORA-005",
+    "instrument": "DORA",
+    "citation": {
+      "instrument": "DORA",
+      "provision": "Art. 5",
+      "title": "Governance and organisation",
+      "url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "The management body of a financial entity shall define, approve, oversee and remain accountable for the implementation of the ICT risk management framework, bearing ultimate responsibility for managing the entity's ICT risk.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DORA-006",
+    "instrument": "DORA",
+    "citation": {
+      "instrument": "DORA",
+      "provision": "Art. 6",
+      "title": "ICT risk management framework",
+      "url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Financial entities shall have a sound, comprehensive and well-documented ICT risk management framework, as part of their overall risk management system, enabling them to address ICT risk quickly, efficiently and comprehensively.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DORA-017",
+    "instrument": "DORA",
+    "citation": {
+      "instrument": "DORA",
+      "provision": "Art. 17",
+      "title": "ICT-related incident management process",
+      "url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Financial entities shall define, establish and implement an ICT-related incident management process to detect, manage and notify ICT-related incidents, and shall record all such incidents and significant cyber threats.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DORA-019",
+    "instrument": "DORA",
+    "citation": {
+      "instrument": "DORA",
+      "provision": "Art. 19",
+      "title": "Reporting of major ICT-related incidents",
+      "url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Financial entities shall report major ICT-related incidents to the relevant competent authority within the prescribed time limits, submitting initial, intermediate and final reports using harmonised templates.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DORA-024",
+    "instrument": "DORA",
+    "citation": {
+      "instrument": "DORA",
+      "provision": "Art. 24",
+      "title": "General requirements for the performance of digital operational resilience testing",
+      "url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Financial entities shall establish, maintain and review a sound and comprehensive digital operational resilience testing programme as an integral part of the ICT risk management framework, testing ICT tools and systems periodically.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DORA-028",
+    "instrument": "DORA",
+    "citation": {
+      "instrument": "DORA",
+      "provision": "Art. 28",
+      "title": "General principles for sound management of ICT third-party risk",
+      "url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Financial entities shall manage ICT third-party risk as an integral component of ICT risk in accordance with the principle of proportionality, remaining fully responsible for compliance when using ICT third-party service providers.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "EU",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPA-005",
+    "instrument": "DPDP_ACT",
+    "citation": {
+      "instrument": "DPDP_ACT",
+      "provision": "s. 5",
+      "title": "Notice",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "A Data Fiduciary shall give the Data Principal an itemised notice describing the personal data sought and the purpose of processing, the manner of exercising rights, and the manner of making a complaint to the Data Protection Board.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPA-006",
+    "instrument": "DPDP_ACT",
+    "citation": {
+      "instrument": "DPDP_ACT",
+      "provision": "s. 6",
+      "title": "Consent",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "Consent of the Data Principal shall be free, specific, informed, unconditional and unambiguous with a clear affirmative action, limited to the personal data necessary for the specified purpose, and may be withdrawn as easily as it was given.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPA-008",
+    "instrument": "DPDP_ACT",
+    "citation": {
+      "instrument": "DPDP_ACT",
+      "provision": "s. 8",
+      "title": "General obligations of Data Fiduciary",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "A Data Fiduciary remains responsible for compliance regardless of any agreement with a Data Processor, shall ensure the completeness, accuracy and consistency of personal data, implement appropriate technical and organisational measures and reasonable security safeguards, and report personal data breaches.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPA-009",
+    "instrument": "DPDP_ACT",
+    "citation": {
+      "instrument": "DPDP_ACT",
+      "provision": "s. 9",
+      "title": "Processing of personal data of children",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "Before processing the personal data of a child, a Data Fiduciary shall obtain verifiable consent of a parent or lawful guardian, and shall not undertake processing likely to cause detrimental effect, tracking, behavioural monitoring, or targeted advertising directed at children.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPA-010",
+    "instrument": "DPDP_ACT",
+    "citation": {
+      "instrument": "DPDP_ACT",
+      "provision": "s. 10",
+      "title": "Additional obligations of Significant Data Fiduciary",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "A Significant Data Fiduciary shall appoint a Data Protection Officer based in India and an independent data auditor, and shall undertake periodic Data Protection Impact Assessments and audits as prescribed.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPA-011",
+    "instrument": "DPDP_ACT",
+    "citation": {
+      "instrument": "DPDP_ACT",
+      "provision": "s. 11",
+      "title": "Right to access information about personal data",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "A Data Principal has the right to obtain from the Data Fiduciary a summary of the personal data being processed and the processing activities, and the identities of other Data Fiduciaries and processors with whom the data has been shared.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPR-004",
+    "instrument": "DPDP_RULES_2025",
+    "citation": {
+      "instrument": "DPDP_RULES_2025",
+      "provision": "Rule 4",
+      "title": "Registration and obligations of Consent Manager",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "A Consent Manager shall be registered with the Data Protection Board and shall enable Data Principals to give, manage, review and withdraw consent through an accessible, interoperable platform, subject to the conditions in the First Schedule. (DPDP Rules notified 13 Nov 2025; this Rule commences 13 May 2027.)",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPR-006",
+    "instrument": "DPDP_RULES_2025",
+    "citation": {
+      "instrument": "DPDP_RULES_2025",
+      "provision": "Rule 6",
+      "title": "Reasonable security safeguards",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "A Data Fiduciary shall protect personal data in its possession or control by reasonable security safeguards including encryption, access control, logging and monitoring, and measures enabling continued processing and data backups in the event of a compromise. (DPDP Rules notified 13 Nov 2025; this Rule commences 13 May 2027.)",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-DPDPR-007",
+    "instrument": "DPDP_RULES_2025",
+    "citation": {
+      "instrument": "DPDP_RULES_2025",
+      "provision": "Rule 7",
+      "title": "Intimation of personal data breach",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "On becoming aware of a personal data breach, a Data Fiduciary shall intimate each affected Data Principal without delay and notify the Data Protection Board, providing updated and detailed particulars (including nature, scope and mitigation) within 72 hours. (DPDP Rules notified 13 Nov 2025; this Rule commences 13 May 2027.)",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-RBI-001",
+    "instrument": "RBI_GUIDANCE",
+    "citation": {
+      "instrument": "RBI_GUIDANCE",
+      "provision": "Sutra — Trust is the Foundation",
+      "title": "RBI FREE-AI Committee report (13 Aug 2025) — guiding principle",
+      "url": "https://rbidocs.rbi.org.in/rdocs/PublicationReport/Pdfs/FREEAIR130820250A24FF2D4578453F824C72ED9F5D5851.PDF",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Advisory guiding principle from the RBI FREE-AI Committee report (13 Aug 2025): adoption of AI in the financial sector must be anchored in trust — systems should be reliable, transparent and inspire public confidence. This is a committee recommendation, not a binding direction; no AI-specific RBI instrument has issued from it.",
+    "enforcement_modality": "SELF_CERTIFICATION",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-RBI-002",
+    "instrument": "RBI_GUIDANCE",
+    "citation": {
+      "instrument": "RBI_GUIDANCE",
+      "provision": "Sutra — Accountability",
+      "title": "RBI FREE-AI Committee report (13 Aug 2025) — guiding principle",
+      "url": "https://rbidocs.rbi.org.in/rdocs/PublicationReport/Pdfs/FREEAIR130820250A24FF2D4578453F824C72ED9F5D5851.PDF",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Advisory guiding principle from the RBI FREE-AI Committee report (13 Aug 2025): accountability for AI outcomes rests with the regulated entity deploying the system, with clearly defined responsibilities for AI-driven decisions and their impacts — it cannot be delegated to the model or a third-party vendor. Advisory recommendation, not a binding direction.",
+    "enforcement_modality": "SELF_CERTIFICATION",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-RBI-003",
+    "instrument": "RBI_GUIDANCE",
+    "citation": {
+      "instrument": "RBI_GUIDANCE",
+      "provision": "Sutra — Understandable by Design",
+      "title": "RBI FREE-AI Committee report (13 Aug 2025) — guiding principle",
+      "url": "https://rbidocs.rbi.org.in/rdocs/PublicationReport/Pdfs/FREEAIR130820250A24FF2D4578453F824C72ED9F5D5851.PDF",
+      "retrieved": "2026-06-17"
+    },
+    "summary": "Advisory guiding principle from the RBI FREE-AI Committee report (13 Aug 2025): AI systems used in the financial sector should be explainable and auditable by design, so decisions affecting customers can be understood, reviewed and contested. Advisory recommendation, not a binding direction.",
+    "enforcement_modality": "SELF_CERTIFICATION",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-PMLA-012",
+    "instrument": "PMLA_FIU_IND",
+    "citation": {
+      "instrument": "PMLA_FIU_IND",
+      "provision": "s. 12, PMLA 2002",
+      "title": "Obligations of reporting entities",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "Every reporting entity shall maintain records of prescribed transactions, verify the identity of clients and beneficial owners, maintain records of identity documents, and furnish information to the Director, FIU-IND, in the prescribed manner and within prescribed time limits.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-PMLA-009",
+    "instrument": "PMLA_FIU_IND",
+    "citation": {
+      "instrument": "PMLA_FIU_IND",
+      "provision": "Rule 9, PML (Maintenance of Records) Rules 2005",
+      "title": "Client due diligence",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "Reporting entities shall carry out client due diligence at the commencement of an account-based relationship, verifying client identity through officially valid documents and identifying and verifying the beneficial owner.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  },
+  {
+    "id": "OBL-PMLA-008",
+    "instrument": "PMLA_FIU_IND",
+    "citation": {
+      "instrument": "PMLA_FIU_IND",
+      "provision": "Rule 8, PML (Maintenance of Records) Rules 2005",
+      "title": "Furnishing of information to FIU-IND",
+      "url": null,
+      "retrieved": null
+    },
+    "summary": "Reporting entities shall furnish to the Director, FIU-IND, cash transaction reports (CTRs) and suspicious transaction reports (STRs) electronically, within the timelines prescribed under the rules.",
+    "enforcement_modality": "HARD_LAW",
+    "jurisdiction": "INDIA",
+    "control_ids": []
+  }
+]

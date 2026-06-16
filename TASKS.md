@@ -22,13 +22,15 @@
 > Phases 2–5 are realigned to the three compliance layers (ADR-0011). Full
 > verifiable breakdown in `docs/feature_list.json`.
 
-- [ ] Curated obligation graph, ~25–30 nodes (EU AI Act Art. 9–15, DORA, India
+- [x] Curated obligation graph, 28 nodes (EU AI Act Art. 9–15, DORA, India
       DPDP Act + DPDP Rules 2025, RBI, PMLA/FIU-IND), each with a source citation — KS-0201
+      (`keystone.core.obligations`, `tests/test_obligations.py`)
 - [ ] Deterministic crosswalk/dedup onto a shared control library (ISO/IEC 42001
       + FATF + NIST AI RMF) — KS-0202
 - [ ] EU hard-law vs India self-certification modality contrast (surfaced attribute) — KS-0203
 - [ ] LLM-edge obligation-summary phrasing only (core/edge boundary) — KS-0204
-- [ ] Citation-validation accuracy budget (build fails on unsourced/malformed node) — KS-0205
+- [x] Citation-validation accuracy budget (build fails on unsourced/malformed node) — KS-0205
+      (`scripts/validate_obligations.py`, wired into `make verify`)
 
 ## Later phases
 

@@ -30,6 +30,14 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/keystone"]
 
+# Security override (ADR-0013). nvidia-nat-core 1.7.0 caps cryptography<47, which
+# strands us on 46.0.7 (GHSA-537c-gmf6-5ccf, fixed only in 48.0.1). The cap is a
+# conservative upper bound, not a real incompatibility — the full gate incl. the
+# chassis milestone passes on cryptography 49. REMOVAL TRIGGER: drop this once a
+# stable nvidia-nat ships a nat-core that allows cryptography>=48.
+[tool.uv]
+override-dependencies = ["cryptography>=48.0.1"]
+
 # PEP 735 dependency groups. Installed together via `uv sync --all-groups`.
 [dependency-groups]
 dev = [
