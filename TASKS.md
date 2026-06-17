@@ -17,7 +17,7 @@
   - [x] Streamlit shell (`keystone.ui.app`, `make demo`)
   - [x] Ledger unit tests + `@milestone` integration test (3 layers + chain)
 
-## Next — Phase 2 = Layer 3: Obligation Mapper (do NOT start yet)
+## Now — Phase 2 = Layer 3: Obligation Mapper (in progress; KS-0202 next)
 
 > Phases 2–5 are realigned to the three compliance layers (ADR-0011). Full
 > verifiable breakdown in `docs/feature_list.json`.
@@ -38,3 +38,17 @@
       Garak + milestone) — KS-0301–KS-0304
 - [ ] Phase 4 — Layer 1: Transaction Monitor + the L2↔L1 seam milestone — KS-0401–KS-0403
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
+
+## Backlog — hygiene / tech-debt (not scheduled; not features)
+
+> Tracked so they aren't lost. Revisit on the noted trigger; none block KS-0202.
+
+- [ ] **CI: bump GitHub Actions off Node 20.** `actions/checkout@v4` and
+      `astral-sh/setup-uv@v6` in `.github/workflows/ci.yml` run on the
+      deprecated Node 20 runtime; move to the Node 24-based major versions when
+      convenient. (CI hygiene only — no behaviour change.)
+- [ ] **Drop the cryptography override (ADR-0013).** Remove
+      `[tool.uv] override-dependencies = ["cryptography>=48.0.1"]` from
+      `pyproject.toml` once a stable `nvidia-nat` ships an `nvidia-nat-core`
+      whose declared `cryptography` constraint allows `>=48` (re-check
+      `nat-core`'s `requires_dist` on the next bump). See `DECISIONS.md` ADR-0013.

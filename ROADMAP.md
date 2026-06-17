@@ -5,7 +5,7 @@
 > [`docs/feature_list.json`](docs/feature_list.json) (the source of truth);
 > this file is the human-readable phase view.
 
-## Phase 0 — Harness (current)
+## Phase 0 — Harness
 
 Tooling foundation only: src-layout, pyproject, strict gates (Ruff/mypy/pytest
 coverage floor), pre-commit, CI, docs. **Done when `make check` is green.**
@@ -21,9 +21,10 @@ No application logic.
 > the phase number; each phase names the layer it delivers. Layer numbering (L1/L2/L3)
 > is product meaning, not build order. See [`ADR-0011`](DECISIONS.md#adr-0011--realign-phases-25-to-the-three-compliance-layers).
 
-## Phase 2 — Layer 3: Obligation Mapper
+## Phase 2 — Layer 3: Obligation Mapper (current)
 
 The first real layer; deterministic-heavy. (`KS-0201`–`KS-0205`)
+KS-0201 and KS-0205 are done; KS-0202 is next.
 
 - Curated obligation graph, ~25–30 nodes spanning EU AI Act Art. 9–15, DORA,
   India DPDP Act + DPDP Rules 2025, RBI responsible-AI guidance, PMLA/FIU-IND —
