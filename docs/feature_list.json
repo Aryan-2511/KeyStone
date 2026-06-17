@@ -209,11 +209,19 @@
       "phase": "2 — Layer 3: Obligation Mapper",
       "layer": "Layer 3 — Obligation Mapper",
       "area": "compliance",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
-        "obligations deterministically and reproducibly map onto the shared control library (ISO/IEC 42001 + FATF + NIST AI RMF) with duplicate controls collapsed"
+        "obligations deterministically and reproducibly map onto the shared control library (ISO/IEC 42001 + FATF + NIST AI RMF) with duplicate controls collapsed",
+        "every non-empty control_id on an obligation resolves to a real control in the library; an unresolved reference fails the build (ADR-0012 §5b)"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_controls.py::test_5b_real_data_passes",
+        "tests/test_controls.py::test_5b_dangling_reference_rejected",
+        "tests/test_controls.py::test_5b_orphan_control_rejected",
+        "tests/test_controls.py::test_crosswalk_covers_every_obligation",
+        "tests/test_controls.py::test_crosswalk_preserves_both_modalities",
+        "tests/test_controls.py::test_milestone_stable_control_grouping"
+      ]
     },
     {
       "id": "KS-0203",

@@ -39,6 +39,7 @@ check: lint typecheck arch test audit  ## Fast inner-loop gate: lint + typecheck
 verify: lint typecheck arch  ## Acceptance gate: scope validation + full test suite
 	uv run python scripts/validate_feature_list.py
 	uv run python scripts/validate_obligations.py
+	uv run python scripts/validate_controls.py
 	uv run pytest
 	uv run pip-audit
 	@echo "verify: acceptance gate passed"

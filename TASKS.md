@@ -17,7 +17,7 @@
   - [x] Streamlit shell (`keystone.ui.app`, `make demo`)
   - [x] Ledger unit tests + `@milestone` integration test (3 layers + chain)
 
-## Now — Phase 2 = Layer 3: Obligation Mapper (in progress; KS-0202 next)
+## Now — Phase 2 = Layer 3: Obligation Mapper (in progress; KS-0203 next)
 
 > Phases 2–5 are realigned to the three compliance layers (ADR-0011). Full
 > verifiable breakdown in `docs/feature_list.json`.
@@ -25,8 +25,9 @@
 - [x] Curated obligation graph, 28 nodes (EU AI Act Art. 9–15, DORA, India
       DPDP Act + DPDP Rules 2025, RBI, PMLA/FIU-IND), each with a source citation — KS-0201
       (`keystone.core.obligations`, `tests/test_obligations.py`)
-- [ ] Deterministic crosswalk/dedup onto a shared control library (ISO/IEC 42001
-      + FATF + NIST AI RMF) — KS-0202
+- [x] Deterministic crosswalk/dedup onto a shared control library (ISO/IEC 42001
+      + FATF + NIST AI RMF) — KS-0202 (`keystone.core.controls`, 15 controls;
+      §5b validator `scripts/validate_controls.py`, `tests/test_controls.py`)
 - [ ] EU hard-law vs India self-certification modality contrast (surfaced attribute) — KS-0203
 - [ ] LLM-edge obligation-summary phrasing only (core/edge boundary) — KS-0204
 - [x] Citation-validation accuracy budget (build fails on unsourced/malformed node) — KS-0205

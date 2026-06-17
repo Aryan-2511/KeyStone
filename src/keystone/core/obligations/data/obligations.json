@@ -12,7 +12,7 @@
     "summary": "A risk management system shall be established, implemented, documented and maintained for high-risk AI systems as a continuous, iterative process across the lifecycle, identifying and evaluating known and reasonably foreseeable risks and adopting appropriate risk-management measures.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-RISK-01"]
   },
   {
     "id": "OBL-EUAI-010",
@@ -27,7 +27,7 @@
     "summary": "High-risk AI systems trained with data shall use training, validation and testing data sets that meet quality criteria; data governance practices must examine bias, gaps, and the relevance and representativeness of data for the intended purpose.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-DATA-01"]
   },
   {
     "id": "OBL-EUAI-011",
@@ -42,7 +42,7 @@
     "summary": "Technical documentation for a high-risk AI system shall be drawn up before it is placed on the market and kept up to date, demonstrating conformity with the requirements of the Regulation and containing the elements set out in Annex IV.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-DOC-01"]
   },
   {
     "id": "OBL-EUAI-012",
@@ -57,7 +57,7 @@
     "summary": "High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system to ensure a level of traceability appropriate to the intended purpose.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-DOC-01"]
   },
   {
     "id": "OBL-EUAI-013",
@@ -72,7 +72,7 @@
     "summary": "High-risk AI systems shall be designed and developed to be sufficiently transparent to enable deployers to interpret a system's output and use it appropriately, and shall be accompanied by concise, complete and accessible instructions for use.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-TRANSP-01"]
   },
   {
     "id": "OBL-EUAI-014",
@@ -87,7 +87,7 @@
     "summary": "High-risk AI systems shall be designed so they can be effectively overseen by natural persons during use, including the ability to monitor operation, correctly interpret output, and intervene in or interrupt the system.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-HUMAN-01"]
   },
   {
     "id": "OBL-EUAI-015",
@@ -102,7 +102,7 @@
     "summary": "High-risk AI systems shall be designed to achieve appropriate levels of accuracy, robustness and cybersecurity and to perform consistently in those respects throughout their lifecycle, with relevant metrics declared in the instructions for use.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-ROBUST-01"]
   },
   {
     "id": "OBL-DORA-005",
@@ -117,7 +117,7 @@
     "summary": "The management body of a financial entity shall define, approve, oversee and remain accountable for the implementation of the ICT risk management framework, bearing ultimate responsibility for managing the entity's ICT risk.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-GOV-01"]
   },
   {
     "id": "OBL-DORA-006",
@@ -132,7 +132,7 @@
     "summary": "Financial entities shall have a sound, comprehensive and well-documented ICT risk management framework, as part of their overall risk management system, enabling them to address ICT risk quickly, efficiently and comprehensively.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-RISK-01"]
   },
   {
     "id": "OBL-DORA-017",
@@ -147,7 +147,7 @@
     "summary": "Financial entities shall define, establish and implement an ICT-related incident management process to detect, manage and notify ICT-related incidents, and shall record all such incidents and significant cyber threats.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-INC-01"]
   },
   {
     "id": "OBL-DORA-019",
@@ -162,7 +162,7 @@
     "summary": "Financial entities shall report major ICT-related incidents to the relevant competent authority within the prescribed time limits, submitting initial, intermediate and final reports using harmonised templates.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-INC-01"]
   },
   {
     "id": "OBL-DORA-024",
@@ -177,7 +177,7 @@
     "summary": "Financial entities shall establish, maintain and review a sound and comprehensive digital operational resilience testing programme as an integral part of the ICT risk management framework, testing ICT tools and systems periodically.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-ROBUST-01"]
   },
   {
     "id": "OBL-DORA-028",
@@ -192,7 +192,7 @@
     "summary": "Financial entities shall manage ICT third-party risk as an integral component of ICT risk in accordance with the principle of proportionality, remaining fully responsible for compliance when using ICT third-party service providers.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "EU",
-    "control_ids": []
+    "control_ids": ["CTL-TPRM-01"]
   },
   {
     "id": "OBL-DPDPA-005",
@@ -207,7 +207,7 @@
     "summary": "A Data Fiduciary shall give the Data Principal an itemised notice describing the personal data sought and the purpose of processing, the manner of exercising rights, and the manner of making a complaint to the Data Protection Board.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-CONSENT-01"]
   },
   {
     "id": "OBL-DPDPA-006",
@@ -222,7 +222,7 @@
     "summary": "Consent of the Data Principal shall be free, specific, informed, unconditional and unambiguous with a clear affirmative action, limited to the personal data necessary for the specified purpose, and may be withdrawn as easily as it was given.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-CONSENT-01"]
   },
   {
     "id": "OBL-DPDPA-008",
@@ -237,7 +237,7 @@
     "summary": "A Data Fiduciary remains responsible for compliance regardless of any agreement with a Data Processor, shall ensure the completeness, accuracy and consistency of personal data, implement appropriate technical and organisational measures and reasonable security safeguards, and report personal data breaches.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-GOV-01", "CTL-DATA-01", "CTL-SEC-01", "CTL-INC-01"]
   },
   {
     "id": "OBL-DPDPA-009",
@@ -252,7 +252,7 @@
     "summary": "Before processing the personal data of a child, a Data Fiduciary shall obtain verifiable consent of a parent or lawful guardian, and shall not undertake processing likely to cause detrimental effect, tracking, behavioural monitoring, or targeted advertising directed at children.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-CHILD-01"]
   },
   {
     "id": "OBL-DPDPA-010",
@@ -267,7 +267,7 @@
     "summary": "A Significant Data Fiduciary shall appoint a Data Protection Officer based in India and an independent data auditor, and shall undertake periodic Data Protection Impact Assessments and audits as prescribed.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-GOV-01"]
   },
   {
     "id": "OBL-DPDPA-011",
@@ -282,7 +282,7 @@
     "summary": "A Data Principal has the right to obtain from the Data Fiduciary a summary of the personal data being processed and the processing activities, and the identities of other Data Fiduciaries and processors with whom the data has been shared.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-RIGHTS-01"]
   },
   {
     "id": "OBL-DPDPR-004",
@@ -297,7 +297,7 @@
     "summary": "A Consent Manager shall be registered with the Data Protection Board and shall enable Data Principals to give, manage, review and withdraw consent through an accessible, interoperable platform, subject to the conditions in the First Schedule. (DPDP Rules notified 13 Nov 2025; this Rule commences 13 May 2027.)",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-CONSENT-01"]
   },
   {
     "id": "OBL-DPDPR-006",
@@ -312,7 +312,7 @@
     "summary": "A Data Fiduciary shall protect personal data in its possession or control by reasonable security safeguards including encryption, access control, logging and monitoring, and measures enabling continued processing and data backups in the event of a compromise. (DPDP Rules notified 13 Nov 2025; this Rule commences 13 May 2027.)",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-SEC-01"]
   },
   {
     "id": "OBL-DPDPR-007",
@@ -327,7 +327,7 @@
     "summary": "On becoming aware of a personal data breach, a Data Fiduciary shall intimate each affected Data Principal without delay and notify the Data Protection Board, providing updated and detailed particulars (including nature, scope and mitigation) within 72 hours. (DPDP Rules notified 13 Nov 2025; this Rule commences 13 May 2027.)",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-INC-01"]
   },
   {
     "id": "OBL-RBI-001",
@@ -342,7 +342,7 @@
     "summary": "Advisory guiding principle from the RBI FREE-AI Committee report (13 Aug 2025): adoption of AI in the financial sector must be anchored in trust — systems should be reliable, transparent and inspire public confidence. This is a committee recommendation, not a binding direction; no AI-specific RBI instrument has issued from it.",
     "enforcement_modality": "SELF_CERTIFICATION",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-GOV-01"]
   },
   {
     "id": "OBL-RBI-002",
@@ -357,7 +357,7 @@
     "summary": "Advisory guiding principle from the RBI FREE-AI Committee report (13 Aug 2025): accountability for AI outcomes rests with the regulated entity deploying the system, with clearly defined responsibilities for AI-driven decisions and their impacts — it cannot be delegated to the model or a third-party vendor. Advisory recommendation, not a binding direction.",
     "enforcement_modality": "SELF_CERTIFICATION",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-GOV-01"]
   },
   {
     "id": "OBL-RBI-003",
@@ -372,7 +372,7 @@
     "summary": "Advisory guiding principle from the RBI FREE-AI Committee report (13 Aug 2025): AI systems used in the financial sector should be explainable and auditable by design, so decisions affecting customers can be understood, reviewed and contested. Advisory recommendation, not a binding direction.",
     "enforcement_modality": "SELF_CERTIFICATION",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-TRANSP-01"]
   },
   {
     "id": "OBL-PMLA-012",
@@ -387,7 +387,7 @@
     "summary": "Every reporting entity shall maintain records of prescribed transactions, verify the identity of clients and beneficial owners, maintain records of identity documents, and furnish information to the Director, FIU-IND, in the prescribed manner and within prescribed time limits.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-CDD-01", "CTL-AMLREP-01"]
   },
   {
     "id": "OBL-PMLA-009",
@@ -402,7 +402,7 @@
     "summary": "Reporting entities shall carry out client due diligence at the commencement of an account-based relationship, verifying client identity through officially valid documents and identifying and verifying the beneficial owner.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-CDD-01"]
   },
   {
     "id": "OBL-PMLA-008",
@@ -417,6 +417,6 @@
     "summary": "Reporting entities shall furnish to the Director, FIU-IND, cash transaction reports (CTRs) and suspicious transaction reports (STRs) electronically, within the timelines prescribed under the rules.",
     "enforcement_modality": "HARD_LAW",
     "jurisdiction": "INDIA",
-    "control_ids": []
+    "control_ids": ["CTL-AMLREP-01"]
   }
 ]
