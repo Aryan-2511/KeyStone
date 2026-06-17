@@ -29,7 +29,8 @@
       + FATF + NIST AI RMF) — KS-0202 (`keystone.core.controls`, 15 controls;
       §5b validator `scripts/validate_controls.py`, `tests/test_controls.py`)
 - [ ] EU hard-law vs India self-certification modality contrast (surfaced attribute) — KS-0203
-- [ ] LLM-edge obligation-summary phrasing only (core/edge boundary) — KS-0204
+- [x] LLM-edge obligation-summary phrasing only (core/edge boundary) — KS-0204
+      (`keystone.llm.phrasing.phrase_summary`, NIM no-think; `tests/test_phrasing.py`)
 - [x] Citation-validation accuracy budget (build fails on unsourced/malformed node) — KS-0205
       (`scripts/validate_obligations.py`, wired into `make verify`)
 

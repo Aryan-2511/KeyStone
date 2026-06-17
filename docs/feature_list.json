@@ -243,11 +243,17 @@
       "phase": "2 — Layer 3: Obligation Mapper",
       "layer": "Layer 3 — Obligation Mapper",
       "area": "compliance",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "obligation summaries are produced at the LLM edge while the import-linter boundary keeps graph/crosswalk logic LLM-free"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_phrasing.py::test_phrase_summary_sends_curated_summary_as_prompt",
+        "tests/test_phrasing.py::test_phrase_summary_system_prompt_disables_thinking_and_states_faithfulness",
+        "tests/test_phrasing.py::test_phrase_summary_does_not_mutate_obligation_or_data_file",
+        "tests/test_phrasing.py::test_nim_backend_sends_spec_params_on_the_wire",
+        "tests/test_architecture.py::test_import_contract_passes"
+      ]
     },
     {
       "id": "KS-0205",
