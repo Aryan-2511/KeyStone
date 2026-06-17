@@ -1,0 +1,138 @@
+[
+  {
+    "id": "CTL-GOV-01",
+    "title": "Governance, leadership and accountability",
+    "description": "A governing body or senior management establishes oversight of, and remains accountable for, AI/ICT outcomes; responsibilities are defined and cannot be delegated away to a model, processor or third-party vendor.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Clause 5 — Leadership" },
+      { "framework": "NIST_AI_RMF", "reference": "GOVERN" },
+      { "framework": "FATF", "reference": "Recommendation 18 — Internal controls" }
+    ]
+  },
+  {
+    "id": "CTL-RISK-01",
+    "title": "Risk management framework",
+    "description": "A documented risk-management process identifies, assesses and treats risks across the system lifecycle, applied iteratively and kept up to date.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Clause 6.1 & 8.2 — AI risk assessment and treatment" },
+      { "framework": "NIST_AI_RMF", "reference": "MAP and MANAGE" },
+      { "framework": "FATF", "reference": "Recommendation 1 — Risk-based approach" }
+    ]
+  },
+  {
+    "id": "CTL-DATA-01",
+    "title": "Data governance and quality",
+    "description": "Data used by the system is governed for quality, accuracy, completeness and representativeness, with examination of bias and gaps relative to the intended purpose.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Data for AI systems" },
+      { "framework": "NIST_AI_RMF", "reference": "MAP — data and input" }
+    ]
+  },
+  {
+    "id": "CTL-DOC-01",
+    "title": "Technical documentation and event logging",
+    "description": "Technical documentation is drawn up and kept current, and the system records events (logs) over its lifetime to ensure traceability of functioning.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Clause 7.5 — Documented information" },
+      { "framework": "NIST_AI_RMF", "reference": "GOVERN — documentation and traceability" }
+    ]
+  },
+  {
+    "id": "CTL-HUMAN-01",
+    "title": "Human oversight",
+    "description": "Natural persons can effectively oversee the system during use — monitoring operation, correctly interpreting output, and intervening in or interrupting the system.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Human oversight" },
+      { "framework": "NIST_AI_RMF", "reference": "GOVERN — human roles and oversight" }
+    ]
+  },
+  {
+    "id": "CTL-ROBUST-01",
+    "title": "Accuracy, robustness and resilience testing",
+    "description": "The system achieves appropriate accuracy and robustness and performs consistently, evidenced by a programme of resilience/operational testing across its lifecycle.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Clause 8 — Operation" },
+      { "framework": "NIST_AI_RMF", "reference": "MEASURE — valid, reliable and robust" }
+    ]
+  },
+  {
+    "id": "CTL-SEC-01",
+    "title": "Information security safeguards",
+    "description": "Reasonable technical and organisational security measures (encryption, access control, logging and monitoring, backups) protect data and systems from compromise.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Security of AI systems" },
+      { "framework": "NIST_AI_RMF", "reference": "MANAGE — secure and resilient" }
+    ]
+  },
+  {
+    "id": "CTL-INC-01",
+    "title": "Incident and breach management and notification",
+    "description": "Incidents and personal-data breaches are detected, managed and recorded, and notified to the relevant authority and affected parties within the prescribed timelines.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Clause 10 — Improvement and incident handling" },
+      { "framework": "NIST_AI_RMF", "reference": "MANAGE — incident response" }
+    ]
+  },
+  {
+    "id": "CTL-CONSENT-01",
+    "title": "Notice and consent",
+    "description": "A lawful basis for processing is established through itemised notice and free, specific, informed, unambiguous and withdrawable consent, supported by accessible consent-management.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Privacy and data-subject interests" },
+      { "framework": "NIST_AI_RMF", "reference": "MAP — privacy-enhanced" }
+    ]
+  },
+  {
+    "id": "CTL-RIGHTS-01",
+    "title": "Data-principal rights",
+    "description": "Individuals can exercise rights over their personal data, including obtaining a summary of data processed and the parties it has been shared with.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Data-subject rights" },
+      { "framework": "NIST_AI_RMF", "reference": "GOVERN — privacy-enhanced" }
+    ]
+  },
+  {
+    "id": "CTL-TRANSP-01",
+    "title": "Transparency and explainability",
+    "description": "The system is sufficiently transparent and explainable that its outputs can be interpreted, used appropriately, and contested — accompanied by instructions for use.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Transparency to users" },
+      { "framework": "NIST_AI_RMF", "reference": "MEASURE — explainable, interpretable and accountable" }
+    ]
+  },
+  {
+    "id": "CTL-CHILD-01",
+    "title": "Protection of children's data",
+    "description": "Verifiable parental/guardian consent is obtained before processing a child's data, and tracking, behavioural monitoring and targeted advertising directed at children are prohibited.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Impact on individuals and vulnerable groups" },
+      { "framework": "NIST_AI_RMF", "reference": "MAP — privacy-enhanced and fair" }
+    ]
+  },
+  {
+    "id": "CTL-TPRM-01",
+    "title": "Third-party and supply-chain risk management",
+    "description": "Risk arising from third-party (ICT/AI) service providers is managed as an integral part of risk management, with the entity remaining responsible for compliance.",
+    "spine": [
+      { "framework": "ISO_42001", "reference": "Annex A — Third-party and supplier relationships" },
+      { "framework": "NIST_AI_RMF", "reference": "GOVERN 6 — supply-chain and third-party risk" }
+    ]
+  },
+  {
+    "id": "CTL-CDD-01",
+    "title": "Customer due diligence (KYC)",
+    "description": "Clients and beneficial owners are identified and verified at the commencement of a relationship using officially valid documents, on a risk-sensitive basis.",
+    "spine": [
+      { "framework": "FATF", "reference": "Recommendation 10 — Customer due diligence" }
+    ]
+  },
+  {
+    "id": "CTL-AMLREP-01",
+    "title": "Transaction records and regulatory reporting",
+    "description": "Prescribed transaction records are maintained and suspicious/cash transaction reports are furnished to the financial intelligence unit within the prescribed timelines.",
+    "spine": [
+      { "framework": "FATF", "reference": "Recommendation 11 — Record-keeping" },
+      { "framework": "FATF", "reference": "Recommendation 20 — Reporting of suspicious transactions" }
+    ]
+  }
+]

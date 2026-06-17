@@ -74,5 +74,11 @@ jobs:
       - name: Validate feature list
         run: uv run python scripts/validate_feature_list.py
 
+      - name: Validate obligation citations
+        run: uv run python scripts/validate_obligations.py
+
+      - name: Validate control crosswalk (referential integrity)
+        run: uv run python scripts/validate_controls.py
+
       - name: Verify (full test suite + coverage floor)
         run: uv run pytest

@@ -29,6 +29,24 @@
   citation fields, duplicate id, https url) stay hard, build-failing errors.
   `validate()` returns hard errors; `check()` returns `(errors, warnings)`.
 
+## Control library / crosswalk (KS-0202, `keystone.core.controls`)
+
+- **Control id convention: `CTL-<DOMAIN>-<NN>`** (pattern `^CTL-[A-Z]+-\d{2}$`),
+  e.g. `CTL-GOV-01`. Own data file (Option A, ADR-0012 §5): obligations reference
+  controls by `control_id`; the crosswalk is a LOOKUP on `control_ids`, never a
+  clustering of obligation text.
+- **Control count is an OUTPUT, not a target.** Honest grouping of the 28
+  obligations at natural granularity yielded **15 controls**; 1:1 mappings are
+  legitimate (HUMAN/RIGHTS/CHILD/TPRM). Never force-merge unrelated obligations
+  to shrink the count. (DPDPA-008 / PMLA-012 map to multiple controls because the
+  underlying section genuinely is a portmanteau.)
+- **The crosswalk MUST preserve `enforcement_modality`** through grouping: a
+  control satisfied by both a HARD_LAW article and a SELF_CERTIFICATION sutra
+  exposes BOTH modalities (`ControlMapping.modalities`). KS-0203 depends on this.
+- **§5b referential integrity ships in `scripts/validate_controls.py`** (sibling
+  of the citation gate): every `control_id` resolves, no orphan control, every
+  obligation covered → hard errors; wired into `make verify` AND ci.yml.
+
 ## NAT (nvidia-nat 1.7.0) integration notes — things that surprised us
 
 - **`nat` ships no `py.typed`** (untyped). Under mypy strict this breaks
