@@ -72,7 +72,52 @@ def test_phrase_summary_returns_stripped_presentation_string(
     sample: Obligation,
 ) -> None:
     fake = _FakeBackend(reply="  Reworded sentence.  \n")
-    assert phrase_summary(sample, backend=fake) == "Reworded sentence."
+    result = phrase_summary(sample, backend=fake)
+    assert result.text == "Reworded sentence."
+    assert result.fell_back is False
+
+
+def _obl(summary: str) -> Obligation:
+    return Obligation.model_validate(
+        {
+            "id": "OBL-EUAI-009",
+            "instrument": "EU_AI_ACT",
+            "citation": {
+                "instrument": "EU_AI_ACT",
+                "provision": "Art. 9",
+                "title": "Risk management system",
+            },
+            "summary": summary,
+            "enforcement_modality": "HARD_LAW",
+            "jurisdiction": "EU",
+            "control_ids": [],
+        }
+    )
+
+
+def test_guard_returns_faithful_reword() -> None:
+    obl = _obl("Systems should be reliable.")
+    result = phrase_summary(obl, backend=_FakeBackend(reply="Systems may be reliable."))
+    assert result.fell_back is False
+    assert result.text == "Systems may be reliable."
+
+
+def test_guard_falls_back_to_summary_on_strengthening() -> None:
+    obl = _obl("Entities are encouraged to define responsibilities.")
+    result = phrase_summary(
+        obl, backend=_FakeBackend(reply="Entities must define responsibilities.")
+    )
+    assert result.fell_back is True
+    assert result.text == obl.summary
+
+
+def test_guard_falls_back_to_summary_on_weakening() -> None:
+    obl = _obl("Systems shall log events.")
+    result = phrase_summary(
+        obl, backend=_FakeBackend(reply="Systems should log events.")
+    )
+    assert result.fell_back is True
+    assert result.text == obl.summary
 
 
 def test_phrase_summary_propagates_unreachable_backend(sample: Obligation) -> None:
@@ -154,9 +199,9 @@ def test_nim_backend_sends_spec_params_on_the_wire(
 )
 def test_live_phrasing_no_preamble_or_reasoning_leakage() -> None:
     sample = next(o for o in load_obligations() if o.id == "OBL-EUAI-009")
-    out = phrase_summary(sample)
-    assert isinstance(out, str)
-    assert out.strip()
-    lowered = out.lower()
+    result = phrase_summary(sample)
+    assert isinstance(result.text, str)
+    assert result.text.strip()
+    lowered = result.text.lower()
     assert not lowered.startswith(("here", "sure", "reworded", "the reworded version"))
     assert "<think>" not in lowered and "</think>" not in lowered

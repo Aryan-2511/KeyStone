@@ -6,6 +6,6 @@ production) on one code path. The core must not depend on it.
 
 from __future__ import annotations
 
-from .phrasing import phrase_summary
+from .phrasing import PhrasedSummary, phrase_summary
 
-__all__ = ["phrase_summary"]
+__all__ = ["PhrasedSummary", "phrase_summary"]

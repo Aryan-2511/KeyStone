@@ -23,8 +23,8 @@ No application logic.
 
 ## Phase 2 — Layer 3: Obligation Mapper (current)
 
-The first real layer; deterministic-heavy. (`KS-0201`–`KS-0205`)
-KS-0201 and KS-0205 are done; KS-0202 is next.
+The first real layer; deterministic-heavy. (`KS-0201`–`KS-0206`)
+KS-0201/0202/0204/0205/0206 are done; KS-0203 is next.
 
 - Curated obligation graph, ~25–30 nodes spanning EU AI Act Art. 9–15, DORA,
   India DPDP Act + DPDP Rules 2025, RBI responsible-AI guidance, PMLA/FIU-IND —
@@ -36,6 +36,9 @@ KS-0201 and KS-0205 are done; KS-0202 is next.
 - LLM used ONLY to phrase obligation summaries (core/edge boundary). (`KS-0204`)
 - Citation-validation accuracy budget: the build fails on any unsourced or
   malformed node. (`KS-0205`)
+- Deterministic deontic-strength guard: phrasing falls back to the curated
+  summary if it drifts binding↔advisory force (added during KS-0204 review;
+  must precede `KS-0203`'s modality screen). (`KS-0206`)
 
 ## Phase 3 — Layer 2: AI Assurance Loop
 

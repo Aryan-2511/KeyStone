@@ -276,6 +276,26 @@
       ]
     },
     {
+      "id": "KS-0206",
+      "title": "Deterministic deontic-strength guard for edge phrasing",
+      "description": "The deontic strength (binding 'must/shall' vs advisory 'should/may') of an obligation is a deterministic-core fact. KS-0204's edge phrasing is guarded: if a reworded summary strengthens or weakens modal force relative to the curated source, the edge falls back to the authoritative summary (certainly-faithful over probably-faithful). Prevents a drifted verb being shown next to a binding/advisory modality label (KS-0203).",
+      "phase": "2 — Layer 3: Obligation Mapper",
+      "layer": "Layer 3 — Obligation Mapper",
+      "area": "compliance",
+      "status": "done",
+      "done_criteria": [
+        "a deterministic classifier in keystone.core detects binding-vs-advisory modal force, and phrase_summary falls back to the curated summary when the reworded text drifts (strengthens or weakens) relative to the source"
+      ],
+      "tests": [
+        "tests/test_deontic.py::test_weakening_binding_to_advisory_is_drift",
+        "tests/test_deontic.py::test_strengthening_advisory_to_binding_is_drift",
+        "tests/test_deontic.py::test_binding_source_kept_binding_is_not_drift",
+        "tests/test_phrasing.py::test_guard_falls_back_to_summary_on_strengthening",
+        "tests/test_phrasing.py::test_guard_falls_back_to_summary_on_weakening",
+        "tests/test_phrasing.py::test_guard_returns_faithful_reword"
+      ]
+    },
+    {
       "id": "KS-0301",
       "title": "Mock vulnerable payments agent",
       "description": "A deliberately vulnerable mock payments agent on the NAT workflow, susceptible to indirect prompt injection — the assurance loop's target surface.",

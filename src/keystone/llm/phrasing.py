@@ -14,7 +14,9 @@ faithfulness contract. Live-on-demand, no caching.
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
 
+from keystone.core.deontic import drifts
 from keystone.core.obligations import Obligation
 
 from .inference import Backend, NimBackend, complete
@@ -54,15 +56,35 @@ def _phrasing_backend() -> NimBackend:
     )
 
 
-def phrase_summary(obligation: Obligation, *, backend: Backend | None = None) -> str:
-    """Return a reworded, presentation-only version of `obligation.summary`.
+@dataclass(frozen=True)
+class PhrasedSummary:
+    """Result of phrasing: the text to display, and whether it fell back.
 
-    Reads `obligation.summary` and returns derived text; does not mutate the
-    obligation or any core data. `backend` is injectable for tests (the fast gate
-    passes a fake backend so it never touches the network).
+    `text` is the reworded summary when faithful, or the curated `summary`
+    verbatim when the deontic guard detected modal drift. `fell_back` is True in
+    the latter case so the UI can label it as the (authoritative) source text.
     """
-    return complete(
+
+    text: str
+    fell_back: bool
+
+
+def phrase_summary(
+    obligation: Obligation, *, backend: Backend | None = None
+) -> PhrasedSummary:
+    """Reword `obligation.summary` for readability, guarded against modal drift.
+
+    Reads `obligation.summary` and returns derived text; never mutates the
+    obligation or any core data. If the reworded text would strengthen or weaken
+    the obligation's modal force relative to the curated source (`deontic.drifts`),
+    it falls back to the curated summary — certainly-faithful over probably-
+    faithful. `backend` is injectable for tests (the fast gate uses a fake one).
+    """
+    phrased = complete(
         obligation.summary,
         system=PHRASING_SYSTEM,
         backend=backend or _phrasing_backend(),
     ).strip()
+    if drifts(obligation.summary, phrased):
+        return PhrasedSummary(text=obligation.summary, fell_back=True)
+    return PhrasedSummary(text=phrased, fell_back=False)

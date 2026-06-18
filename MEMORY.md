@@ -75,6 +75,25 @@
 - **DEFERRED:** Ollama / offline-demo path is NOT wired for phrasing (NIM only in
   KS-0204). Offline-demo insurance (local model fallback) is not yet in place.
 
+## Deontic-strength guard (KS-0206, `keystone.core.deontic` + edge)
+
+- **Modal force (binding 'must/shall' vs advisory 'should/may') is a CORE FACT**,
+  not a phrasing choice — already encoded by `enforcement_modality`. The 9B
+  no-think model drifts it both ways when rewording (hardened RBI advisory bodies
+  to "must"; softened an EU "shall" to "should"). **Prompt steering does NOT fix
+  this reliably** (tightening the prompt made it worse) — so the guard is
+  deterministic, not prompt-based, and uses no bigger model / no extra credits.
+- `keystone.core.deontic.modal_profile(text)` + `drifts(source, candidate)`:
+  compare phrased vs the CURATED SOURCE (not `enforcement_modality` alone, so
+  curated advisory text that legitimately says "must" like RBI-001 isn't a false
+  positive). BINDING lexicon is precise (excludes the noun "requirement"; strips
+  "not binding"/"not mandatory") so the guard ERRS TOWARD FALLBACK.
+- **`phrase_summary` now returns `PhrasedSummary(text, fell_back)`** — on drift it
+  returns the curated `summary` verbatim (`fell_back=True`). Certainly-faithful
+  over probably-faithful. KS-0203's modality screen renders `.text`, so a drifted
+  verb can never sit beside a binding/advisory label. Live: RBI nodes fall back;
+  EU/PMLA hard-law nodes phrase faithfully.
+
 ## NAT (nvidia-nat 1.7.0) integration notes — things that surprised us
 
 - **`nat` ships no `py.typed`** (untyped). Under mypy strict this breaks
