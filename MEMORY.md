@@ -47,6 +47,34 @@
   of the citation gate): every `control_id` resolves, no orphan control, every
   obligation covered → hard errors; wired into `make verify` AND ci.yml.
 
+## LLM-edge phrasing (KS-0204, `keystone.llm.phrasing`) — first live inference
+
+- **First real NIM call lives at the edge.** `phrase_summary(obligation)` reads
+  the curated `summary` (system of record, ADR-0012 §4) and returns DERIVED
+  presentation text via `keystone.llm.inference.complete(...)`. Never writes core
+  data — a no-mutation test asserts the obligation object + `obligations.json`
+  stay byte-identical. import-linter still keeps core LLM-free.
+- **Model: `nvidia/nvidia-nemotron-nano-9b-v2`** — a HYBRID-REASONING model. Run
+  it in **no-think** mode: the system prompt must start with `/no_think`. Verified
+  no-think works: output was ONLY the reworded text, no preamble, no `<think>`,
+  and the response's `reasoning_content` field came back EMPTY. (Sending thinking
+  params or copying NVIDIA's reasoning-demo defaults would reintroduce leakage.)
+- **NIM payload (OpenAI-compatible, via httpx — NOT the openai SDK, which is not a
+  dep):** POST `{base_url}/chat/completions`, `Authorization: Bearer <NVIDIA_API_KEY>`,
+  body `{model, messages:[{system},{user}], temperature, top_p, stream:false,
+  max_tokens?}`. **Response shape:** `choices[0].message.content`; the message
+  also carries `reasoning`/`reasoning_content` keys (empty under `/no_think`).
+  Decoding for faithful rewording: temperature 0.2, top_p 0.9, max_tokens 256.
+- **Seam change:** `NimBackend` gained `temperature`/`top_p`/`max_tokens` fields
+  (defaults preserve old behavior); the `Backend.complete` protocol + Ollama are
+  unchanged. `complete()` is **synchronous, returns `str`**.
+- **`NVIDIA_API_KEY` lives in `.env` (git-ignored), NOT exported to the shell.**
+  It is not in `os.environ` by default — load `.env` for live runs; never print it.
+- **Timeouts:** live no-think calls returned in a few seconds at max_tokens 256;
+  no timeout surprises (default 30s ample). Metered — keep live tests `slow`.
+- **DEFERRED:** Ollama / offline-demo path is NOT wired for phrasing (NIM only in
+  KS-0204). Offline-demo insurance (local model fallback) is not yet in place.
+
 ## NAT (nvidia-nat 1.7.0) integration notes — things that surprised us
 
 - **`nat` ships no `py.typed`** (untyped). Under mypy strict this breaks
