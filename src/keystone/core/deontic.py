@@ -1,44 +1,66 @@
 """Deterministic deontic (modal) strength classification — core, no LLM.
 
-The *strength* of an obligation — binding ("must"/"shall") vs advisory
-("should"/"may") — is a FACT, not a presentation choice. It is classified here
-deterministically so the LLM edge (KS-0204 phrasing) can GUARD against modal
-drift: if a phrased summary strengthens or weakens the modal force relative to
-the curated source text, the edge falls back to the authoritative summary.
+The *strength* of an obligation — binding ("shall"/"must") vs advisory
+("should"/"may") — is a FACT, not a presentation choice, already encoded by
+`enforcement_modality`. It is classified here deterministically so the LLM edge
+(KS-0206 phrasing) can GUARD against modal drift: if a reworded summary changes
+the modal force, the edge falls back to the authoritative curated summary.
 
-Design notes:
-- BINDING detection favours precision: only unambiguous modal verbs/phrases
-  count, so a phrasing that loses binding force (e.g. "shall" -> "should") is
-  detected. Ambiguous nouns like "requirement" are deliberately NOT counted.
-- Negated-binding phrases ("not binding", "not mandatory", ...) are stripped
-  first so they read as advisory, not binding.
-- The guard errs toward fallback: when in doubt the certainly-faithful curated
-  summary is shown, never a probably-faithful reword.
+Scope of protection (a CHOSEN line, not a gap — see MEMORY.md):
+- The guard HARD-PROTECTS only (a) STRONG transitions — a STRONG source must not
+  be presented as weaker, and an advisory source must not be pumped up to STRONG —
+  and (b) HARD_LAW nodes reading advisory.
+- Within-advisory drift (e.g. "should" <-> "may") on a non-hard-law node is
+  treated as acceptable presentation latitude.
+
+Asymmetric caution: a false fallback is harmless (the curated text is always a
+safe answer); a missed weakening of a strong obligation is unacceptable. So when
+a STRONG source's force cannot be confirmed in the phrasing, we fall back.
 """
 
 from __future__ import annotations
 
+import enum
 import re
-from dataclasses import dataclass
 
-# Unambiguous binding markers (modal verbs + verb phrases). Nouns/adjectives that
-# are ambiguous out of context (e.g. "requirement") are intentionally excluded.
-_BINDING = (
-    r"\bmust\b",
+from keystone.core.obligations import Modality
+
+
+class Tier(enum.IntEnum):
+    """Modal strength tier. Ordered so the strongest marker present wins."""
+
+    UNCLASSIFIED = 0
+    WEAK = 1
+    MEDIUM = 2
+    STRONG = 3
+
+
+# Tiered lexicon (word-boundary, case-insensitive). Conservative by design: the
+# lexicon need not catch every nuance, but it must not MISS a weakening of a
+# strong obligation. `\brequired\b` matches the verb/adjective but never the noun
+# "requirement".
+_STRONG = (
     r"\bshall\b",
-    r"\bmandatory\b",
+    r"\bmust\b",
+    r"\brequired\b",
     r"\brequired to\b",
+    r"\bmandatory\b",
     r"\boblig\w+\b",
 )
-_ADVISORY = (
+_MEDIUM = (
     r"\bshould\b",
-    r"\bmay\b",
+    r"\bought to\b",
+    r"\bexpected to\b",
     r"\brecommend\w*\b",
+)
+_WEAK = (
+    r"\bmay\b",
+    r"\bcan\b",
     r"\bencourag\w*\b",
-    r"\badvisor\w*\b",
+    r"\boptional\b",
 )
 # Phrases that negate binding force — they signal advisory/non-binding and must
-# not be counted as binding (e.g. "not a binding direction", "not mandatory").
+# NOT be read as STRONG (e.g. "not a binding direction", "not mandatory").
 _NEGATED_BINDING = (
     "not binding",
     "non-binding",
@@ -49,14 +71,6 @@ _NEGATED_BINDING = (
 )
 
 
-@dataclass(frozen=True)
-class ModalProfile:
-    """Counts of binding and advisory modal markers in a piece of text."""
-
-    binding: int
-    advisory: int
-
-
 def _strip_negated_binding(text: str) -> str:
     low = text.lower()
     for phrase in _NEGATED_BINDING:
@@ -64,23 +78,47 @@ def _strip_negated_binding(text: str) -> str:
     return low
 
 
-def modal_profile(text: str) -> ModalProfile:
-    """Classify the modal force of `text` (deterministic; case-insensitive)."""
+def _has(patterns: tuple[str, ...], text: str) -> bool:
+    return any(re.search(p, text) for p in patterns)
+
+
+def classify(text: str) -> Tier:
+    """Classify `text`'s operative modal strength as the highest tier present."""
     low = _strip_negated_binding(text)
-    binding = sum(len(re.findall(p, low)) for p in _BINDING)
-    advisory = sum(len(re.findall(p, low)) for p in _ADVISORY)
-    return ModalProfile(binding=binding, advisory=advisory)
+    if _has(_STRONG, low):
+        return Tier.STRONG
+    if _has(_MEDIUM, low):
+        return Tier.MEDIUM
+    if _has(_WEAK, low):
+        return Tier.WEAK
+    return Tier.UNCLASSIFIED
 
 
-def drifts(source: str, candidate: str) -> bool:
-    """Return True if `candidate` changed modal force relative to `source`.
+def detect_modal_drift(
+    source: str, phrased: str, enforcement_modality: Modality
+) -> bool:
+    """Return True if `phrased` drifts the modal force of `source` (=> fall back).
 
-    Two drift directions, both faithfulness defects:
-    - strengthening: `candidate` asserts binding force the `source` did not;
-    - weakening: `source` was binding but `candidate` drops to purely advisory.
+    Two protected conditions:
+    1. STRONG transition: a STRONG source rendered non-STRONG (weakening, INCLUDING
+       the uncertain case where `phrased` carries no modal verb at all), or a
+       non-STRONG source pumped up to STRONG (strengthening). Expressed as the XOR
+       of "is STRONG" on each side. Because this is checked FIRST, the
+       both-UNCLASSIFIED pass-through below is only reachable when the source is
+       non-STRONG — a STRONG source going unclassified always falls back here.
+    2. HARD_LAW cross-check: a hard-law node whose phrasing reads advisory
+       (MEDIUM/WEAK) drifts even if the source clause was not itself STRONG.
+
+    Within-advisory drift on a non-hard-law node (e.g. "should" -> "may") is
+    intentionally NOT flagged (chosen scope; see module docstring / MEMORY.md).
     """
-    src = modal_profile(source)
-    cand = modal_profile(candidate)
-    strengthened = cand.binding > 0 and src.binding == 0
-    weakened = src.binding > 0 and cand.binding == 0 and cand.advisory > 0
-    return strengthened or weakened
+    src = classify(source)
+    phr = classify(phrased)
+
+    if (src is Tier.STRONG) != (phr is Tier.STRONG):
+        return True
+    # HARD_LAW node whose phrasing reads advisory (independent of source tier).
+    return enforcement_modality is Modality.HARD_LAW and phr in (
+        Tier.MEDIUM,
+        Tier.WEAK,
+    )

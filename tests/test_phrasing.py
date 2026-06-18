@@ -71,13 +71,14 @@ def test_phrase_summary_system_prompt_disables_thinking_and_states_faithfulness(
 def test_phrase_summary_returns_stripped_presentation_string(
     sample: Obligation,
 ) -> None:
-    fake = _FakeBackend(reply="  Reworded sentence.  \n")
+    # A faithful reword (STRONG source -> STRONG phrasing) passes through, stripped.
+    fake = _FakeBackend(reply="  A risk management system must be maintained.  \n")
     result = phrase_summary(sample, backend=fake)
-    assert result.text == "Reworded sentence."
+    assert result.text == "A risk management system must be maintained."
     assert result.fell_back is False
 
 
-def _obl(summary: str) -> Obligation:
+def _obl(summary: str, modality: str = "HARD_LAW") -> Obligation:
     return Obligation.model_validate(
         {
             "id": "OBL-EUAI-009",
@@ -88,7 +89,7 @@ def _obl(summary: str) -> Obligation:
                 "title": "Risk management system",
             },
             "summary": summary,
-            "enforcement_modality": "HARD_LAW",
+            "enforcement_modality": modality,
             "jurisdiction": "EU",
             "control_ids": [],
         }
@@ -96,14 +97,17 @@ def _obl(summary: str) -> Obligation:
 
 
 def test_guard_returns_faithful_reword() -> None:
-    obl = _obl("Systems should be reliable.")
-    result = phrase_summary(obl, backend=_FakeBackend(reply="Systems may be reliable."))
+    obl = _obl("Systems shall log events.")
+    result = phrase_summary(obl, backend=_FakeBackend(reply="Systems must log events."))
     assert result.fell_back is False
-    assert result.text == "Systems may be reliable."
+    assert result.text == "Systems must log events."
 
 
 def test_guard_falls_back_to_summary_on_strengthening() -> None:
-    obl = _obl("Entities are encouraged to define responsibilities.")
+    obl = _obl(
+        "Entities are encouraged to define responsibilities.",
+        modality="SELF_CERTIFICATION",
+    )
     result = phrase_summary(
         obl, backend=_FakeBackend(reply="Entities must define responsibilities.")
     )
@@ -115,6 +119,26 @@ def test_guard_falls_back_to_summary_on_weakening() -> None:
     obl = _obl("Systems shall log events.")
     result = phrase_summary(
         obl, backend=_FakeBackend(reply="Systems should log events.")
+    )
+    assert result.fell_back is True
+    assert result.text == obl.summary
+
+
+def test_guard_falls_back_on_uncertain_strong_source() -> None:
+    # STRONG source reworded with no modal verb -> cannot confirm force -> fallback.
+    obl = _obl("Systems shall log events.", modality="SELF_CERTIFICATION")
+    result = phrase_summary(
+        obl, backend=_FakeBackend(reply="Systems log events automatically.")
+    )
+    assert result.fell_back is True
+    assert result.text == obl.summary
+
+
+def test_guard_falls_back_on_hard_law_reading_advisory() -> None:
+    # HARD_LAW node phrased advisory -> modality cross-check fallback.
+    obl = _obl("A data principal has the right to obtain a summary.")
+    result = phrase_summary(
+        obl, backend=_FakeBackend(reply="A data principal may obtain a summary.")
     )
     assert result.fell_back is True
     assert result.text == obl.summary

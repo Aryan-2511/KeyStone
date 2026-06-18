@@ -278,21 +278,23 @@
     {
       "id": "KS-0206",
       "title": "Deterministic deontic-strength guard for edge phrasing",
-      "description": "The deontic strength (binding 'must/shall' vs advisory 'should/may') of an obligation is a deterministic-core fact. KS-0204's edge phrasing is guarded: if a reworded summary strengthens or weakens modal force relative to the curated source, the edge falls back to the authoritative summary (certainly-faithful over probably-faithful). Prevents a drifted verb being shown next to a binding/advisory modality label (KS-0203).",
+      "description": "The deontic strength (binding 'shall/must' vs advisory 'should/may') of an obligation is a deterministic-core fact. KS-0204's edge phrasing is guarded by a tiered (STRONG/MEDIUM/WEAK) classifier cross-checked against enforcement_modality: on any STRONG-strength transition (incl. a STRONG source whose phrasing can't be confirmed) or a HARD_LAW node phrased advisory, phrase_summary falls back to the authoritative curated summary (certainly-faithful over probably-faithful; never fails the build). Within-advisory drift off hard-law is an accepted, chosen scope line. Prevents a drifted verb being shown next to a binding/advisory modality label (KS-0203).",
       "phase": "2 — Layer 3: Obligation Mapper",
       "layer": "Layer 3 — Obligation Mapper",
       "area": "compliance",
       "status": "done",
       "done_criteria": [
-        "a deterministic classifier in keystone.core detects binding-vs-advisory modal force, and phrase_summary falls back to the curated summary when the reworded text drifts (strengthens or weakens) relative to the source"
+        "a deterministic tiered (STRONG/MEDIUM/WEAK) classifier in keystone.core, cross-checked against enforcement_modality, detects modal drift; phrase_summary falls back to the curated summary (never raises) on any STRONG-strength transition (including a STRONG source whose phrased force cannot be confirmed) or a HARD_LAW node phrased advisory"
       ],
       "tests": [
-        "tests/test_deontic.py::test_weakening_binding_to_advisory_is_drift",
+        "tests/test_deontic.py::test_regression_shall_to_should_is_drift",
         "tests/test_deontic.py::test_strengthening_advisory_to_binding_is_drift",
-        "tests/test_deontic.py::test_binding_source_kept_binding_is_not_drift",
-        "tests/test_phrasing.py::test_guard_falls_back_to_summary_on_strengthening",
+        "tests/test_deontic.py::test_uncertain_on_strong_falls_back",
+        "tests/test_deontic.py::test_hard_law_reading_advisory_is_drift_even_if_source_unclassified",
+        "tests/test_deontic.py::test_within_advisory_drift_is_accepted_off_hard_law",
         "tests/test_phrasing.py::test_guard_falls_back_to_summary_on_weakening",
-        "tests/test_phrasing.py::test_guard_returns_faithful_reword"
+        "tests/test_phrasing.py::test_guard_returns_faithful_reword",
+        "tests/test_phrasing.py::test_guard_falls_back_on_hard_law_reading_advisory"
       ]
     },
     {

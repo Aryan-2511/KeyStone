@@ -16,7 +16,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-from keystone.core.deontic import drifts
+from keystone.core.deontic import detect_modal_drift
 from keystone.core.obligations import Obligation
 
 from .inference import Backend, NimBackend, complete
@@ -76,7 +76,8 @@ def phrase_summary(
 
     Reads `obligation.summary` and returns derived text; never mutates the
     obligation or any core data. If the reworded text would strengthen or weaken
-    the obligation's modal force relative to the curated source (`deontic.drifts`),
+    the obligation's modal force relative to the curated source
+    (`deontic.detect_modal_drift`, cross-checked against `enforcement_modality`),
     it falls back to the curated summary — certainly-faithful over probably-
     faithful. `backend` is injectable for tests (the fast gate uses a fake one).
     """
@@ -85,6 +86,6 @@ def phrase_summary(
         system=PHRASING_SYSTEM,
         backend=backend or _phrasing_backend(),
     ).strip()
-    if drifts(obligation.summary, phrased):
+    if detect_modal_drift(obligation.summary, phrased, obligation.enforcement_modality):
         return PhrasedSummary(text=obligation.summary, fell_back=True)
     return PhrasedSummary(text=phrased, fell_back=False)

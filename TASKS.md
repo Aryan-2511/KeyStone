@@ -33,9 +33,10 @@
       (`keystone.llm.phrasing.phrase_summary`, NIM no-think; `tests/test_phrasing.py`)
 - [x] Citation-validation accuracy budget (build fails on unsourced/malformed node) — KS-0205
       (`scripts/validate_obligations.py`, wired into `make verify`)
-- [x] Deterministic deontic-strength guard: phrasing falls back to the curated
-      summary on binding↔advisory drift — KS-0206 (`keystone.core.deontic`,
-      `keystone.llm.phrasing`; must precede KS-0203's modality screen)
+- [x] Deterministic deontic-strength guard: tiered classifier + enforcement_modality
+      cross-check; phrasing falls back to the curated summary on STRONG-strength
+      drift or a hard-law node read advisory — KS-0206 (`keystone.core.deontic`,
+      `keystone.llm.phrasing`; ~7% of nodes fall back; precedes KS-0203's screen)
 
 ## Later phases
 

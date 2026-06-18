@@ -77,22 +77,38 @@
 
 ## Deontic-strength guard (KS-0206, `keystone.core.deontic` + edge)
 
-- **Modal force (binding 'must/shall' vs advisory 'should/may') is a CORE FACT**,
+- **Modal force (binding 'shall/must' vs advisory 'should/may') is a CORE FACT**,
   not a phrasing choice — already encoded by `enforcement_modality`. The 9B
   no-think model drifts it both ways when rewording (hardened RBI advisory bodies
   to "must"; softened an EU "shall" to "should"). **Prompt steering does NOT fix
   this reliably** (tightening the prompt made it worse) — so the guard is
   deterministic, not prompt-based, and uses no bigger model / no extra credits.
-- `keystone.core.deontic.modal_profile(text)` + `drifts(source, candidate)`:
-  compare phrased vs the CURATED SOURCE (not `enforcement_modality` alone, so
-  curated advisory text that legitimately says "must" like RBI-001 isn't a false
-  positive). BINDING lexicon is precise (excludes the noun "requirement"; strips
-  "not binding"/"not mandatory") so the guard ERRS TOWARD FALLBACK.
-- **`phrase_summary` now returns `PhrasedSummary(text, fell_back)`** — on drift it
-  returns the curated `summary` verbatim (`fell_back=True`). Certainly-faithful
-  over probably-faithful. KS-0203's modality screen renders `.text`, so a drifted
-  verb can never sit beside a binding/advisory label. Live: RBI nodes fall back;
-  EU/PMLA hard-law nodes phrase faithfully.
+- **Tiered classifier** `keystone.core.deontic.classify(text) -> Tier`
+  (STRONG > MEDIUM > WEAK > UNCLASSIFIED; highest marker present wins). Lexicon:
+  STRONG = shall/must/required/"required to"/mandatory/oblig\*; MEDIUM =
+  should/ought to/expected to/recommend\*; WEAK = may/can/encourag\*/optional.
+  Negation-aware: "not binding"/"not mandatory"/… are stripped so they don't read
+  STRONG; `\brequired\b` never matches the noun "requirement".
+- **`detect_modal_drift(source, phrased, enforcement_modality) -> bool`** (replaces
+  the old `drifts()`; no shim — the single caller was updated). Two protected,
+  build-NEVER-failing conditions: (1) **STRONG XOR** — `(source is STRONG) !=
+  (phrased is STRONG)` catches weakening, strengthening, AND uncertain-on-strong
+  (a STRONG source whose reword drops the modal verb → UNCLASSIFIED → still XOR →
+  fallback); because XOR is checked first, the both-UNCLASSIFIED pass-through is
+  only reachable for a non-STRONG source. (2) **HARD_LAW cross-check** — a
+  HARD_LAW node phrased MEDIUM/WEAK drifts even if the source clause wasn't STRONG.
+- **CHOSEN SCOPE LINE (explicit decision, not a future mystery gap):** the guard
+  hard-protects ONLY STRONG transitions + HARD_LAW-reads-advisory. Within-advisory
+  drift (e.g. "should" ↔ "may") on a non-hard-law node is treated as acceptable
+  presentation latitude — deliberately NOT flagged.
+- **Asymmetric caution:** a false fallback is harmless (curated text is always
+  safe); a missed weakening of a strong obligation is unacceptable → when in doubt
+  about a STRONG source, fall back.
+- **`phrase_summary` returns `PhrasedSummary(text, fell_back)`** — on drift returns
+  the curated `summary` verbatim (`fell_back=True`); never raises. KS-0203's
+  modality screen renders `.text`, so a drifted verb can't sit beside a label.
+- **Real-world hit rate: 2/28 nodes (~7%) fall back** (well under any concern);
+  the rest phrase through. Non-deterministic phrasing, deterministic guard.
 
 ## NAT (nvidia-nat 1.7.0) integration notes — things that surprised us
 
