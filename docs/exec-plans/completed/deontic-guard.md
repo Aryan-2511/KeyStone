@@ -56,6 +56,27 @@ steering is unreliable on this model, so the fix is deterministic.
 - Live end-to-end: RBI-001/RBI-002 (SELF_CERTIFICATION) drift → `fell_back=True`
   (curated summary shown); EUAI-012/PMLA-008 (HARD_LAW) faithful → reword shown.
 
+## Hardening — 2026-06-18 (completes the KS-0206 spec; branch `ks-0204b-deontic-guard`)
+
+The first cut was binary + modality-blind. Per the full spec it was hardened
+(KS-0206 id KEPT — no rename; the work completes the original spec):
+
+- **Tiered classifier** `classify(text) -> Tier` (STRONG/MEDIUM/WEAK/UNCLASSIFIED),
+  replacing the binary `modal_profile`. Negation-awareness preserved.
+- **`detect_modal_drift(source, phrased, enforcement_modality)`** replaces
+  `drifts()` — **removed, no shim**, single caller (`phrase_summary`) updated.
+- **Uncertain-on-strong → fallback** via the STRONG XOR (a STRONG source reworded
+  with no modal verb now falls back). The both-UNCLASSIFIED pass-through is
+  XOR-guarded so it can't re-open that hole for a STRONG source.
+- **HARD_LAW cross-check**: a hard-law node phrased advisory falls back.
+- **Chosen scope line (explicit decision, MEMORY.md):** only STRONG transitions +
+  HARD_LAW are hard-protected; within-advisory (should↔may) drift off hard-law is
+  accepted latitude — a deliberate line, not a gap.
+- **Fallback-not-fail** unchanged (req 4): `PhrasedSummary(text, fell_back)`.
+- **28-node fallback rate measured: 2/28 (~7%)** — far under the >½ stop.
+- `make verify` exit 0 (123 fast + slow-skips), import-linter core→edge KEPT,
+  `obligations.json` byte-identical.
+
 ## Next
 
 KS-0203 (modality contrast) — now safe: it renders `PhrasedSummary.text`, which
