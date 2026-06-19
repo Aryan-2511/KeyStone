@@ -331,16 +331,24 @@
     {
       "id": "KS-0301",
       "title": "Mock vulnerable payments agent",
-      "description": "A deliberately vulnerable mock payments agent on the NAT workflow, susceptible to indirect prompt injection — the assurance loop's target surface.",
+      "description": "A deliberately vulnerable mock payments agent (keystone.assurance) backed by the KS-0300 tool-calling seam, susceptible to indirect prompt injection — the assurance loop's target surface. Vulnerable BY DESIGN: its system prompt + tool-wiring trust the transaction memo as instructions (OWASP ASI / EchoLeak-class), so a memo-injected settlement instruction drives an unauthorized initiate_transfer (a stub that records transfer intent to the evidence ledger). Ships the canonical, typed VulnerabilitySignature + malicious-memo example that the Garak probe (KS-0303) and the L1 fraud fixture (KS-0403) both import.",
       "phase": "3 — Layer 2: AI Assurance Loop",
       "layer": "Layer 2 — AI Assurance Loop",
       "area": "assurance",
-      "status": "planned",
+      "status": "done",
       "depends_on": ["KS-0300"],
       "done_criteria": [
-        "the mock agent runs end-to-end on synthetic input and is demonstrably susceptible to a defined indirect-prompt-injection vector"
+        "the mock agent runs end-to-end on synthetic input and is demonstrably susceptible to a defined indirect-prompt-injection vector (memo-instruction injection fires an unauthorized initiate_transfer)",
+        "the canonical, typed vulnerability signature + malicious-memo example are one importable source of truth (the L2↔L1 seam), with initiate_transfer a pure stub that only records transfer intent to the ledger"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_mock_agent.py::test_memo_injection_fires_exploit_and_records_intent",
+        "tests/test_mock_agent.py::test_benign_run_does_not_fire_or_write_intent",
+        "tests/test_mock_agent.py::test_ledger_intent_entry_shape_records_the_memo_trigger",
+        "tests/test_mock_agent.py::test_signature_is_well_formed",
+        "tests/test_mock_agent.py::test_canonical_example_matches_signature",
+        "tests/test_mock_agent.py::test_live_memo_injection_fires_on_qwen"
+      ]
     },
     {
       "id": "KS-0302",
