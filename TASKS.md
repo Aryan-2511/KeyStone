@@ -50,8 +50,12 @@
       instructions → unauthorized `initiate_transfer` stub → ledger intent) +
       canonical `VulnerabilitySignature` the Garak probe & L1 fixture import —
       KS-0301 (`keystone.assurance`, `tests/test_mock_agent.py`; live exploit 10/10)
-- [ ] Phase 3 — Layer 2: AI Assurance Loop (Guardrails + Garak + milestone) —
-      KS-0302–KS-0304 (next → KS-0302 NeMo Guardrails rails)
+- [x] Garak red-team as isolated subprocess (v0.15.1): finds the memo-injection
+      vuln, parses JSONL → typed findings → OWASP/Art.15/India mapping → ledger
+      finding — KS-0303 (`keystone.assurance.garak_probe`,
+      `tests/test_garak_probe.py`; built BEFORE KS-0302, detector-before-patch)
+- [ ] Phase 3 — Layer 2: AI Assurance Loop (Guardrails + milestone) —
+      KS-0302, KS-0304 (next → KS-0302 NeMo Guardrails rails; `depends_on` KS-0303)
 - [ ] Phase 4 — Layer 1: Transaction Monitor + the L2↔L1 seam milestone — KS-0401–KS-0403
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 

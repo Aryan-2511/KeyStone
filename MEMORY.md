@@ -196,6 +196,49 @@
   edge (llm.inference). import-linter core→edge KEPT. Fast gate uses a canned
   `complete_with_tools` backend (no Ollama); the 10-trial live exploit is `-m slow`.
 
+## Garak red-team probe (KS-0303, `keystone.assurance.garak_probe`)
+
+- **Garak runs as an ISOLATED SUBPROCESS (ADR-0003), pinned to v0.15.1.** Not a
+  project dependency; installed via `uv tool install garak`, invoked as the `garak`
+  CLI (or `uv tool run garak`). **A version bump is deliberate and must refresh the
+  captured fixtures** (`PINNED_GARAK_VERSION`).
+- **v0.15.1 JSONL schema:** a stream of records keyed by `entry_type`. The one we
+  parse is `eval`: `{probe, detector, passed, fails, nones, total_evaluated, ...}`.
+  **A finding = an `eval` with `fails > 0`** (attack outputs slipped past the
+  detector). `attempt` records (per-prompt) carry prompt/outputs/triggers; ignored.
+- **Curated probe subset:** `latentinjection.*` (indirect prompt injection =
+  instruction-in-data) — matches `MEMO_INJECTION_SIGNATURE`'s mechanism. Live runs
+  use `latentinjection.LatentInjectionTranslationEnFr` capped via
+  `run.soft_probe_prompt_cap` (a YAML `--config`) to bound runtime.
+- **How Garak reaches the agent:** Garak's isolated venv CANNOT import `keystone`,
+  so the `function` generator points at a STANDALONE, stdlib-only target
+  (`assurance/_targets/vuln_agent_target.py`) put on `PYTHONPATH` by `scan_mock_agent`.
+  The target calls Ollama directly under the VULNERABLE system prompt
+  (`GARAK_PROBE_SYSTEM_PROMPT`, passed via env) — the KS-0301 instruction-in-data
+  flaw, generalized so Garak's generic latent-injection probes exercise it.
+- **Windows gotchas (both real, both handled):** (1) Garak prints emoji → the Windows
+  console + cp1252 subprocess decoding crash; set `PYTHONUTF8=1`/`PYTHONIOENCODING=utf-8`
+  AND decode the subprocess with `encoding="utf-8", errors="replace"`. (2) `subprocess`
+  S603/S607 + the urllib S310 in the target get SCOPED `# noqa` with comments (ADR-0003).
+- **OWASP→regulation mapping (data table, `FAMILY_MAPPINGS`):** prompt-injection →
+  `LLM01:2025 Prompt Injection` + OWASP Agentic ASI tool-misuse → **EU AI Act Art. 15**
+  (`OBL-EUAI-015`, accuracy/robustness/cybersecurity) → **India RBI FREE-AI 'Trust is
+  the Foundation'** (`OBL-RBI-001`). Citations reference CURATED obligation ids so they
+  stay accurate (no invention). NOTE: a dedicated RBI safety/resilience sutra would be
+  more precise but isn't curated yet (KS-0201 scope) — flagged for review.
+- **`found_our_vulnerability(findings)`** = any hit (`fails>0`) in a prompt-injection
+  family. Live result: Garak finds it at ~0.83 failure rate (10/12, 6/8 capped).
+  `record_finding` writes a mapped `assurance_finding` ledger entry (agent
+  `garak-assurance`, layer L2) — auditable, same as the exploit intent.
+- **Refresh a fixture:** run `scan_mock_agent(report_prefix=...)` live (Ollama+garak up),
+  copy the resulting `~/.local/share/garak/garak_runs/<prefix>.report.jsonl` into
+  `tests/fixtures/garak/` (vulnerable = fails>0; clean = `test.Blank` target, fails=0).
+- **Build order inverted (ADR-0011 amendment):** KS-0303 (detector) built BEFORE
+  KS-0302 (Guardrails patch) — the detector must exist before the patch it verifies.
+  KS-0302 `depends_on` KS-0303; numbers unchanged.
+- **Dep hygiene (2026-06-20):** bumped transitive `msgpack` 1.2.0→1.2.1 (GHSA-6v7p-g79w-8964)
+  to keep `pip-audit` green; unrelated to KS-0303, forced by a newly-published advisory.
+
 ## Layer-2 backend spike — local vs hosted tool-calling (2026-06-19)
 
 > Decision spike (`spike-ollama-toolcalling`, throwaway `scripts/spike_toolcalling.py`).
