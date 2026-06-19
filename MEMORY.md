@@ -135,6 +135,35 @@
   Design" (SELF_CERTIFICATION). A `@milestone` test asserts ≥1 contrast control
   exists in the real crosswalk — the thesis is present in data, not just possible.
 
+## Tool-calling inference seam (KS-0300, `keystone.llm.inference`)
+
+- **The seam the mock agent (KS-0301) builds on.** `complete()` is plain text and
+  sends NO tools; `complete_with_tools(messages, tools, *, backend=None) ->
+  ToolCallResult` adds the tool-calling path. Same backend switch
+  (`KEYSTONE_INFERENCE_BACKEND`); one active backend per run.
+- **Canonical shape:** `ToolCallResult{content: str, tool_calls: list[ToolCall]}`,
+  `ToolCall{name: str, arguments: dict[str, Any]}`. `arguments` is ALWAYS a dict;
+  `content` is "" when the model only called tools; `tool_calls` is `[]` when the
+  model answered in text (a valid outcome, NOT an error). Frozen Pydantic models.
+- **Cross-backend normalization (the crux, from the spike):** Ollama `/api/chat`
+  returns tool-call `arguments` as a JSON **object**; NIM (OpenAI `/chat/completions`)
+  as a JSON **string**. `normalize_tool_calls()` coerces both → dict (parse the
+  string, pass the dict through). A non-JSON string raises the typed
+  `ToolCallNormalizationError`. Backend parity is a regression test: an
+  Ollama-shaped and a NIM-shaped response produce an IDENTICAL `ToolCallResult`.
+- **Dispatch via a `ToolCallingBackend` Protocol** (runtime_checkable): the free
+  `complete_with_tools` guards with `isinstance` and raises `InferenceError` if the
+  active backend can't tool-call. Both `OllamaBackend` and `NimBackend` implement
+  `complete_with_tools`; the plain `complete()` path is untouched.
+- **Config fix shipped with it:** default `KEYSTONE_OLLAMA_MODEL` is now
+  **`qwen2.5:3b`** (the spike-chosen model, actually pulled) — the `slow` live
+  `test_live_backend_roundtrip` stops 404ing in `make verify`. Live tool-call tests
+  are `-m slow` and skip cleanly; the fast gate uses mocked HTTP (no Ollama, no key).
+- **`depends_on` is now real in feature_list:** KS-0301 declares
+  `depends_on: ["KS-0300"]` and `validate_feature_list.py` enforces the edge
+  resolves (see ADR-0011 amendment). The seam is a sub-0301 number so the existing
+  KS-0301–0304 keep their ids (no renumber).
+
 ## Layer-2 backend spike — local vs hosted tool-calling (2026-06-19)
 
 > Decision spike (`spike-ollama-toolcalling`, throwaway `scripts/spike_toolcalling.py`).

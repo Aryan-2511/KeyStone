@@ -42,8 +42,12 @@
 
 ## Later phases
 
+- [x] Tool-calling inference seam (`complete_with_tools` + cross-backend
+      normalization; arguments dict-vs-string → one canonical `ToolCallResult`) —
+      KS-0300 (`keystone.llm.inference`, `tests/test_inference_tools.py`; the
+      spike-discovered Phase-3 prerequisite the mock agent `depends_on`)
 - [ ] Phase 3 — Layer 2: AI Assurance Loop (mock vulnerable agent + Guardrails +
-      Garak + milestone) — KS-0301–KS-0304
+      Garak + milestone) — KS-0301–KS-0304 (next → mock agent, KS-0301)
 - [ ] Phase 4 — Layer 1: Transaction Monitor + the L2↔L1 seam milestone — KS-0401–KS-0403
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 

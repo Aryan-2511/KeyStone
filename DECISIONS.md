@@ -309,6 +309,16 @@ deliverable rather than an emergent coincidence; and the accuracy budget for
 obligation citations is an explicit gate. Phase 2 is now the Obligation Mapper.
 No application code, tests, or exec-plans were changed by this realignment.
 
+**Amendment (2026-06-19) — KS-0300 inserted as a Phase-3 prerequisite.** The
+Ollama-vs-NIM tool-calling spike found that plain `complete()` cannot tool-call,
+so a tool-calling inference seam must exist *before* the mock agent (KS-0301) can
+be built. Rather than renumber the already-settled KS-0301–0304, the seam is
+recorded as **KS-0300** — a sub-0301 Phase-3 infrastructure item that, by number,
+precedes the block. The prerequisite is made structural, not implied: KS-0301
+carries `depends_on: ["KS-0300"]`, and `validate_feature_list.py` now enforces
+that `depends_on` ids resolve. This is the one place a 0300 appears after
+0301–0304 were numbered, and this note records why.
+
 ---
 
 ## ADR-0012 — Obligation data model and storage
