@@ -230,11 +230,19 @@
       "phase": "2 — Layer 3: Obligation Mapper",
       "layer": "Layer 3 — Obligation Mapper",
       "area": "compliance",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
         "each affected obligation exposes an explicit modality attribute (hard-law-conformity | self-certification) that the output/UI surfaces"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_modality_view.py::test_governance_control_carries_the_contrast",
+        "tests/test_modality_view.py::test_transparency_control_carries_the_contrast",
+        "tests/test_modality_view.py::test_hard_law_only_control_summarises_as_hard_law",
+        "tests/test_modality_view.py::test_every_obligation_appears_under_each_of_its_controls",
+        "tests/test_modality_view.py::test_display_summary_and_fell_back_are_plumbed_from_phrasing",
+        "tests/test_modality_view.py::test_build_does_not_mutate_core_data_files",
+        "tests/test_modality_view.py::test_shipped_crosswalk_has_at_least_one_modality_contrast"
+      ]
     },
     {
       "id": "KS-0204",

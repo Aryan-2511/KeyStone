@@ -110,6 +110,31 @@
 - **Real-world hit rate: 2/28 nodes (~7%) fall back** (well under any concern);
   the rest phrase through. Non-deterministic phrasing, deterministic guard.
 
+## Modality-contrast view-model (KS-0203, `keystone.ui.modality_view`)
+
+- **The view-model IS the Phase-5 UI's data contract** — deterministic, tested,
+  NO rendering (no Streamlit/HTML/layout; that's Phase 5). It SHAPES, never
+  recomputes: `build_modality_view(crosswalk, *, backend=None)` is a LOOKUP over
+  the KS-0202 crosswalk + the GUARDED KS-0204/0206 `phrase_summary`. Order is
+  inherited verbatim from the crosswalk (controls in order, obligations by id).
+- **Lives in `keystone.ui` (edge), NOT core** — it calls LLM-edge phrasing, so
+  it must sit on the edge side of the import boundary. `keystone.ui.__init__`
+  re-exports it WITHOUT importing Streamlit, so it imports headless. import-linter
+  stays green. Building the view leaves `obligations.json` + `controls.json`
+  byte-identical (no write-back) — a no-mutation test asserts this.
+- **`ControlView`** {control, obligations, modalities, jurisdictions} + derived
+  properties `has_modality_contrast` (BOTH HARD_LAW and SELF_CERTIFICATION present),
+  `modality_mix` (HARD_LAW | SELF_CERTIFICATION | BOTH | None-if-empty),
+  `jurisdiction_mix` (EU | INDIA | BOTH | None). `ObligationView` {id, citation,
+  jurisdiction, modality, display_summary = PhrasedSummary.text, fell_back}.
+  `contrast_controls(views)` filters to `has_modality_contrast` (demo highlights).
+- **The contrast lands on exactly 2 shipped controls** (the money-shots):
+  **CTL-GOV-01** (Governance) — EU hard law (DORA Art. 5; DPDPA s.8/s.10) vs India
+  RBI sutras (Trust, Accountability; SELF_CERTIFICATION); and **CTL-TRANSP-01**
+  (Transparency) — EU AI Act Art. 13 (HARD_LAW) vs RBI sutra "Understandable by
+  Design" (SELF_CERTIFICATION). A `@milestone` test asserts ≥1 contrast control
+  exists in the real crosswalk — the thesis is present in data, not just possible.
+
 ## NAT (nvidia-nat 1.7.0) integration notes — things that surprised us
 
 - **`nat` ships no `py.typed`** (untyped). Under mypy strict this breaks
