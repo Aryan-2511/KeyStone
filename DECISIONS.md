@@ -319,6 +319,17 @@ carries `depends_on: ["KS-0300"]`, and `validate_feature_list.py` now enforces
 that `depends_on` ids resolve. This is the one place a 0300 appears after
 0301–0304 were numbered, and this note records why.
 
+**Amendment (2026-06-20) — KS-0303 (Garak) built before KS-0302 (Guardrails).**
+ADR-0011 numbered Guardrails (KS-0302) before the Garak red-team (KS-0303), but
+they are built in the reverse order: the *detector* that finds the mock agent's
+memo-injection flaw must exist **before** the *patch* (Guardrails) it will verify —
+you can't prove a rail closed a hole you can't yet detect. The numbers are NOT
+changed (KS-0302 stays Guardrails, KS-0303 stays Garak); only the build order is
+inverted. To make the dependency structural, KS-0302 now carries
+`depends_on: ["KS-0303"]` (the rail's done-criteria — Garak finds fewer/zero hits
+after the rail — needs the KS-0303 detector). KS-0303 itself consumes the KS-0301
+agent's canonical `MEMO_INJECTION_SIGNATURE`, so it `depends_on` KS-0301.
+
 ---
 
 ## ADR-0012 — Obligation data model and storage

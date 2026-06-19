@@ -353,11 +353,12 @@
     {
       "id": "KS-0302",
       "title": "NeMo Guardrails rails (input/output/dialog)",
-      "description": "NeMo Guardrails rails applied at the LLM edge around the mock agent. Survives from old KS-0202 (re-phased into the AI Assurance Loop).",
+      "description": "NeMo Guardrails rails applied at the LLM edge around the mock agent. Survives from old KS-0202 (re-phased into the AI Assurance Loop). Built AFTER KS-0303 (ADR-0011 amendment): the rail's done-criteria — Garak finds fewer/zero memo-injection hits after the rail — needs the KS-0303 detector to exist first.",
       "phase": "3 — Layer 2: AI Assurance Loop",
       "layer": "Layer 2 — AI Assurance Loop",
       "area": "policy",
       "status": "planned",
+      "depends_on": ["KS-0303"],
       "done_criteria": [
         "an input rail blocks a disallowed prompt and an output rail blocks a disallowed completion"
       ],
@@ -366,15 +367,24 @@
     {
       "id": "KS-0303",
       "title": "Garak red-team as subprocess",
-      "description": "Garak invoked as an isolated subprocess against the deployed mock-agent surface, with its report captured. Survives from old KS-0301 (renumbered within Phase 3).",
+      "description": "Garak invoked as an isolated subprocess (ADR-0003, not a dependency) against the vulnerable mock agent (KS-0301), with its JSONL report parsed deterministically into typed findings, mapped to OWASP (LLM01 + Agentic ASI) → EU AI Act Art. 15 → India RBI principle, checked for the memo-injection signature, and written to the evidence ledger. Pinned to Garak 0.15.1; fast tests run over captured report fixtures, the live scan is -m slow. Built before KS-0302 so the detector exists before the patch it verifies (ADR-0011 amendment). Survives from old KS-0301 (renumbered within Phase 3).",
       "phase": "3 — Layer 2: AI Assurance Loop",
       "layer": "Layer 2 — AI Assurance Loop",
       "area": "assurance",
-      "status": "planned",
+      "status": "done",
+      "depends_on": ["KS-0301"],
       "done_criteria": [
-        "a garak run is launched via subprocess against the mock agent and its report is captured"
+        "a garak run is launched via subprocess against the mock agent and its report is captured",
+        "the parsed report is mapped to OWASP + EU/India regulation and the memo-injection vulnerability is detected and written to the ledger"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_garak_probe.py::test_parse_vulnerable_report_extracts_the_finding",
+        "tests/test_garak_probe.py::test_prompt_injection_maps_to_owasp_and_regulation",
+        "tests/test_garak_probe.py::test_found_our_vulnerability_true_on_vulnerable_fixture",
+        "tests/test_garak_probe.py::test_found_our_vulnerability_false_on_clean_fixture",
+        "tests/test_garak_probe.py::test_record_finding_writes_mapped_entry",
+        "tests/test_garak_probe.py::test_live_garak_finds_memo_injection_vuln"
+      ]
     },
     {
       "id": "KS-0304",
