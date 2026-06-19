@@ -8,7 +8,8 @@
     "id follows KS-0Pnn where P is the phase number",
     "done_criteria is a non-empty list for every item (state how we'll know it's done)",
     "tests must be non-empty once status passes 'planned' (in_progress | done)",
-    "every test ref 'path' or 'path::node' must resolve to a real file (and node) in tests/"
+    "every test ref 'path' or 'path::node' must resolve to a real file (and node) in tests/",
+    "depends_on (optional) is a list of existing feature ids — a structural prerequisite edge, not just an implied ordering"
   ],
   "features": [
     {
@@ -306,6 +307,28 @@
       ]
     },
     {
+      "id": "KS-0300",
+      "title": "Tool-calling inference seam (complete_with_tools + cross-backend normalization)",
+      "description": "Spike-discovered Phase-3 prerequisite (see the ADR-0011 amendment): plain complete() cannot tool-call, so keystone.llm.inference gains complete_with_tools(messages, tools) -> ToolCallResult. It sends the tools array to whichever backend is active and normalizes the cross-backend tool-call arguments difference the spike found — Ollama returns a JSON object, NIM (OpenAI-style) a JSON string — into one canonical typed shape (arguments ALWAYS a dict). Deterministic LLM-edge infrastructure; NO agent. KS-0301 (the mock agent) calls tools through this seam.",
+      "phase": "3 — Layer 2: AI Assurance Loop",
+      "layer": "Layer 2 — AI Assurance Loop (infrastructure)",
+      "area": "inference",
+      "status": "done",
+      "done_criteria": [
+        "complete_with_tools returns a typed ToolCallResult whose tool-call arguments are ALWAYS a dict, regardless of backend",
+        "an Ollama-shaped response (arguments as a JSON object) and a NIM-shaped response (arguments as a JSON string) normalize to an identical result — backend parity",
+        "a text-only response yields an empty tool-call list (a valid outcome, not an error); malformed arguments raise a clear, typed error",
+        "the fast gate proves normalization with mocked HTTP (no Ollama running, no NIM key); a live tool-call per backend is slow and skips cleanly"
+      ],
+      "tests": [
+        "tests/test_inference_tools.py::test_backend_parity_ollama_and_nim_yield_identical_result",
+        "tests/test_inference_tools.py::test_normalize_dict_and_string_arguments_are_identical",
+        "tests/test_inference_tools.py::test_text_only_response_has_empty_tool_calls",
+        "tests/test_inference_tools.py::test_malformed_string_arguments_raise_typed_error",
+        "tests/test_inference_tools.py::test_live_ollama_tool_call_normalizes"
+      ]
+    },
+    {
       "id": "KS-0301",
       "title": "Mock vulnerable payments agent",
       "description": "A deliberately vulnerable mock payments agent on the NAT workflow, susceptible to indirect prompt injection — the assurance loop's target surface.",
@@ -313,6 +336,7 @@
       "layer": "Layer 2 — AI Assurance Loop",
       "area": "assurance",
       "status": "planned",
+      "depends_on": ["KS-0300"],
       "done_criteria": [
         "the mock agent runs end-to-end on synthetic input and is demonstrably susceptible to a defined indirect-prompt-injection vector"
       ],

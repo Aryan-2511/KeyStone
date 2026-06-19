@@ -42,8 +42,10 @@ KS-0201/0202/0204/0205/0206 are done; KS-0203 is next.
 
 ## Phase 3 — Layer 2: AI Assurance Loop
 
-Mock vulnerable agent + Guardrails + Garak. (`KS-0301`–`KS-0304`)
+Mock vulnerable agent + Guardrails + Garak. (`KS-0300` prerequisite, then `KS-0301`–`KS-0304`)
 
+- Tool-calling inference seam: `complete_with_tools` + cross-backend argument
+  normalization (a spike-found prerequisite; the mock agent `depends_on` it). (`KS-0300`)
 - Mock vulnerable payments agent, susceptible to indirect prompt injection. (`KS-0301`)
 - NeMo Guardrails rails (input/output/dialog) at the LLM edge. (`KS-0302`)
 - Garak probes wired as a subprocess against the deployed mock surface. (`KS-0303`)

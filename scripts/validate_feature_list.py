@@ -11,7 +11,8 @@ Rules enforced (see the file's own "rules" block):
   * done_criteria is a non-empty list of strings for every item;
   * tests is non-empty once status passes 'planned';
   * every test ref "path" or "path::node" resolves to a real test file (and,
-    if a node is given, a real test function/method in that file).
+    if a node is given, a real test function/method in that file);
+  * depends_on (optional) is a list of existing feature ids (no self-reference).
 """
 
 from __future__ import annotations
@@ -80,7 +81,27 @@ def _validate_tests_field(tag: str, status: Any, tests: Any) -> list[str]:
     return errors
 
 
-def _validate_feature(feat: dict[str, Any], status_values: set[str]) -> list[str]:
+def _validate_depends_on(tag: str, depends_on: Any, all_ids: set[str]) -> list[str]:
+    """Validate one feature's optional `depends_on` prerequisite edges."""
+    if depends_on is None:
+        return []
+    if not isinstance(depends_on, list):
+        return [f"{tag}: depends_on must be a list"]
+
+    errors: list[str] = []
+    for dep in depends_on:
+        if not isinstance(dep, str):
+            errors.append(f"{tag}: depends_on entry {dep!r} must be a string")
+        elif dep == tag:
+            errors.append(f"{tag}: depends_on must not reference itself")
+        elif dep not in all_ids:
+            errors.append(f"{tag}: depends_on references unknown feature {dep!r}")
+    return errors
+
+
+def _validate_feature(
+    feat: dict[str, Any], status_values: set[str], all_ids: set[str]
+) -> list[str]:
     """Validate a single feature object (excluding cross-item id uniqueness)."""
     tag = feat.get("id", "<no-id>")
     errors: list[str] = []
@@ -99,6 +120,7 @@ def _validate_feature(feat: dict[str, Any], status_values: set[str]) -> list[str
         errors.append(f"{tag}: done_criteria entries must be non-empty strings")
 
     errors.extend(_validate_tests_field(tag, status, feat.get("tests")))
+    errors.extend(_validate_depends_on(tag, feat.get("depends_on"), all_ids))
     return errors
 
 
@@ -120,13 +142,15 @@ def validate(path: Path = FEATURE_LIST) -> list[str]:
     if not isinstance(features, list) or not features:
         return [*errors, "top-level 'features' must be a non-empty list"]
 
+    all_ids = {feat.get("id", "") for feat in features if isinstance(feat, dict)}
+
     seen_ids: set[str] = set()
     for feat in features:
         fid = feat.get("id", "")
         if fid in seen_ids:
             errors.append(f"{fid or '<no-id>'}: duplicate id")
         seen_ids.add(fid)
-        errors.extend(_validate_feature(feat, status_values))
+        errors.extend(_validate_feature(feat, status_values, all_ids))
 
     return errors
 
