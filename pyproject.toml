@@ -119,6 +119,15 @@ disallow_untyped_decorators = false
 module = ["keystone.agents.orchestrator.config"]
 disable_error_code = ["call-arg"]
 
+# NeMo Guardrails analog of ADR-0010: nemoguardrails ships no py.typed, so its
+# `@action` decorator is "untyped" under strict. The action shim is a thin
+# adapter only — its security logic lives (fully typed) in
+# keystone.assurance.injection_patterns — so relaxing ONLY disallow_untyped_decorators
+# for ONLY this shim module is safe; the rest stays strict.
+[[tool.mypy.overrides]]
+module = ["keystone.assurance.guardrails.actions"]
+disallow_untyped_decorators = false
+
 # --------------------------------------------------------------------------- #
 # pytest + coverage                                                           #
 # --------------------------------------------------------------------------- #

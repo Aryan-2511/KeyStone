@@ -196,6 +196,43 @@
   edge (llm.inference). import-linter core→edge KEPT. Fast gate uses a canned
   `complete_with_tools` backend (no Ollama); the 10-trial live exploit is `-m slow`.
 
+## NeMo Guardrails patch (KS-0302, `keystone.assurance.guard`)
+
+- **The PATCH that closes the KS-0301 hole, PROVEN by re-running KS-0303's Garak**:
+  unguarded probe failed **10/12 (0.83)**; guarded probe is **0/12 (0.00)** — fully
+  clean. That before/after pair is the find-and-patch evidence.
+- **Real NeMo Guardrails (v0.22.0), deterministic INPUT rail, NOTHING downloaded.**
+  Config in `guardrails/` (config.yml + rails.co + actions.py). Runs `input`-only
+  rails (`GenerationOptions(rails={"input":True,...})`), reads `activated_rails` for a
+  `stop` = block. NO `models:` section, NO embedding model → `models=[]`, constructs
+  offline (verified with `HF_HUB_OFFLINE=1`). langchain_ollama/community/
+  sentence_transformers are NOT installed; only a deterministic custom action is used.
+- **Detection logic is typed + unit-tested in `injection_patterns.is_data_field_injection`**
+  (the rail's `actions.py` is a thin `@action` shim). Patterns flag instruction-in-data:
+  override ("ignore the above directions"), echo/emit ("just print X", "repeat the
+  following sentence", `print "X"`), fake turns (`user:`/`assistant:`/`system:`), and
+  settlement directives ("pre-approved", "initiate transfer", "send to account"). Tuned
+  against the probe's full 256-prompt set: **256/256 attack prompts blocked, 0 benign
+  memos over-blocked.**
+- **`@action` is an untyped third-party decorator** → scoped mypy
+  `disallow_untyped_decorators=false` for ONLY `keystone.assurance.guardrails.actions`
+  (the NeMo analog of ADR-0010; the security logic stays fully typed elsewhere).
+- **Integration = `guard.run_guarded_agent(transaction)`** (a wrapper, keeps
+  nemoguardrails out of `agent.py`'s import): vets `transaction.memo` FIRST; on a hit,
+  refuses before any model call (`AgentRun.blocked=True`, no transfer, nothing written).
+  Benign memo + legitimate transfer pass untouched (NOT over-blocked).
+- **Guarded Garak re-scan can't use the KS-0303 function target** (Garak's isolated venv
+  lacks nemoguardrails) → `garak_endpoint.py` serves the guarded brain over HTTP
+  (stdlib `http.server`, our venv) and Garak's `rest` generator (`-G <json>`) probes it.
+- **Remediation ledger entry** (`record_remediation`): `action=vulnerability_remediated`,
+  payload `{control, before_fails:10, after_fails:0, before/after_failure_rate, remediated:
+  true, signature}`. The ledger now tells the full story: found (KS-0303) → mapped →
+  patched → verified-closed.
+- **HONEST SCOPE:** the rail FULLY closes THIS authored vulnerability (memo can no longer
+  drive an unauthorized transfer; Garak 0/12). Real-world guardrailing is defense-in-depth,
+  not a silver bullet — a single deterministic input rail is the demo's patch, not a
+  general prompt-injection cure.
+
 ## Garak red-team probe (KS-0303, `keystone.assurance.garak_probe`)
 
 - **Garak runs as an ISOLATED SUBPROCESS (ADR-0003), pinned to v0.15.1.** Not a

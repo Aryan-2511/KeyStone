@@ -353,16 +353,24 @@
     {
       "id": "KS-0302",
       "title": "NeMo Guardrails rails (input/output/dialog)",
-      "description": "NeMo Guardrails rails applied at the LLM edge around the mock agent. Survives from old KS-0202 (re-phased into the AI Assurance Loop). Built AFTER KS-0303 (ADR-0011 amendment): the rail's done-criteria — Garak finds fewer/zero memo-injection hits after the rail — needs the KS-0303 detector to exist first.",
+      "description": "A real NeMo Guardrails (v0.22) deterministic input rail wrapping the mock agent, closing the KS-0301 memo-injection hole: it vets the untrusted memo/data field before the agent acts and refuses embedded instructions, while leaving benign and legitimate transfers intact. Uses no main LLM and no embedding model (nothing downloaded). PROVEN by re-running the KS-0303 Garak detector against the guarded agent — the probe that failed 10/12 unguarded reports 0/12 guarded — and a 'vulnerability remediated' finding is written to the evidence ledger. Survives from old KS-0202 (re-phased). Built AFTER KS-0303 (ADR-0011 amendment): the rail's done-criteria needs the detector first.",
       "phase": "3 — Layer 2: AI Assurance Loop",
       "layer": "Layer 2 — AI Assurance Loop",
       "area": "policy",
-      "status": "planned",
+      "status": "done",
       "depends_on": ["KS-0303"],
       "done_criteria": [
-        "an input rail blocks a disallowed prompt and an output rail blocks a disallowed completion"
+        "a real NeMo Guardrails input rail blocks the memo-injection vector (the agent no longer fires an unauthorized initiate_transfer) while benign and legitimate transfers still succeed",
+        "re-running the KS-0303 Garak probe against the guarded agent goes clean (10/12 -> 0/12) and a vulnerability-remediated finding is written to the evidence ledger"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_guardrails_patch.py::test_rail_blocks_injection_and_allows_benign",
+        "tests/test_guardrails_patch.py::test_guarded_agent_blocks_the_memo_exploit",
+        "tests/test_guardrails_patch.py::test_guarded_agent_allows_legitimate_transfer",
+        "tests/test_guardrails_patch.py::test_remediation_entry_records_before_after",
+        "tests/test_guardrails_patch.py::test_fixtures_show_before_fires_after_clean",
+        "tests/test_guardrails_patch.py::test_live_guarded_rescan_is_clean"
+      ]
     },
     {
       "id": "KS-0303",

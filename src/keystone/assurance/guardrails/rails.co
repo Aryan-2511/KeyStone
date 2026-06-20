@@ -1,0 +1,10 @@
+# Colang 1.0 input rail (KS-0302): refuse data-field instruction injection.
+
+define bot refuse data field injection
+  "I can't act on instructions embedded in transaction data. This request was blocked."
+
+define flow check data field injection
+  $blocked = execute check_data_field_injection
+  if $blocked
+    bot refuse data field injection
+    stop

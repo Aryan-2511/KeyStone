@@ -228,6 +228,51 @@ def record_finding(
     )
 
 
+LEDGER_ACTION_REMEDIATED = "vulnerability_remediated"
+
+
+def record_remediation(
+    before: Sequence[GarakFinding],
+    after: Sequence[GarakFinding],
+    *,
+    control: str,
+    ledger: Ledger | None = None,
+) -> LedgerEntry:
+    """Write a 'vulnerability remediated / re-test clean' finding to the ledger.
+
+    Closes the audit story the product exists to produce: found (KS-0303) → mapped
+    → patched (`control`) → verified-closed. `before`/`after` are the unguarded and
+    guarded Garak findings; the entry records the failure rates either side of the
+    patch and whether the re-scan is clean.
+    """
+    led = ledger if ledger is not None else open_ledger()
+    before_fails = sum(f.fails for f in before)
+    after_fails = sum(f.fails for f in after)
+    return led.append(
+        agent=LEDGER_AGENT,
+        layer=LEDGER_LAYER,
+        action=LEDGER_ACTION_REMEDIATED,
+        payload={
+            "vulnerability_signature": MEMO_INJECTION_SIGNATURE.name,
+            "control": control,
+            "before_fails": before_fails,
+            "after_fails": after_fails,
+            "before_failure_rate": round(
+                before_fails / sum(f.total_evaluated for f in before), 4
+            )
+            if before
+            else 0.0,
+            "after_failure_rate": round(
+                after_fails / sum(f.total_evaluated for f in after), 4
+            )
+            if after
+            else 0.0,
+            "remediated": after_fails == 0,
+            "garak_version": PINNED_GARAK_VERSION,
+        },
+    )
+
+
 def _report_path_from_output(stdout: str) -> Path | None:
     """Extract the report path Garak prints (`reporting to <path>`)."""
     for line in stdout.splitlines():
@@ -250,6 +295,7 @@ class ScanConfig:
     probes: Sequence[str] = CURATED_PROBES
     generations: int = 1
     prompt_cap: int | None = None
+    generator_option_file: str | None = None
     timeout: float = 1800.0
 
 
@@ -257,19 +303,17 @@ def run_scan(config: ScanConfig, *, env: dict[str, str] | None = None) -> Path:
     """Invoke Garak as an isolated subprocess and return its JSONL report path.
 
     `config.target_type`/`target_name` select the Garak generator (e.g. a
-    `function` target pointing at the vulnerable agent). `config.prompt_cap` bounds
-    runtime via Garak's `soft_probe_prompt_cap`. `env` is merged into the subprocess
-    environment (used to put the standalone target on PYTHONPATH and pass the
-    vulnerable system prompt). Raises `GarakError` on failure.
+    `function` target pointing at the vulnerable agent, or `rest` + a
+    `generator_option_file` pointing at the guarded-agent endpoint).
+    `config.prompt_cap` bounds runtime via Garak's `soft_probe_prompt_cap`. `env`
+    is merged into the subprocess environment. Raises `GarakError` on failure.
     """
     garak = shutil.which("garak")
     base_cmd = [garak] if garak else ["uv", "tool", "run", "garak"]
-    cmd = [
-        *base_cmd,
-        "--target_type",
-        config.target_type,
-        "--target_name",
-        config.target_name,
+    cmd = [*base_cmd, "--target_type", config.target_type]
+    if config.target_name:
+        cmd += ["--target_name", config.target_name]
+    cmd += [
         "--probes",
         ",".join(config.probes),
         "--generations",
@@ -277,6 +321,8 @@ def run_scan(config: ScanConfig, *, env: dict[str, str] | None = None) -> Path:
         "--report_prefix",
         config.report_prefix,
     ]
+    if config.generator_option_file is not None:
+        cmd += ["-G", config.generator_option_file]
 
     if config.prompt_cap is not None:
         cap_config = Path(tempfile.mkdtemp()) / "garak_cap.yaml"
