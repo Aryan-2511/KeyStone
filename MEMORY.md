@@ -50,6 +50,30 @@
   via `structuring_clusters=N`, never random surprise. `sample_stream()` is the
   canonical fixture (30 normal + 1 cluster) the rest of Layer 1 builds on.
 
+## FATF typology engine (KS-0402, `keystone.core.fatf`)
+
+- **Deterministic Layer-1 detection — MEMO-BLIND by design (thesis-critical).** The
+  engine flags suspicious transactions on FINANCIAL signals ONLY (amounts, timing/
+  velocity, account relationships, thresholds) and **NEVER reads `Transaction.memo`**.
+  This orthogonality keeps the KS-0403 seam honest: the seam fraud is caught here for
+  AML reasons AND (separately) carries the injection the assurance loop flags — two
+  INDEPENDENT detections of one gap. A `test_detection_is_memo_blind` pins it (blank
+  vs filled memos → identical findings).
+- **Three typologies, each a deterministic rule with NAMED thresholds (`FatfThresholds`):**
+  STRUCTURING (≥`structuring_min_transfers`=3 sub-threshold transfers — in
+  `[band_floor=5000, ctr=10000)` — from one sender within `structuring_window`=24h);
+  RAPID_MOVEMENT (≥`rapid_min_transfers`=5 transfers within `rapid_window`=1h, fan-out);
+  LARGE_TRANSFER (a single transfer ≥ `ctr_threshold`=10000). Sliding two-pointer
+  window finds the densest qualifying cluster.
+- **On `sample_stream()`: the seeded cluster (ACC-0004) is caught by BOTH STRUCTURING
+  (HIGH) and RAPID_MOVEMENT (MEDIUM); the benign portion = ZERO findings (no false
+  positives); LARGE_TRANSFER fires 0× (all amounts under the threshold).** The
+  substrate and detector agree.
+- **`detect(transactions, thresholds=DEFAULT_THRESHOLDS) -> list[Finding]`** (pure,
+  deterministic, sorted by typology+account). `Finding{typology, severity, account,
+  transaction_ids, signal (financial only, NO memo), rationale}`. `record_findings`
+  writes them to the ledger (agent `fatf-monitor`, layer `L1`, action `fatf_finding`).
+
 ## Control library / crosswalk (KS-0202, `keystone.core.controls`)
 
 - **Control id convention: `CTL-<DOMAIN>-<NN>`** (pattern `^CTL-[A-Z]+-\d{2}$`),
