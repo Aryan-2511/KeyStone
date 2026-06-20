@@ -41,6 +41,13 @@ from .garak_probe import (
     run_scan,
     scan_mock_agent,
 )
+from .seam import (
+    SeamError,
+    SeamProof,
+    prove_seam,
+    resolve_signature,
+    seam_fraud_stream,
+)
 from .signature import (
     CANONICAL_MEMO_EXPLOIT,
     MEMO_INJECTION_SIGNATURE,
@@ -74,6 +81,8 @@ __all__ = [
     "MappedFinding",
     "RegulatoryMapping",
     "ScanConfig",
+    "SeamError",
+    "SeamProof",
     "Transaction",
     "TransferIntent",
     "VulnerabilitySignature",
@@ -81,8 +90,11 @@ __all__ = [
     "found_our_vulnerability",
     "map_finding",
     "parse_report",
+    "prove_seam",
     "record_finding",
+    "resolve_signature",
     "run_agent",
     "run_scan",
+    "seam_fraud_stream",
     "scan_mock_agent",
 ]

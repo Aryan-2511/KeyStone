@@ -464,12 +464,19 @@
       "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
       "layer": "Layer 1 — Transaction Monitor",
       "area": "assurance",
-      "status": "planned",
+      "status": "done",
       "depends_on": ["KS-0401", "KS-0402", "KS-0303"],
       "done_criteria": [
-        "a @pytest.mark.milestone test asserts the fraud fixture's injection vector == the Garak-flagged vector and FAILS if a refactor decouples them (structural, not coincidence of two separate fixtures)"
+        "a @pytest.mark.milestone test asserts the fraud fixture's injection vector == the Garak-flagged vector and FAILS if a refactor decouples them (structural, not coincidence of two separate fixtures)",
+        "the strong binding holds on a shared transaction id: the transfer the memo-blind FATF engine flags == the transfer whose memo resolves to MEMO_INJECTION_SIGNATURE (the single canonical object), with the AML detection proven independent of the memo"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_seam.py::test_one_transaction_is_both_financial_crime_and_ai_vulnerability",
+        "tests/test_seam.py::test_seam_memo_is_the_canonical_exploit_literal",
+        "tests/test_seam.py::test_fatf_catches_the_seam_regardless_of_memo",
+        "tests/test_seam.py::test_ledger_binds_one_tx_to_both_detections",
+        "tests/test_seam.py::test_seam_fails_loud_if_memo_stops_resolving"
+      ]
     },
     {
       "id": "KS-0501",
