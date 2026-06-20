@@ -70,10 +70,12 @@
       + deterministic seeded generator that can emit a FATF structuring/rapid-movement
       cluster — KS-0401 (`keystone.core.transactions`, `tests/test_transactions.py`;
       no detection/seam yet)
-- [ ] FATF typology engine: detect structuring/rapid-movement over the stream →
-      ledger findings — KS-0402 (next)
+- [x] FATF typology engine: memo-BLIND detection (structuring / rapid-movement /
+      large-transfer) over the stream → ledger findings; sample cluster caught,
+      zero benign false positives — KS-0402 (`keystone.core.fatf`,
+      `tests/test_fatf.py`)
 - [ ] L2↔L1 seam milestone: planted fraud's injection vector == the Garak-flagged
-      vector, asserted structurally — KS-0403
+      vector, asserted structurally — KS-0403 (next)
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)

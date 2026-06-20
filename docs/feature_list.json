@@ -439,16 +439,23 @@
     {
       "id": "KS-0402",
       "title": "FATF typology engine (Layer 1 detection)",
-      "description": "Deterministic typology detection over the KS-0401 transaction stream: scores a structuring / rapid-movement pattern on financial-crime grounds and appends a verifiable finding to the evidence ledger. No LLM (deterministic core). Re-scoped within Phase 4: this is the detection/scoring the old KS-0401 monitor described; the planted-fraud-via-injection content folds into the KS-0403 seam.",
+      "description": "Deterministic, MEMO-BLIND typology detection over the KS-0401 transaction stream: scores structuring / rapid-movement / large-transfer patterns on financial-crime grounds (amounts, timing/velocity, account relationships, named thresholds) and appends verifiable findings to the evidence ledger. Detection NEVER reads the memo field — the orthogonality that keeps the KS-0403 seam's two detections (AML here, prompt-injection in the assurance loop) independent. No LLM (deterministic core). Re-scoped within Phase 4: this is the detection/scoring the old KS-0401 monitor described; the planted-fraud-via-injection content folds into the KS-0403 seam.",
       "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
       "layer": "Layer 1 — Transaction Monitor",
       "area": "core",
-      "status": "planned",
+      "status": "done",
       "depends_on": ["KS-0401"],
       "done_criteria": [
-        "the engine scores a synthetic transaction stream for a FATF structuring / rapid-movement typology and appends a verifiable finding to the ledger"
+        "the engine scores a synthetic transaction stream for FATF typologies (structuring / rapid-movement) and appends a verifiable finding to the ledger, catching the KS-0401 cluster with zero benign false positives",
+        "detection is memo-blind — a test proves identical findings whether the memo field is blank or filled"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_fatf.py::test_structuring_cluster_is_detected",
+        "tests/test_fatf.py::test_normal_stream_has_no_findings",
+        "tests/test_fatf.py::test_detection_is_memo_blind",
+        "tests/test_fatf.py::test_large_transfer_threshold_boundary",
+        "tests/test_fatf.py::test_record_findings_writes_ledger_entries"
+      ]
     },
     {
       "id": "KS-0403",
