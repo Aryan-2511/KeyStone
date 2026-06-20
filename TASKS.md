@@ -64,9 +64,16 @@
       (`keystone.assurance.loop`, `keystone.agents.orchestrator`,
       `tests/test_assurance_loop.py`)
 
-## Next — Phase 4 = Layer 1: Transaction Monitor + the L2↔L1 seam
+## Now — Phase 4 = Layer 1: Transaction Monitor + the L2↔L1 seam
 
-- [ ] Phase 4 — Layer 1: Transaction Monitor + the L2↔L1 seam milestone — KS-0401–KS-0403
+- [x] Transaction substrate: typed `Transaction` (incl. free-text `memo` seam locus)
+      + deterministic seeded generator that can emit a FATF structuring/rapid-movement
+      cluster — KS-0401 (`keystone.core.transactions`, `tests/test_transactions.py`;
+      no detection/seam yet)
+- [ ] FATF typology engine: detect structuring/rapid-movement over the stream →
+      ledger findings — KS-0402 (next)
+- [ ] L2↔L1 seam milestone: planted fraud's injection vector == the Garak-flagged
+      vector, asserted structurally — KS-0403
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
