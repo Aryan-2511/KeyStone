@@ -29,6 +29,27 @@
   citation fields, duplicate id, https url) stay hard, build-failing errors.
   `validate()` returns hard errors; `check()` returns `(errors, warnings)`.
 
+## Transaction substrate (KS-0401, `keystone.core.transactions`)
+
+- **Layer-1 data substrate — deterministic core, no detection, no seam yet.** A
+  Pydantic `Transaction` {id `TXN-NNNNNN`, timestamp, sender_account/recipient_account
+  `ACC-NNNN`, amount>0, currency, tx_type, **memo (free text, default "")**} with
+  fail-loud validators (mirrors obligations/ledger). The generator labels NOTHING as
+  fraud — that's KS-0402.
+- **Two seam-enabling capabilities exist ON PURPOSE (the KS-0403 seam depends on
+  both, independently):** (1) the **`memo`** field carries arbitrary untrusted text —
+  the same field the Layer-2 agent trusted, where KS-0403 will plant
+  `CANONICAL_MEMO_EXPLOIT` (NOT wired now). (2) the generator can emit a **FATF
+  structuring / rapid-movement cluster** (one sender, ≥6 transfers each just under
+  `STRUCTURING_THRESHOLD`=10000, minutes apart) — independently suspicious on
+  FINANCIAL-CRIME grounds with NO memo content. So the planted fraud is catchable
+  two ways: by the injection vector AND by the money pattern.
+- **Deterministic generation:** `generate_stream(StreamConfig(seed=...))` — same
+  config → byte-identical stream (seeded `random.Random`; a `# noqa: S311` documents
+  that reproducibility requires a seedable PRNG, not security). Patterns are opt-in
+  via `structuring_clusters=N`, never random surprise. `sample_stream()` is the
+  canonical fixture (30 normal + 1 cluster) the rest of Layer 1 builds on.
+
 ## Control library / crosswalk (KS-0202, `keystone.core.controls`)
 
 - **Control id convention: `CTL-<DOMAIN>-<NN>`** (pattern `^CTL-[A-Z]+-\d{2}$`),

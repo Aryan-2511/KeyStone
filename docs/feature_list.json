@@ -417,38 +417,48 @@
     },
     {
       "id": "KS-0401",
-      "title": "Transaction Monitor (Layer 1)",
-      "description": "Deterministic monitoring over a synthetic transaction stream that scores transfers and appends findings to the evidence ledger.",
+      "title": "Transaction substrate: model + synthetic stream (Layer 1)",
+      "description": "The deterministic Layer-1 data substrate: a typed Pydantic Transaction (id, timestamp, sender/recipient accounts, amount, currency, type, and a free-text memo with untrusted-data semantics) plus a deterministic, seeded synthetic generator. The generator produces mostly-normal traffic with the explicit, opt-in ability to seed FATF-detectable patterns (a structuring / rapid-movement cluster), labelling nothing as fraud. Shaped so the later seam (KS-0403) is possible: the memo is the same injection locus the Layer-2 agent trusted, and the structuring pattern is independently suspicious on financial-crime grounds. No detection (KS-0402) and no seam (KS-0403) yet. Re-scoped within Phase 4: the old monitor/scoring scope moves to KS-0402.",
       "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
       "layer": "Layer 1 — Transaction Monitor",
       "area": "core",
-      "status": "planned",
+      "status": "done",
       "done_criteria": [
-        "the monitor scores a synthetic transaction stream and appends a verifiable finding to the ledger"
+        "a typed Transaction model round-trips and fails loud on malformed / missing / bad-enum input, and carries an arbitrary free-text memo (the seam locus)",
+        "a deterministic seeded generator reproduces an identical stream and can emit a structuring / rapid-movement cluster on explicit request"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_transactions.py::test_valid_transaction_round_trips",
+        "tests/test_transactions.py::test_malformed_transaction_fails_loud",
+        "tests/test_transactions.py::test_memo_carries_arbitrary_untrusted_text",
+        "tests/test_transactions.py::test_generator_is_deterministic",
+        "tests/test_transactions.py::test_generator_can_emit_a_structuring_cluster",
+        "tests/test_transactions.py::test_sample_stream_is_reproducible_and_has_a_cluster"
+      ]
     },
     {
       "id": "KS-0402",
-      "title": "Planted fraudulent-transfer fixture via prompt-injection path",
-      "description": "A planted fraudulent transfer enters the Transaction Monitor via the SAME indirect-prompt-injection path that Garak exercises against the mock payments agent in Phase 3.",
+      "title": "FATF typology engine (Layer 1 detection)",
+      "description": "Deterministic typology detection over the KS-0401 transaction stream: scores a structuring / rapid-movement pattern on financial-crime grounds and appends a verifiable finding to the evidence ledger. No LLM (deterministic core). Re-scoped within Phase 4: this is the detection/scoring the old KS-0401 monitor described; the planted-fraud-via-injection content folds into the KS-0403 seam.",
       "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
       "layer": "Layer 1 — Transaction Monitor",
       "area": "core",
       "status": "planned",
+      "depends_on": ["KS-0401"],
       "done_criteria": [
-        "the fraud fixture's entry vector is the indirect-prompt-injection path shared with the Phase 3 mock agent, not an ad-hoc separate input"
+        "the engine scores a synthetic transaction stream for a FATF structuring / rapid-movement typology and appends a verifiable finding to the ledger"
       ],
       "tests": []
     },
     {
       "id": "KS-0403",
       "title": "L2↔L1 seam milestone (single owned item)",
-      "description": "One owned task asserting the seam structurally: the planted fraud fixture's injection vector equals the vector Garak flags against the mock payments agent. The link is asserted structurally, so a refactor that decouples the two fails the build.",
+      "description": "One owned task asserting the seam structurally: a planted fraudulent transfer enters the Transaction Monitor via the SAME indirect-prompt-injection path Garak flags against the mock payments agent (the memo carrying CANONICAL_MEMO_EXPLOIT / MEMO_INJECTION_SIGNATURE), AND is independently catchable as a FATF typology. The link is asserted structurally, so a refactor that decouples the two fails the build.",
       "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
       "layer": "Layer 1 — Transaction Monitor",
       "area": "assurance",
       "status": "planned",
+      "depends_on": ["KS-0401", "KS-0402", "KS-0303"],
       "done_criteria": [
         "a @pytest.mark.milestone test asserts the fraud fixture's injection vector == the Garak-flagged vector and FAILS if a refactor decouples them (structural, not coincidence of two separate fixtures)"
       ],
