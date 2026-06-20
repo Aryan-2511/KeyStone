@@ -64,7 +64,7 @@
       (`keystone.assurance.loop`, `keystone.agents.orchestrator`,
       `tests/test_assurance_loop.py`)
 
-## Now — Phase 4 = Layer 1: Transaction Monitor + the L2↔L1 seam
+## Phase 4 = Layer 1: Transaction Monitor + the L2↔L1 seam — COMPLETE (thesis closed)
 
 - [x] Transaction substrate: typed `Transaction` (incl. free-text `memo` seam locus)
       + deterministic seeded generator that can emit a FATF structuring/rapid-movement
@@ -74,8 +74,10 @@
       large-transfer) over the stream → ledger findings; sample cluster caught,
       zero benign false positives — KS-0402 (`keystone.core.fatf`,
       `tests/test_fatf.py`)
-- [ ] L2↔L1 seam milestone: planted fraud's injection vector == the Garak-flagged
-      vector, asserted structurally — KS-0403 (next)
+- [x] **L2↔L1 seam milestone** — ONE transaction (TXN-000016) is both a FATF
+      financial crime AND the memo-injection vuln; bound on a shared tx id against
+      the single canonical signature; memo-blind AML proves independence — KS-0403
+      (`keystone.assurance.seam`, `tests/test_seam.py`)
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)

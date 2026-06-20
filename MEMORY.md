@@ -50,6 +50,35 @@
   via `structuring_clusters=N`, never random surprise. `sample_stream()` is the
   canonical fixture (30 normal + 1 cluster) the rest of Layer 1 builds on.
 
+## L2↔L1 seam (KS-0403, `keystone.assurance.seam`) — THE THESIS, CLOSED
+
+- **The thesis it proves:** ONE transaction (`TXN-000016` in `sample_stream`) is
+  SIMULTANEOUSLY a financial crime AND an AI-security vulnerability. Layer 1 (the
+  memo-BLIND KS-0402 FATF engine) flags it as STRUCTURING on financial grounds; Layer
+  2 — that SAME transaction's memo IS `CANONICAL_MEMO_EXPLOIT`, resolving to
+  `MEMO_INJECTION_SIGNATURE` (the literal payload Garak flagged). Bound on a shared
+  TRANSACTION ID — not a coincidence of two fixtures.
+- **Single source of truth (B asserted, C demonstrated):** the seam IMPORTS
+  `MEMO_INJECTION_SIGNATURE` / `CANONICAL_MEMO_EXPLOIT` from `keystone.assurance`
+  (never redefines them). `prove_seam()` asserts the resolved signature **`is`** the
+  canonical object — drift on either side fails the build. `seam_fraud_stream()` plants
+  `CANONICAL_MEMO_EXPLOIT.memo` into ONE transfer of the existing structuring cluster
+  (generator + imported constant; no new transaction/detection capability).
+- **Independence rests on KS-0402's memo-blindness** (the WHY): the FATF engine
+  catches the seam transfer with the injection memo BLANKED, identically — proven by
+  `test_fatf_catches_the_seam_regardless_of_memo`. If FATF were memo-aware, "same gap,
+  two independent detections" would be circular.
+- **`resolve_signature(memo)`** reuses the SAME detector the KS-0302 guard uses
+  (`is_data_field_injection`) → returns the canonical signature; composition only.
+- **Boundary:** lives in `keystone.assurance` (edge) because it imports both the
+  assurance signature (edge) and `keystone.core.transactions`/`keystone.core.fatf`
+  (core). Core never imports it — import-linter KEPT.
+- **Ledger binding** (`prove_seam(ledger=...)`): a Layer-1 `fatf_finding` implicating
+  the seam tx id PLUS a `seam_binding` entry (agent `l2-l1-seam`, layer `L1+L2`) naming
+  the same tx id + the signature + `memo_is_canonical_exploit: true` — the auditable
+  "one event, two findings" proof. The `@pytest.mark.milestone` test asserts the strong
+  same-transaction claim.
+
 ## FATF typology engine (KS-0402, `keystone.core.fatf`)
 
 - **Deterministic Layer-1 detection — MEMO-BLIND by design (thesis-critical).** The
