@@ -2,7 +2,7 @@
 # Recipe lines use real tabs (required by make). `check` mirrors CI exactly.
 
 .DEFAULT_GOAL := check
-.PHONY: setup format lint typecheck arch test test-all audit check verify phase-check demo clean
+.PHONY: setup format lint typecheck arch test test-all audit check verify phase-check milestone demo clean
 
 setup:  ## Pin Python, sync all groups, install garak as an isolated tool
 	uv python pin 3.12
@@ -46,6 +46,9 @@ verify: lint typecheck arch  ## Acceptance gate: scope validation + full test su
 
 phase-check:  ## Run milestone tests that prove a phase is complete
 	uv run pytest -m milestone
+
+milestone:  ## Run the live NAT-orchestrated Layer-2 assurance loop (KS-0304)
+	uv run python -c "from keystone.agents.run import main_milestone; main_milestone()"
 
 demo:  ## Run the Streamlit chassis shell
 	uv run streamlit run src/keystone/ui/app.py

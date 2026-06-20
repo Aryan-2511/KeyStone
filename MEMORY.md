@@ -196,6 +196,36 @@
   edge (llm.inference). import-linter core→edge KEPT. Fast gate uses a canned
   `complete_with_tools` backend (no Ollama); the 10-trial live exploit is `-m slow`.
 
+## Layer-2 assurance-loop milestone (KS-0304, NAT-orchestrated)
+
+- **Layer 2 is COMPLETE.** The loop composes the EXISTING pieces (no new capability):
+  `EXPOSED → DETECTED → MAPPED → PATCHED → VERIFIED`, driven by the NeMo Agent Toolkit.
+  Live result: exploit before=True/after=False, Garak fails before≈10-11/12 → after
+  0/12, remediated=True, arc_complete=True, ledger chain valid.
+- **Demo command: `make milestone`** (`keystone.agents.run:main_milestone` → NAT
+  `load_workflow(ASSURANCE_WORKFLOW_CONFIG)`). Prints the before/after Garak result +
+  the ledger arc summary. Takes ~2-3 min (two live Garak scans + agent runs).
+- **NAT genuinely drives it** (Step-1 spike confirmed NAT runs our stages end-to-end):
+  `keystone_assurance_loop` is a registered NAT workflow function (config in
+  `orchestrator/config.py`, build in `orchestrator/functions.py`,
+  `assurance_workflow.yml`). NAT's runtime invokes it; it sequences the loop. Config
+  format unchanged from the Phase-1 skeleton.
+- **NAT integration SURPRISE (important):** NeMo Guardrails' **sync `rails.generate`
+  raises inside NAT's async event loop** ("use await generate_async / nest_asyncio").
+  Fix: the NAT `_run` runs the (fully synchronous) loop via
+  **`await asyncio.to_thread(run_assurance_loop, ...)`** — the worker thread has no
+  running loop, so the sync guard works. Idiomatic blocking-in-async bridge; no rewrite.
+- **Architecture for testability:** `loop.py` is the pure SPINE
+  (`run_assurance_loop`, `assert_assurance_arc`, `LoopDeps`) — light imports, no
+  nemoguardrails — so the fast gate exercises the exact sequencing over CANNED deps.
+  `loop_live.py` holds `live_deps` (the real KS-0301/0303/0302 wiring); importing it is
+  what pulls the heavy deps, only for the milestone.
+- **The milestone check = `assert_assurance_arc(ledger)`**: the `assurance_loop_stage`
+  entries must equal `ARC` in order AND the chain must hash-verify. A missing or
+  out-of-order stage → False. State between stages flows through the LEDGER.
+- **Still no langchain_core** → NAT logs a non-fatal `nat.tool.nvidia_rag` import error
+  on workflow load (auto-discovery); harmless, the loop runs.
+
 ## NeMo Guardrails patch (KS-0302, `keystone.assurance.guard`)
 
 - **The PATCH that closes the KS-0301 hole, PROVEN by re-running KS-0303's Garak**:

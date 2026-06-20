@@ -26,10 +26,33 @@ async def run_once(message: str = "run") -> str:
         return str(await runner.result(to_type=str))
 
 
+async def run_milestone(message: str = "run") -> str:
+    """Run the KS-0304 assurance loop end-to-end via NAT and return the summary."""
+    async with (
+        load_workflow(orchestrator.ASSURANCE_WORKFLOW_CONFIG) as session,
+        session.run(message) as runner,
+    ):
+        return str(await runner.result(to_type=str))
+
+
 def main() -> None:
     result = asyncio.run(run_once())
     ledger = open_ledger()
     print(f"workflow result: {result}")
+    print(f"ledger entries: {len(ledger.all())}  chain_ok: {ledger.verify_chain()}")
+
+
+def main_milestone() -> None:
+    """`make milestone` entry point: NAT-orchestrated assurance loop + chain summary."""
+    result = asyncio.run(run_milestone())
+    ledger = open_ledger()
+    arc = [
+        e.payload.get("stage")
+        for e in ledger.all()
+        if e.action == "assurance_loop_stage"
+    ]
+    print(f"assurance loop: {result}")
+    print(f"ledger arc: {' -> '.join(str(s) for s in arc)}")
     print(f"ledger entries: {len(ledger.all())}  chain_ok: {ledger.verify_chain()}")
 
 

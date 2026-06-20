@@ -1,0 +1,8 @@
+# Keystone Layer-2 AI Assurance Loop (KS-0304), orchestrated by NeMo Agent Toolkit.
+# The workflow IS the loop: NAT's runtime drives the five-stage arc
+# (exposed → detected → mapped → patched → verified-closed), each stage writing
+# one entry to the hash-chained evidence ledger (KEYSTONE_LEDGER_DB).
+
+workflow:
+  _type: keystone_assurance_loop
+  prompt_cap: 12
