@@ -102,6 +102,7 @@ class AgentRun:
     transfer_intents: tuple[TransferIntent, ...]
     content: str = ""
     ledger_entry_ids: tuple[int, ...] = field(default_factory=tuple)
+    blocked: bool = False  # True when the KS-0302 guard refused the input
 
 
 def _format_transaction(transaction: Transaction) -> str:
@@ -136,6 +137,9 @@ def run_agent(
     a stub; `initiate_transfer` performs NOTHING real — it records transfer intent
     to the ledger, tagged with the memo that triggered it. `backend` is injectable
     (the fast gate passes a canned one); `ledger` defaults to the env ledger.
+
+    This is the UNGUARDED (vulnerable) path. The KS-0302 patch is the
+    `guard.run_guarded_agent` wrapper, which vets the memo first.
     """
     led = ledger if ledger is not None else open_ledger()
     messages: list[dict[str, Any]] = [

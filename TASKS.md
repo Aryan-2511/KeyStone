@@ -54,8 +54,12 @@
       vuln, parses JSONL → typed findings → OWASP/Art.15/India mapping → ledger
       finding — KS-0303 (`keystone.assurance.garak_probe`,
       `tests/test_garak_probe.py`; built BEFORE KS-0302, detector-before-patch)
-- [ ] Phase 3 — Layer 2: AI Assurance Loop (Guardrails + milestone) —
-      KS-0302, KS-0304 (next → KS-0302 NeMo Guardrails rails; `depends_on` KS-0303)
+- [x] NeMo Guardrails patch (v0.22): deterministic input rail closes the
+      memo-injection hole — Garak re-scan goes 10/12 → 0/12, benign+legit flows
+      intact, remediated finding to ledger — KS-0302 (`keystone.assurance.guard`,
+      `tests/test_guardrails_patch.py`; `depends_on` KS-0303 satisfied)
+- [ ] Phase 3 — Layer 2: AI Assurance Loop (milestone) — KS-0304 (next →
+      end-to-end assurance-loop milestone test)
 - [ ] Phase 4 — Layer 1: Transaction Monitor + the L2↔L1 seam milestone — KS-0401–KS-0403
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 

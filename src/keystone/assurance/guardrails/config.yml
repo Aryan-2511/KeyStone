@@ -1,0 +1,11 @@
+# NeMo Guardrails config for the mock payments agent (KS-0302).
+#
+# A DETERMINISTIC, pattern-based INPUT rail only — no main LLM and no embedding
+# model are required, so nothing is downloaded (the 4 GB-box constraint). The
+# rail runs the custom `check_data_field_injection` action over the untrusted
+# memo/data field; on a hit it refuses, closing the KS-0301 memo-injection hole.
+
+rails:
+  input:
+    flows:
+      - check data field injection
