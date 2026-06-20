@@ -58,8 +58,14 @@
       memo-injection hole — Garak re-scan goes 10/12 → 0/12, benign+legit flows
       intact, remediated finding to ledger — KS-0302 (`keystone.assurance.guard`,
       `tests/test_guardrails_patch.py`; `depends_on` KS-0303 satisfied)
-- [ ] Phase 3 — Layer 2: AI Assurance Loop (milestone) — KS-0304 (next →
-      end-to-end assurance-loop milestone test)
+- [x] **Layer 2 COMPLETE** — assurance-loop milestone orchestrated by NeMo Agent
+      Toolkit: exposed → detected → mapped → patched → verified, full hash-valid
+      ledger arc; `make milestone` runs it live — KS-0304
+      (`keystone.assurance.loop`, `keystone.agents.orchestrator`,
+      `tests/test_assurance_loop.py`)
+
+## Next — Phase 4 = Layer 1: Transaction Monitor + the L2↔L1 seam
+
 - [ ] Phase 4 — Layer 1: Transaction Monitor + the L2↔L1 seam milestone — KS-0401–KS-0403
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 

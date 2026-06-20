@@ -397,15 +397,23 @@
     {
       "id": "KS-0304",
       "title": "Milestone: end-to-end AI assurance loop",
-      "description": "A milestone-marked test proving ingest → guardrails/policy → finding → ledger for the mock agent. Survives from old KS-0302.",
+      "description": "A milestone-marked test proving the end-to-end Layer-2 loop, ORCHESTRATED BY THE NeMo Agent Toolkit: the existing pieces (KS-0301 agent, KS-0303 Garak detector + OWASP/regulation mapping, KS-0302 Guardrails patch) are composed into one arc — exposed → detected → mapped → patched → verified — each stage writing to the hash-chained evidence ledger. NAT's runtime drives the workflow (keystone_assurance_loop); `make milestone` runs it live (Garak fails 10/12 unguarded -> 0/12 guarded, exploit fires then does not). No new capability; just orchestration. Survives from old KS-0302.",
       "phase": "3 — Layer 2: AI Assurance Loop",
       "layer": "Layer 2 — AI Assurance Loop",
       "area": "assurance",
-      "status": "planned",
+      "status": "done",
+      "depends_on": ["KS-0301", "KS-0302", "KS-0303"],
       "done_criteria": [
-        "a -m milestone test exercises the full assurance loop and asserts a verifiable ledger entry"
+        "a -m milestone test exercises the full assurance loop and asserts a verifiable, ordered, hash-valid ledger arc (exposed -> detected -> mapped -> patched -> verified)",
+        "the loop is orchestrated by the NeMo Agent Toolkit (a registered NAT workflow drives the stages), runnable live via `make milestone`"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_assurance_loop.py::test_loop_runs_full_arc_in_order",
+        "tests/test_assurance_loop.py::test_arc_check_rejects_missing_stage",
+        "tests/test_assurance_loop.py::test_arc_check_rejects_out_of_order",
+        "tests/test_assurance_loop.py::test_assurance_workflow_config_loads",
+        "tests/test_assurance_loop.py::test_live_assurance_loop_via_nat"
+      ]
     },
     {
       "id": "KS-0401",
