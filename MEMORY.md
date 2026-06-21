@@ -527,3 +527,42 @@
   chain offline (KS-0504). Runs on a throwaway ledger by default (one call = one
   clean arc). `keystone.demo` is the integration layer: imports core + assurance
   edge; core never imports it (import-linter KEPT).
+- **The shared design system lives in `keystone.ui.tokens` (KS-0501) — ONE source
+  for every Phase-5 screen.** Palette (the deck's): NVIDIA green `#76B900` brand
+  anchor; layer semantics teal `#008564` (L3) / purple `#5D1682` (L2 AI-security) /
+  berry `#890C58` (L1 financial-crime) / amber `#B56A00` (seam/target); surface ramp
+  ink `#0E0F12` (evidence canvas) / panel `#14171C` / bg `#1A1A1A`. Type trio (NOT
+  Streamlit defaults): Space Grotesk (display) + Inter (body) + IBM Plex Mono (the
+  evidence/data face for ids). `.streamlit/config.toml` mirrors the theme colours;
+  `tests/test_ui_tokens.py` FAILS on any drift — so the chrome and the custom SVGs
+  draw from one place. KS-0502/0503 inherit this; colour a layer via
+  `tokens.LAYER_COLOR`, never a hand-picked hex.
+- **The seam hero (`keystone.ui.seam_screen`) is a custom SVG, not Streamlit
+  widgets.** Composition: the seam transaction is the amber "target" at centre; the
+  L2 (purple) and L1 (berry) findings flank it; the signature element is an amber
+  CONVERGENCE — two coloured connectors + the tx spine drop into a binding bar
+  reading `[tx id] ≡ [signature]` (same transaction, same canonical signature) with
+  the plain-language thesis. Every value is read from the `keystone.demo.RunResult`
+  (live via `build_run_result`, replay via `load_run_result`) — no hardcoded/mocked
+  data; a missing field shows a ▮ placeholder, a missing run an honest empty state.
+  Run: `streamlit run src/keystone/ui/seam_app.py`. Static (no animation this build).
+- **Embed custom SVG via `st.components.v1.html` (an iframe), NOT `st.html`.**
+  `st.html` SANITISES inline SVG away — the hero rendered as a blank main panel
+  while the gates stayed green (the screen is the deliverable; an empty screen isn't
+  done). `components.html(seam_html(result), height=SEAM_HEIGHT_PX, scrolling=False)`
+  renders the self-contained doc in an iframe (height derived from the viewBox so it
+  never clips). Verified live + replay by screenshotting the RUNNING app — not just
+  the standalone SVG. KS-0502/0503 must use the iframe path too.
+- **Visual QA of a Streamlit screen needs the RUNNING app, not just the SVG.**
+  `--screenshot` / `--virtual-time-budget` on headless Chrome fires before
+  Streamlit's websocket render (captures the skeleton). Drive Chrome via the
+  DevTools Protocol (`--remote-debugging-port=9222 --remote-allow-origins=*`) and
+  capture after a REAL `time.sleep` once the app has rendered. The standalone-SVG
+  screenshot proves the design; only the in-app capture proves it renders.
+- **GATE every Streamlit app with `streamlit.testing.v1.AppTest`** (e.g.
+  `tests/test_seam_app.py`). Helper-level unit tests + `make verify` passed twice
+  while the app was broken (blank panel, then an `ImportError` on load) because
+  NOTHING ran `seam_app.py` (0% line-coverage; AppTest's script-runner exec isn't
+  instrumented, but it DOES run the file). `AppTest.from_file(app).run()` +
+  `assert not at.exception` reproduces an import/render crash and fails the build.
+  KS-0502/0503 each need their own AppTest. A green gate is NOT done — run the app.

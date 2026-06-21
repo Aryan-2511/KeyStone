@@ -1,0 +1,13 @@
+# Keystone Streamlit theme.
+#
+# SINGLE SOURCE OF TRUTH IS keystone.ui.tokens.streamlit_theme() — this file mirrors
+# it (Streamlit needs a static TOML at startup; it cannot import Python). Keep the two
+# in lock-step: tests/test_ui_tokens.py FAILS if they diverge. Change tokens.py, then
+# mirror the value here.
+[theme]
+base = "dark"
+primaryColor = "#76B900"            # NVIDIA green — brand anchor
+backgroundColor = "#1A1A1A"         # page background (the deck's dark)
+secondaryBackgroundColor = "#14171C" # near-dark "ledger" panel
+textColor = "#ECEDEE"               # primary text on dark
+font = "sans-serif"
