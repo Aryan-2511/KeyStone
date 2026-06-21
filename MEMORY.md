@@ -559,3 +559,10 @@
   DevTools Protocol (`--remote-debugging-port=9222 --remote-allow-origins=*`) and
   capture after a REAL `time.sleep` once the app has rendered. The standalone-SVG
   screenshot proves the design; only the in-app capture proves it renders.
+- **GATE every Streamlit app with `streamlit.testing.v1.AppTest`** (e.g.
+  `tests/test_seam_app.py`). Helper-level unit tests + `make verify` passed twice
+  while the app was broken (blank panel, then an `ImportError` on load) because
+  NOTHING ran `seam_app.py` (0% line-coverage; AppTest's script-runner exec isn't
+  instrumented, but it DOES run the file). `AppTest.from_file(app).run()` +
+  `assert not at.exception` reproduces an import/render crash and fails the build.
+  KS-0502/0503 each need their own AppTest. A green gate is NOT done — run the app.

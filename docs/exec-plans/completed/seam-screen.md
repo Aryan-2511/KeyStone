@@ -48,15 +48,27 @@ system the other Phase-5 screens (KS-0502/0503) inherit.
 ![The seam hero](../../assets/ks-0501-seam-screen.png)
 ![The seam hero in the running app](../../assets/ks-0501-seam-app.png)
 
-## Rendering bug found in review (fixed)
+## Two app-breaking bugs found in review (both fixed) — and the gate hole closed
 
-First cut embedded the SVG with `st.html` — which SANITISES inline SVG away, so the
-hero showed as a BLANK main panel even though every gate was green (the sidebar
-rendered; the screen — the deliverable — did not). Caught only by screenshotting the
-RUNNING app, not the standalone SVG. Fix: embed via `st.components.v1.html` (an
-iframe) with a derived `SEAM_HEIGHT_PX` (from the viewBox, so it never clips).
-Re-verified in-app, live AND replay (`docs/assets/ks-0501-seam-app.png`). Lesson in
-MEMORY.md: custom SVG → `components.v1.html`, never `st.html`; QA the running app.
+1. **Blank panel (`st.html`).** First cut embedded the SVG with `st.html`, which
+   SANITISES inline SVG away — the hero showed as a BLANK main panel while every gate
+   was green. Fix: embed via `st.components.v1.html` (an iframe) at a derived
+   `SEAM_HEIGHT_PX` (from the viewBox, so it never clips).
+2. **`ImportError` on load.** The app imported `SEAM_HEIGHT_PX`; a stale checkout
+   could miss the export, crashing `seam_app.py` on import — again with green gates.
+
+**Root cause of both slipping through: the gate never RAN the app.** No test imported
+`seam_app.py` (it sat at 0% coverage), so an import/render error there could not fail
+`make verify`. Fixed by `tests/test_seam_app.py`, which runs the real Streamlit script
+via `streamlit.testing.v1.AppTest` (live AND replay) and asserts no exception — this
+reproduces the exact `ImportError` when the export is removed (verified by temporarily
+breaking it), so a broken demo app now fails the build.
+
+Re-verified by actually running `streamlit run src/keystone/ui/seam_app.py` and
+watching the hero draw in the main panel — live and replay
+(`docs/assets/ks-0501-seam-app.png`). Lessons in MEMORY.md: custom SVG →
+`components.v1.html`, never `st.html`; and a Streamlit screen needs an `AppTest`
+(or running-app) gate, not just helper-level unit tests.
 
 ## Decisions
 
