@@ -527,3 +527,25 @@
   chain offline (KS-0504). Runs on a throwaway ledger by default (one call = one
   clean arc). `keystone.demo` is the integration layer: imports core + assurance
   edge; core never imports it (import-linter KEPT).
+- **The shared design system lives in `keystone.ui.tokens` (KS-0501) — ONE source
+  for every Phase-5 screen.** Palette (the deck's): NVIDIA green `#76B900` brand
+  anchor; layer semantics teal `#008564` (L3) / purple `#5D1682` (L2 AI-security) /
+  berry `#890C58` (L1 financial-crime) / amber `#B56A00` (seam/target); surface ramp
+  ink `#0E0F12` (evidence canvas) / panel `#14171C` / bg `#1A1A1A`. Type trio (NOT
+  Streamlit defaults): Space Grotesk (display) + Inter (body) + IBM Plex Mono (the
+  evidence/data face for ids). `.streamlit/config.toml` mirrors the theme colours;
+  `tests/test_ui_tokens.py` FAILS on any drift — so the chrome and the custom SVGs
+  draw from one place. KS-0502/0503 inherit this; colour a layer via
+  `tokens.LAYER_COLOR`, never a hand-picked hex.
+- **The seam hero (`keystone.ui.seam_screen`) is a custom SVG, not Streamlit
+  widgets.** Composition: the seam transaction is the amber "target" at centre; the
+  L2 (purple) and L1 (berry) findings flank it; the signature element is an amber
+  CONVERGENCE — two coloured connectors + the tx spine drop into a binding bar
+  reading `[tx id] ≡ [signature]` (same transaction, same canonical signature) with
+  the plain-language thesis. Every value is read from the `keystone.demo.RunResult`
+  (live via `build_run_result`, replay via `load_run_result`) — no hardcoded/mocked
+  data; a missing field shows a ▮ placeholder, a missing run an honest empty state.
+  Run: `streamlit run src/keystone/ui/seam_app.py`. Static (no animation this build).
+  Visual QA = render the SVG in headless Chrome (`--screenshot`, loads the web
+  fonts) and LOOK; SVG is pure string-building (no Streamlit import) so it exports
+  standalone for the screenshot.

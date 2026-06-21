@@ -550,14 +550,22 @@
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "ui",
-      "status": "planned",
+      "status": "done",
       "depends_on": ["KS-0500"],
       "done_criteria": [
         "shared design tokens (palette/type/spacing) are the single source for BOTH the Streamlit theme and the hero SVG (no drift)",
         "the seam hero renders the real seam tx id, both findings, and the canonical signature from a KS-0500 run-result (live + saved replay), making 'one event, two failures' instant and the binding the focal point",
         "a missing run-result field degrades to a clear empty/▮ state, never a crash or fabricated value"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_ui_tokens.py::test_streamlit_config_mirrors_the_tokens",
+        "tests/test_ui_tokens.py::test_layer_semantics_draw_from_the_palette",
+        "tests/test_seam_screen.py::test_fixture_run_renders_real_seam_values",
+        "tests/test_seam_screen.py::test_values_are_read_from_the_run_result_not_hardcoded",
+        "tests/test_seam_screen.py::test_screen_draws_colour_from_the_shared_tokens",
+        "tests/test_seam_screen.py::test_missing_field_degrades_to_placeholder_not_fake_data",
+        "tests/test_seam_screen.py::test_no_run_renders_an_honest_empty_state"
+      ]
     },
     {
       "id": "KS-0502",
