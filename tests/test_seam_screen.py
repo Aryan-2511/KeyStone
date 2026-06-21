@@ -14,7 +14,8 @@ from pathlib import Path
 
 from keystone.demo import RunResult, build_run_result, load_run_result
 from keystone.ui import tokens as T
-from keystone.ui.seam_screen import MISSING, seam_html, seam_svg
+from keystone.ui.seam_screen import seam_html, seam_svg
+from keystone.ui.svg import MISSING
 
 _FIXTURE = Path(__file__).resolve().parent / "fixtures" / "seam_run_result.json"
 

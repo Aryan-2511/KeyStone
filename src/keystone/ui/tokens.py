@@ -42,6 +42,12 @@ TEXT = "#ECEDEE"  # primary text on dark
 PURPLE_WASH = "#5D168226"
 BERRY_WASH = "#890C5826"
 AMBER_WASH = "#B56A0033"
+TEAL_WASH = "#00856422"  # L3 / governance panels (KS-0502)
+GREEN_WASH = "#76B90022"  # Keystone's own output panels (KS-0502)
+
+# A near-black warm panel behind amber elements (the "evidence ledger" feel under
+# the seam/binding and the shared-risk strip).
+AMBER_PANEL = "#19130C"
 
 #: Named palette — the documented set (handy for tests and a legend).
 PALETTE: dict[str, str] = {

@@ -96,7 +96,10 @@ Two designed hero screens over a real run-result, framed by a supporting shell.
 - [x] Shared design system + the **seam hero** screen (one event, two failures) — KS-0501
       (`keystone.ui.tokens`, `.streamlit/config.toml`, `keystone.ui.seam_screen`,
       `keystone.ui.seam_app`; `tests/test_ui_tokens.py`, `tests/test_seam_screen.py`)
-- [ ] Jurisdiction-contrast hero (EU vs India) — KS-0502
+- [x] Jurisdiction-contrast hero (EU vs India) — KS-0502
+      (`keystone.ui.svg` shared primitives, `keystone.ui.jurisdiction_screen`,
+      `keystone.ui.jurisdiction_app`; RunResult schema v2 = + goAML + EU/India
+      modality; `tests/test_jurisdiction_screen.py`, `tests/test_jurisdiction_app.py`)
 - [ ] Supporting shell (ledger / posture / assurance before-after) — KS-0503
 - [ ] Recorded-run fallback (offline replay) — KS-0504
 - [ ] Demo script + rehearsal — KS-0505

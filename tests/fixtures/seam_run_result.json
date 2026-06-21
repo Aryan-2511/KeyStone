@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-06-21T14:33:38.863450+00:00",
+  "schema_version": 2,
+  "generated_at": "2026-06-21T19:28:28.545573+00:00",
   "seam_transaction": {
     "id": "TXN-000016",
     "timestamp": "2026-01-02T00:12:00+00:00",
@@ -52,8 +52,10 @@
       "owasp_agentic": "OWASP Agentic AI (ASI) — Tool Misuse via indirect prompt injection",
       "eu_ai_act": "EU AI Act Art. 15 — Accuracy, robustness and cybersecurity",
       "eu_obligation_id": "OBL-EUAI-015",
+      "eu_modality": "HARD_LAW",
       "india_principle": "RBI FREE-AI 'Trust is the Foundation' (Sutra)",
-      "india_obligation_id": "OBL-RBI-001"
+      "india_obligation_id": "OBL-RBI-001",
+      "india_modality": "SELF_CERTIFICATION"
     }
   },
   "binding": {
@@ -72,7 +74,142 @@
     "total_amount": 85417.57,
     "transaction_count": 9,
     "period_start": "2026-01-02T00:12:00+00:00",
-    "period_end": "2026-01-02T01:03:00+00:00"
+    "period_end": "2026-01-02T01:03:00+00:00",
+    "finnet": {
+      "report_type": "STR",
+      "schema_note": "Representative model of FINnet 2.0 (FIU-IND) STR fields; reporting-entity values are placeholders, not an official schema.",
+      "reporting_entity": {
+        "re_name": "<PLACEHOLDER>",
+        "re_id": "<PLACEHOLDER>"
+      },
+      "report_date": "2026-01-02",
+      "ground_of_suspicion": "STRUCTURING",
+      "suspicious_transactions": [
+        {
+          "transaction_id": "TXN-000016",
+          "account": "ACC-0004",
+          "amount": 9011.52,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000017",
+          "account": "ACC-0004",
+          "amount": 9768.15,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000018",
+          "account": "ACC-0004",
+          "amount": 9442.89,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000019",
+          "account": "ACC-0004",
+          "amount": 9810.84,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000020",
+          "account": "ACC-0004",
+          "amount": 9539.47,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000021",
+          "account": "ACC-0004",
+          "amount": 9106.85,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000022",
+          "account": "ACC-0004",
+          "amount": 9556.37,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000023",
+          "account": "ACC-0004",
+          "amount": 9846.42,
+          "currency": "USD"
+        },
+        {
+          "transaction_id": "TXN-000025",
+          "account": "ACC-0004",
+          "amount": 9335.06,
+          "currency": "USD"
+        }
+      ],
+      "total_amount": 85417.57,
+      "narrative": "A STRUCTURING pattern was detected on account ACC-0004. 9 transactions totalling 85417.57 USD occurred between 2026-01-02 00:12 and 2026-01-02 01:03. 9 transfers totalling 85417.57 from ACC-0004, each between 5000 and 10000 (just under the CTR threshold) within 51 minutes — structuring / smurfing to avoid the reporting threshold.",
+      "status": "SIGNED",
+      "signed_by": "compliance.officer@keystone"
+    },
+    "goaml": {
+      "report_code": "STR",
+      "schema_note": "Representative model of UN goAML report fields; rentity values are placeholders, not an official schema.",
+      "rentity_id": "<PLACEHOLDER>",
+      "submission_date": "2026-01-02",
+      "report_indicator": "STRUCTURING",
+      "transactions": [
+        {
+          "transactionnumber": "TXN-000016",
+          "from_account": "ACC-0004",
+          "amount_local": 9011.52,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000017",
+          "from_account": "ACC-0004",
+          "amount_local": 9768.15,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000018",
+          "from_account": "ACC-0004",
+          "amount_local": 9442.89,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000019",
+          "from_account": "ACC-0004",
+          "amount_local": 9810.84,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000020",
+          "from_account": "ACC-0004",
+          "amount_local": 9539.47,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000021",
+          "from_account": "ACC-0004",
+          "amount_local": 9106.85,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000022",
+          "from_account": "ACC-0004",
+          "amount_local": 9556.37,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000023",
+          "from_account": "ACC-0004",
+          "amount_local": 9846.42,
+          "currency_code": "USD"
+        },
+        {
+          "transactionnumber": "TXN-000025",
+          "from_account": "ACC-0004",
+          "amount_local": 9335.06,
+          "currency_code": "USD"
+        }
+      ],
+      "reason": "A STRUCTURING pattern was detected on account ACC-0004. 9 transactions totalling 85417.57 USD occurred between 2026-01-02 00:12 and 2026-01-02 01:03. 9 transfers totalling 85417.57 from ACC-0004, each between 5000 and 10000 (just under the CTR threshold) within 51 minutes — structuring / smurfing to avoid the reporting threshold.",
+      "status": "SIGNED"
+    }
   },
   "arc": {
     "stages": [
@@ -87,7 +224,7 @@
     "entries": [
       {
         "id": 1,
-        "ts": "2026-06-21T14:33:38.830109+00:00",
+        "ts": "2026-06-21T19:28:28.503213+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -97,11 +234,11 @@
           "transaction_count": 39
         },
         "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-        "entry_hash": "1b2eb08e41af2d1d1ff20c3aff80b4f0434bb9529db83f0dda4afa979192b4da"
+        "entry_hash": "c82fef3533c4a6423cde9c7db64fbee006df1b1d22a19b2c0530bf4be7ad707d"
       },
       {
         "id": 2,
-        "ts": "2026-06-21T14:33:38.834095+00:00",
+        "ts": "2026-06-21T19:28:28.510093+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -122,12 +259,12 @@
           ],
           "typology": "STRUCTURING"
         },
-        "prev_hash": "1b2eb08e41af2d1d1ff20c3aff80b4f0434bb9529db83f0dda4afa979192b4da",
-        "entry_hash": "2af83f3f7f266674e75cca27b5b8e9d9530ad542fdd81ccf298b38335e27db0e"
+        "prev_hash": "c82fef3533c4a6423cde9c7db64fbee006df1b1d22a19b2c0530bf4be7ad707d",
+        "entry_hash": "7adf447cb2b09f5ed506611c0a2bbf3d7d5bac6e51ffbb6af40d14150d74100b"
       },
       {
         "id": 3,
-        "ts": "2026-06-21T14:33:38.841068+00:00",
+        "ts": "2026-06-21T19:28:28.520146+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -138,12 +275,12 @@
           "thesis": "the fraud L1 caught carries the exact vulnerability L2 found and patched",
           "transaction_id": "TXN-000016"
         },
-        "prev_hash": "2af83f3f7f266674e75cca27b5b8e9d9530ad542fdd81ccf298b38335e27db0e",
-        "entry_hash": "670ca06a3e6e1f059a8d8de62ccffe3829637550e5b6823773b491ebd18ae71f"
+        "prev_hash": "7adf447cb2b09f5ed506611c0a2bbf3d7d5bac6e51ffbb6af40d14150d74100b",
+        "entry_hash": "ec2b490180826f7a843a2e94db94c20997f8cff1095bc72d8183be1fd94d7bc3"
       },
       {
         "id": 4,
-        "ts": "2026-06-21T14:33:38.847921+00:00",
+        "ts": "2026-06-21T19:28:28.527815+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -225,12 +362,12 @@
           "total_amount": 85417.57,
           "transaction_count": 9
         },
-        "prev_hash": "670ca06a3e6e1f059a8d8de62ccffe3829637550e5b6823773b491ebd18ae71f",
-        "entry_hash": "be441b8053d312737d5019c8b9086a9c1556944f8e8cc98a909ea8f73ebe9bad"
+        "prev_hash": "ec2b490180826f7a843a2e94db94c20997f8cff1095bc72d8183be1fd94d7bc3",
+        "entry_hash": "35ab18f0daefe3591241e57722d472fa50de2bafb3ffd901221d72c4aa9cf810"
       },
       {
         "id": 5,
-        "ts": "2026-06-21T14:33:38.854419+00:00",
+        "ts": "2026-06-21T19:28:28.530906+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -239,8 +376,8 @@
           "stage": "signed",
           "status": "SIGNED"
         },
-        "prev_hash": "be441b8053d312737d5019c8b9086a9c1556944f8e8cc98a909ea8f73ebe9bad",
-        "entry_hash": "1a0e71ae0c6eec9db88420632826150908ff75f708b232320cd9c11999514a01"
+        "prev_hash": "35ab18f0daefe3591241e57722d472fa50de2bafb3ffd901221d72c4aa9cf810",
+        "entry_hash": "e61eaaf2dfa037a818b4c0b3801ef88bc6c925eb8172f8d1a4c8941c5919e16e"
       }
     ]
   }
