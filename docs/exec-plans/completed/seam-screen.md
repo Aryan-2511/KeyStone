@@ -38,12 +38,25 @@ system the other Phase-5 screens (KS-0502/0503) inherit.
   empty state for honest degradation.
 - `keystone/ui/seam_app.py` — `streamlit run src/keystone/ui/seam_app.py`: live
   (`build_run_result`) or replay (`load_run_result`, default = the committed
-  fixture); honest error + empty state if a saved run can't load.
+  fixture); honest error + empty state if a saved run can't load. Embeds the hero via
+  `st.components.v1.html` (an iframe) at `SEAM_HEIGHT_PX`.
 - `tests/fixtures/seam_run_result.json` — a committed run for replay + tests.
 - `tests/test_ui_tokens.py`, `tests/test_seam_screen.py`.
-- The review artifact: `docs/assets/ks-0501-seam-screen.png`.
+- Review artifacts: `docs/assets/ks-0501-seam-screen.png` (the hero design) and
+  `docs/assets/ks-0501-seam-app.png` (the RUNNING app — replay mode).
 
 ![The seam hero](../../assets/ks-0501-seam-screen.png)
+![The seam hero in the running app](../../assets/ks-0501-seam-app.png)
+
+## Rendering bug found in review (fixed)
+
+First cut embedded the SVG with `st.html` — which SANITISES inline SVG away, so the
+hero showed as a BLANK main panel even though every gate was green (the sidebar
+rendered; the screen — the deliverable — did not). Caught only by screenshotting the
+RUNNING app, not the standalone SVG. Fix: embed via `st.components.v1.html` (an
+iframe) with a derived `SEAM_HEIGHT_PX` (from the viewBox, so it never clips).
+Re-verified in-app, live AND replay (`docs/assets/ks-0501-seam-app.png`). Lesson in
+MEMORY.md: custom SVG → `components.v1.html`, never `st.html`; QA the running app.
 
 ## Decisions
 
@@ -66,11 +79,12 @@ system the other Phase-5 screens (KS-0502/0503) inherit.
 - `make check` green OFFLINE — `tokens.py` 100%, `seam_screen.py` 97%, total 90%;
   268 passed.
 - `make verify` exit 0 — full suite; import-linter KEPT; feature_list valid.
-- **Visual QA** (the real review): rendered the SVG over the saved run in headless
-  Chrome and iterated on the image — strengthened the convergence into the focal
-  point, added the plain thesis line, fixed a footer overflow. Final screenshot
-  committed (above): "one transaction, two failures" reads instantly, the binding is
-  the clear focal point, and it reads as designed (not default-Streamlit).
+- **Visual QA** (the real review): iterated on the rendered image — strengthened the
+  convergence into the focal point, added the plain thesis line, fixed a footer
+  overflow. Then verified the RUNNING Streamlit app (live + replay) via the DevTools
+  Protocol, which is what surfaced the `st.html` blank-panel bug above. Final in-app
+  capture committed: "one transaction, two failures" reads instantly, the binding is
+  the focal point, and it reads as designed (not default-Streamlit).
 
 ## Next
 

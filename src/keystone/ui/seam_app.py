@@ -18,10 +18,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from keystone.demo import RunResult, build_run_result, load_run_result, run_json_path
-from keystone.ui import tokens as T
-from keystone.ui.seam_screen import seam_html
+from keystone.ui.seam_screen import SEAM_HEIGHT_PX, seam_html
 
 _FIXTURE = (
     Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "seam_run_result.json"
@@ -57,11 +57,12 @@ def _load_run() -> tuple[RunResult | None, str]:
 
 def render() -> None:
     st.set_page_config(page_title="Keystone — the seam", page_icon="🔗", layout="wide")
-    st.html(f"<style>{T.fonts_css()}</style>")
 
     result, note = _load_run()
     st.sidebar.caption(note)
-    st.html(seam_html(result))
+    # An iframe (components.html), NOT st.html: st.html sanitises the inline SVG away,
+    # leaving an empty main panel. The iframe renders the self-contained hero document.
+    components.html(seam_html(result), height=SEAM_HEIGHT_PX, scrolling=False)
 
 
 if __name__ == "__main__":

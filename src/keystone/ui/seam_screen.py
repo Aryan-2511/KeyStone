@@ -32,6 +32,11 @@ MISSING = "▮▮▮▮▮"
 _VIEWBOX_W = 1280
 _VIEWBOX_H = 860
 
+# The hero is centred at this max width; the iframe height (for components.html)
+# is derived from it so the SVG never clips at its largest rendered size.
+_HERO_MAX_WIDTH = 1180
+SEAM_HEIGHT_PX = round(_HERO_MAX_WIDTH * _VIEWBOX_H / _VIEWBOX_W) + 18
+
 
 class TextStyle(NamedTuple):
     """A bundled type treatment, so `_text` stays a 4-argument helper."""
@@ -519,8 +524,15 @@ def seam_svg(result: RunResult | None) -> str:
 
 
 def seam_html(result: RunResult | None) -> str:
-    """The SVG wrapped for `st.html` — fonts + a centred, max-width container."""
+    """A self-contained HTML doc for `components.v1.html` (an iframe).
+
+    Embedded in an iframe (NOT `st.html`, which sanitises inline SVG away) with its
+    own font import and an ink background, so the hero renders seamlessly at the
+    Streamlit container width, centred up to the hero max width.
+    """
     return (
-        f"<style>{T.fonts_css()}.ks-seam{{max-width:1180px;margin:0 auto;}}</style>"
+        f"<style>{T.fonts_css()}"
+        f"html,body{{margin:0;background:{T.INK};}}"
+        f".ks-seam{{max-width:{_HERO_MAX_WIDTH}px;margin:0 auto;}}</style>"
         f'<div class="ks-seam">{seam_svg(result)}</div>'
     )

@@ -546,6 +546,16 @@
   (live via `build_run_result`, replay via `load_run_result`) — no hardcoded/mocked
   data; a missing field shows a ▮ placeholder, a missing run an honest empty state.
   Run: `streamlit run src/keystone/ui/seam_app.py`. Static (no animation this build).
-  Visual QA = render the SVG in headless Chrome (`--screenshot`, loads the web
-  fonts) and LOOK; SVG is pure string-building (no Streamlit import) so it exports
-  standalone for the screenshot.
+- **Embed custom SVG via `st.components.v1.html` (an iframe), NOT `st.html`.**
+  `st.html` SANITISES inline SVG away — the hero rendered as a blank main panel
+  while the gates stayed green (the screen is the deliverable; an empty screen isn't
+  done). `components.html(seam_html(result), height=SEAM_HEIGHT_PX, scrolling=False)`
+  renders the self-contained doc in an iframe (height derived from the viewBox so it
+  never clips). Verified live + replay by screenshotting the RUNNING app — not just
+  the standalone SVG. KS-0502/0503 must use the iframe path too.
+- **Visual QA of a Streamlit screen needs the RUNNING app, not just the SVG.**
+  `--screenshot` / `--virtual-time-budget` on headless Chrome fires before
+  Streamlit's websocket render (captures the skeleton). Drive Chrome via the
+  DevTools Protocol (`--remote-debugging-port=9222 --remote-allow-origins=*`) and
+  capture after a REAL `time.sleep` once the app has rendered. The standalone-SVG
+  screenshot proves the design; only the in-app capture proves it renders.
