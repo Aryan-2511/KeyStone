@@ -50,6 +50,39 @@
   via `structuring_clusters=N`, never random surprise. `sample_stream()` is the
   canonical fixture (30 normal + 1 cluster) the rest of Layer 1 builds on.
 
+## Regulator report generation (KS-0404, `keystone.core.reporting` + edge)
+
+- **The fact/language split is the discipline.** DETERMINISTIC CORE
+  (`keystone.core.reporting`) assembles `ReportFacts` (typology, tx ids, amounts,
+  accounts, currency, period, total, rationale) from a FATF `Finding` + the
+  implicated `Transaction`s — the SYSTEM OF RECORD. The LLM EDGE
+  (`keystone.llm.report_narrative.generate_narrative`) phrases ONLY the narrative
+  paragraph from those facts; it never invents/alters a fact.
+- **Faithfulness guard (fall-back-not-fail, like the deontic guard KS-0206):** the
+  deterministic `narrative_is_faithful(text, facts)` (CORE) checks every number / id
+  / typology in the narrative is present in the facts; on ANY drift the edge falls
+  back to the always-faithful `template_narrative` (CORE, no LLM — the safe floor).
+  A regulator filing is NEVER emitted with a hallucinated figure. **Human sign-off
+  does NOT replace this guard** — sign-off can't catch a plausible-looking wrong
+  number; the deterministic check can.
+- **Guard subtlety (avoid over-fallback):** the number check strips ACC-/TXN- ids
+  first (their digits are validated by the separate id check), so a narrative that
+  legitimately CITES a transaction id is not mistaken for an invented amount. The
+  live 3B model produces a faithful narrative most runs (kept); on temperature
+  variance it deviates and falls back — the guard keeps the LLM value when faithful.
+- **Format-agnostic core (the pluggable-connector pitch):** facts assembled ONCE,
+  rendered by adapters — `to_finnet` (FINnet 2.0 / FIU-IND STR, PRIMARY) and
+  `to_goaml` (UN goAML, SECONDARY/lighter) — via `render(report, fmt)`. Both model
+  KNOWN STR/report fields and MARK reporting-entity values as `<PLACEHOLDER>` — no
+  fabricated official schema.
+- **Human checkpoint:** the report is DRAFTED, never auto-filed. `Report.status`
+  goes DRAFT → SIGNED via `sign_off(report, signer)`; `record_report` writes a
+  `report_drafted` / `report_signed` ledger entry (agent `report-generator`, L1)
+  carrying the format, tx ids, narrative, and `narrative_fell_back`.
+- **Boundary:** facts + guard + adapters + Report are CORE (no LLM); only
+  `generate_narrative`/`draft_report` are edge. import-linter core→edge KEPT;
+  generating a report leaves core data byte-identical (no write-back).
+
 ## L2↔L1 seam (KS-0403, `keystone.assurance.seam`) — THE THESIS, CLOSED
 
 - **The thesis it proves:** ONE transaction (`TXN-000016` in `sample_stream`) is

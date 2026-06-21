@@ -479,6 +479,28 @@
       ]
     },
     {
+      "id": "KS-0404",
+      "title": "Regulator-format report generation (FINnet primary, goAML second)",
+      "description": "Turn a FATF finding into a regulator-format report with a strict fact/language split: the deterministic core (keystone.core.reporting) assembles ReportFacts (typology, tx ids, amounts, accounts, currency, period, totals, rationale) — the system of record — and the guarded LLM edge phrases ONLY the SAR/STR narrative. A deterministic faithfulness guard (narrative_is_faithful) falls back to an always-faithful template if the narrative introduces or alters any number/id/typology (the same fall-back-not-fail discipline as the deontic guard; human sign-off does NOT replace it). Format-agnostic core: the facts are rendered by adapters — FINnet 2.0 (FIU-IND STR) primary and goAML secondary — modelling known fields with marked placeholders (no fabricated schema). The report is DRAFTED then SIGNED (oversight in the loop) and recorded to the evidence ledger. Phase-4 extension beyond the original KS-0401-0403.",
+      "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
+      "layer": "Layer 1 — Transaction Monitor",
+      "area": "core",
+      "status": "done",
+      "depends_on": ["KS-0402"],
+      "done_criteria": [
+        "the deterministic core assembles ReportFacts from a finding + transactions and renders them through both a FINnet (primary) and a goAML (secondary) adapter over the same facts",
+        "the LLM-edge narrative is fact-faithful: a deterministic guard falls back to the template if the narrative invents or alters a number/id/typology; the report is drafted, signed off, and recorded to the ledger"
+      ],
+      "tests": [
+        "tests/test_reporting.py::test_facts_assembled_from_finding_and_transactions",
+        "tests/test_reporting.py::test_finnet_and_goaml_render_the_same_facts",
+        "tests/test_reporting.py::test_unfaithful_narrative_falls_back_to_template",
+        "tests/test_reporting.py::test_faithful_narrative_may_cite_real_ids_without_falling_back",
+        "tests/test_reporting.py::test_sign_off_transition_and_ledger",
+        "tests/test_reporting.py::test_live_narrative_is_never_unfaithful"
+      ]
+    },
+    {
       "id": "KS-0501",
       "title": "Posture dashboard (Streamlit) over workflow + ledger",
       "description": "Streamlit front-end presenting compliance posture across all three layers, rendering ledger contents from synthetic data. Survives from old KS-0401 (re-phased into Integration & demo).",
