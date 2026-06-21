@@ -15,11 +15,18 @@ from nat.builder.builder import Builder
 from nat.builder.function_info import FunctionInfo
 from nat.cli.register_workflow import register_function
 
+from keystone.assurance.layer1_live import live_narrate
+from keystone.assurance.layer1_milestone import run_layer1_milestone
 from keystone.assurance.loop import run_assurance_loop
 from keystone.assurance.loop_live import live_deps
 from keystone.core.ledger import open_ledger
 
-from .config import AssuranceLoopConfig, LayerStubConfig, OrchestratorConfig
+from .config import (
+    AssuranceLoopConfig,
+    Layer1MilestoneConfig,
+    LayerStubConfig,
+    OrchestratorConfig,
+)
 
 
 @register_function(config_type=LayerStubConfig)
@@ -83,3 +90,37 @@ async def build_assurance_loop(
         )
 
     yield FunctionInfo.from_fn(_run, description="Keystone Layer-2 assurance loop")
+
+
+@register_function(config_type=Layer1MilestoneConfig)
+async def build_layer1_milestone(
+    config: Layer1MilestoneConfig, builder: Builder
+) -> AsyncIterator[Any]:
+    """Build the NAT-driven Layer-1 milestone arc (KS-0405).
+
+    NAT's runtime invokes this function; it sequences the existing KS-0401/0402/
+    0403/0404 components into the ingested→detected→seam_bound→reported→signed arc,
+    writing each stage to the evidence ledger. The seam stage REFERENCES the proven
+    Layer-2 signature (does not re-run it). No new capability — just orchestration.
+    """
+
+    async def _run(message: str) -> str:
+        # The arc is synchronous (generator, FATF, the LLM narrative over sync
+        # httpx). Run it in a worker thread so it does not block NAT's event loop —
+        # the same asyncio.to_thread bridge the KS-0304 loop uses.
+        ledger = open_ledger()
+        result = await asyncio.to_thread(
+            run_layer1_milestone,
+            narrate=live_narrate,
+            signer=config.signer,
+            ledger=ledger,
+        )
+        return (
+            f"fraud tx={result.seam_transaction_id} ({result.fatf_typology}) | "
+            f"seam -> L2 signature={result.l2_signature} | "
+            f"report signed_by={result.signed_by} "
+            f"(narrative_fell_back={result.narrative_fell_back}) | "
+            f"arc_complete={result.arc_complete}"
+        )
+
+    yield FunctionInfo.from_fn(_run, description="Keystone Layer-1 milestone arc")

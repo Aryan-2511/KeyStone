@@ -501,6 +501,27 @@
       ]
     },
     {
+      "id": "KS-0405",
+      "title": "Layer-1 milestone (NAT-orchestrated), closing the seam to L2",
+      "description": "A @pytest.mark.milestone test + NAT workflow composing the existing Layer-1 pieces into one end-to-end arc: stream (KS-0401) → memo-blind FATF catches the structuring fraud (KS-0402) → the flagged tx is shown to carry the SAME MEMO_INJECTION_SIGNATURE the Layer-2 loop found & patched (KS-0403 binding; REFERENCED via signature identity + a ledger cross-reference, NOT re-run) → FINnet report drafted with a guarded narrative (KS-0404) → human sign-off → full ordered hash-valid ledger arc. NAT-orchestrated (mirrors KS-0304); a deterministic spine (canned narrative) is fast-gated, the live arc is slow. No new capability — orchestration only. Completes Layer 1 and the three-layer core build. Phase-4 extension beyond KS-0401-0404.",
+      "phase": "4 — Layer 1: Transaction Monitor + L2↔L1 seam",
+      "layer": "Layer 1 — Transaction Monitor",
+      "area": "assurance",
+      "status": "done",
+      "depends_on": ["KS-0401", "KS-0402", "KS-0403", "KS-0404"],
+      "done_criteria": [
+        "a NAT workflow drives the ingested→detected→seam_bound→reported→signed arc to completion, writing a full ordered hash-valid ledger chain; runnable live via `make layer1-milestone`",
+        "the seam stage binds the FATF-flagged transaction id to the same canonical MEMO_INJECTION_SIGNATURE (referenced, not re-run) and a deterministic spine asserts the arc, failing if a stage is missing or out of order"
+      ],
+      "tests": [
+        "tests/test_layer1_milestone.py::test_arc_runs_in_order",
+        "tests/test_layer1_milestone.py::test_seam_stage_binds_the_flagged_tx_to_the_l2_signature",
+        "tests/test_layer1_milestone.py::test_arc_check_rejects_missing_stage",
+        "tests/test_layer1_milestone.py::test_nat_layer1_workflow_config_loads",
+        "tests/test_layer1_milestone.py::test_live_layer1_arc_via_nat"
+      ]
+    },
+    {
       "id": "KS-0501",
       "title": "Posture dashboard (Streamlit) over workflow + ledger",
       "description": "Streamlit front-end presenting compliance posture across all three layers, rendering ledger contents from synthetic data. Survives from old KS-0401 (re-phased into Integration & demo).",
