@@ -29,3 +29,12 @@ class AssuranceLoopConfig(FunctionBaseConfig, name="keystone_assurance_loop"):
     """
 
     prompt_cap: int = 12
+
+
+class Layer1MilestoneConfig(FunctionBaseConfig, name="keystone_layer1_milestone"):
+    """Drives the end-to-end Layer-1 milestone arc (KS-0405).
+
+    `signer` is the human who signs off the drafted regulator report.
+    """
+
+    signer: str = "compliance.officer@keystone"

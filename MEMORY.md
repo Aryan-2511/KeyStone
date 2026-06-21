@@ -50,6 +50,37 @@
   via `structuring_clusters=N`, never random surprise. `sample_stream()` is the
   canonical fixture (30 normal + 1 cluster) the rest of Layer 1 builds on.
 
+## Layer-1 milestone (KS-0405, NAT-orchestrated) — THE CORE BUILD IS COMPLETE
+
+- **Layer 1 is COMPLETE; the full three-layer core build is COMPLETE.** The milestone
+  composes the EXISTING pieces (no new capability) into one NAT-driven arc:
+  `INGESTED → DETECTED → SEAM_BOUND → REPORTED → SIGNED`. Live result (`make
+  layer1-milestone`): fraud tx `TXN-000016` (STRUCTURING) caught by the memo-blind
+  FATF engine → seam binds it to the L2 `memo-instruction-injection` signature →
+  FINnet report drafted (narrative faithful, kept) → signed by
+  `compliance.officer@keystone` → arc_complete, 5-entry chain valid.
+- **Demo command: `make layer1-milestone`** (`keystone.agents.run:main_layer1_milestone`
+  → NAT `load_workflow(LAYER1_WORKFLOW_CONFIG)`). Prints the arc summary + ledger chain.
+- **The SEAM stage REFERENCES the L2 finding, does NOT re-run it** (the scope decision):
+  it resolves the flagged tx's memo to the canonical `MEMO_INJECTION_SIGNATURE` (single
+  source, `is`-identity) and records an `l2_reference` citing that the Layer-2 assurance
+  loop (KS-0304) already found (Garak) + patched (Guardrails) it. No Garak/Guardrails/
+  loop re-run here — the claim "the fraud L1 caught carries the exact vulnerability L2
+  found and patched" is shown by signature identity + a ledger cross-reference.
+- **NAT genuinely drives it** (mirrors KS-0304): `keystone_layer1_milestone` is a
+  registered NAT workflow function (`orchestrator/config.py` + `functions.py` +
+  `layer1_workflow.yml`). The arc is sync (generator/FATF/narrative-over-httpx) so the
+  NAT `_run` uses **`await asyncio.to_thread(run_layer1_milestone, ...)`** — the same
+  blocking-in-async bridge KS-0304 found.
+- **Spine/live split** (mirrors loop.py/loop_live.py): `layer1_milestone.py` is the pure
+  spine (`run_layer1_milestone`, `assert_layer1_arc`) with the LLM narrative INJECTED
+  (`narrate`) — the fast gate runs the exact sequencing over a canned narrative, no
+  Ollama. `layer1_live.py` wires `live_narrate` (the real edge). State flows via the
+  ledger. `assert_layer1_arc` rejects a missing/out-of-order stage.
+- **Boundary:** the milestone lives in `keystone.assurance` (edge) — it imports the seam
+  + signature (edge) + core (transactions/fatf/reporting) + the LLM narrative type.
+  Core never imports it; import-linter KEPT.
+
 ## Regulator report generation (KS-0404, `keystone.core.reporting` + edge)
 
 - **The fact/language split is the discipline.** DETERMINISTIC CORE

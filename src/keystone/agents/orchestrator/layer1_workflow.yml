@@ -1,0 +1,9 @@
+# Keystone Layer-1 milestone (KS-0405), orchestrated by NeMo Agent Toolkit.
+# The workflow IS the arc: NAT's runtime drives the five-stage Layer-1 arc
+# (ingested → detected → seam_bound → reported → signed), each stage writing one
+# entry to the hash-chained evidence ledger (KEYSTONE_LEDGER_DB). The seam stage
+# ties the L1 fraud to the L2 MEMO_INJECTION_SIGNATURE (referenced, not re-run).
+
+workflow:
+  _type: keystone_layer1_milestone
+  signer: compliance.officer@keystone

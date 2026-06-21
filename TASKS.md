@@ -64,7 +64,7 @@
       (`keystone.assurance.loop`, `keystone.agents.orchestrator`,
       `tests/test_assurance_loop.py`)
 
-## Now — Phase 4 = Layer 1: Transaction Monitor + the L2↔L1 seam (thesis seam closed at KS-0403)
+## Phase 4 = Layer 1: Transaction Monitor + the L2↔L1 seam — COMPLETE (three-layer core build done)
 
 - [x] Transaction substrate: typed `Transaction` (incl. free-text `memo` seam locus)
       + deterministic seeded generator that can emit a FATF structuring/rapid-movement
@@ -81,7 +81,14 @@
 - [x] Regulator-format report generation: deterministic facts + FINnet/goAML adapters,
       guarded LLM narrative (faithfulness fall-back), draft→sign-off→ledger — KS-0404
       (`keystone.core.reporting`, `keystone.llm.report_narrative`, `tests/test_reporting.py`)
-- [ ] Layer-1 milestone (ingest → FATF finding → report → ledger) — KS-0405 (next)
+- [x] **Layer-1 milestone (NAT-orchestrated)** — ingest → FATF catches fraud →
+      seam binds the same tx to the L2 signature (referenced, not re-run) → FINnet
+      report → human sign-off → full hash-valid arc; `make layer1-milestone` runs it
+      live — KS-0405 (`keystone.assurance.layer1_milestone`, `keystone.agents.orchestrator`,
+      `tests/test_layer1_milestone.py`)
+
+## Next — Phase 5 = Integration & demo
+
 - [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
