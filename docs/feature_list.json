@@ -1,7 +1,7 @@
 {
   "$schema_note": "Source of truth for what Keystone builds. Human views: ROADMAP.md (phases) and TASKS.md. Validated by scripts/validate_feature_list.py (run in pytest + CI). Phases 2–5 are aligned to the three compliance layers (build order = phase number; each phase names its layer) per ADR-0011. Each item carries a 'layer' tag. Do not invent scope beyond the roadmap.",
   "version": 2,
-  "updated": "2026-06-15",
+  "updated": "2026-06-21",
   "status_values": ["planned", "in_progress", "done"],
   "rules": [
     "id matches KS-NNNN and is unique",
@@ -522,41 +522,96 @@
       ]
     },
     {
+      "id": "KS-0500",
+      "title": "Demo runner + serializable run-result (the UI's typed contract)",
+      "description": "Composes the KS-0405 Layer-1 milestone arc into a typed, JSON-serializable RunResult that the Phase-5 front-end consumes: the seam transaction, the Layer-1 financial-crime finding (FATF, memo-blind), the Layer-2 AI-security vulnerability (the canonical VulnerabilitySignature + its OWASP/regulatory mapping, REFERENCED not re-run), the binding (the shared transaction id + canonical signature), the FINnet report, and the ordered hash-valid arc/chain summary. Works live (run the arc) and replays from a saved run (save/load JSON). No new detection capability — composition plus a typed VIEW over the system of record (the ledger). The single source the KS-0501/0502/0503 screens render from; the seam-hero redesign's enabling dependency.",
+      "phase": "5 — Integration & demo",
+      "layer": "Integration & demo",
+      "area": "demo",
+      "status": "done",
+      "depends_on": ["KS-0405"],
+      "done_criteria": [
+        "the runner composes the Layer-1 arc into a typed, JSON-serializable RunResult carrying the real seam transaction, both findings, and the canonical MEMO_INJECTION_SIGNATURE",
+        "the run-result round-trips through save/load (replay): the result loaded from disk equals the live one",
+        "every value derives from a real arc run over the seeded synthetic stream — no placeholder/mocked data"
+      ],
+      "tests": [
+        "tests/test_demo_run_result.py::test_both_findings_bind_to_the_same_seam_transaction",
+        "tests/test_demo_run_result.py::test_values_come_from_the_real_run_not_hardcoded",
+        "tests/test_demo_run_result.py::test_arc_is_whole_ordered_and_chain_valid",
+        "tests/test_demo_run_result.py::test_run_result_round_trips_through_json",
+        "tests/test_demo_run_result.py::test_cli_writes_a_loadable_run"
+      ]
+    },
+    {
       "id": "KS-0501",
-      "title": "Posture dashboard (Streamlit) over workflow + ledger",
-      "description": "Streamlit front-end presenting compliance posture across all three layers, rendering ledger contents from synthetic data. Survives from old KS-0401 (re-phased into Integration & demo).",
+      "title": "Shared design system + the seam hero screen",
+      "description": "Establish the shared design tokens (palette, type, spacing) as ONE source of truth — both the Streamlit theme (.streamlit/config.toml) and the custom-SVG hero constants draw from it — then build the SEAM HERO: the climax visual where ONE transaction (from the KS-0500 run-result) is shown simultaneously as a Layer-2 AI-security vulnerability (memo prompt-injection — Garak found it, Guardrails patched it) and a Layer-1 financial crime (FATF structuring, flagged memo-blind), BOUND on the shared transaction id and the canonical signature. Custom SVG/HTML embedded in the Streamlit shell and themed to match; renders both live (a KS-0500 run) and from a saved run (replay); degrades honestly on a missing field (clear empty state, never a crash or fake data). The single most important screen in the project. Re-phased from the old 'posture dashboard' KS-0501 (narrative-first Phase-5 redesign).",
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "ui",
       "status": "planned",
+      "depends_on": ["KS-0500"],
       "done_criteria": [
-        "the app launches and renders the cross-layer posture and ledger contents from synthetic data"
+        "shared design tokens (palette/type/spacing) are the single source for BOTH the Streamlit theme and the hero SVG (no drift)",
+        "the seam hero renders the real seam tx id, both findings, and the canonical signature from a KS-0500 run-result (live + saved replay), making 'one event, two failures' instant and the binding the focal point",
+        "a missing run-result field degrades to a clear empty/▮ state, never a crash or fabricated value"
       ],
       "tests": []
     },
     {
       "id": "KS-0502",
-      "title": "Golden-path end-to-end demo run",
-      "description": "A single golden-path run exercising all three layers (obligation mapping → assurance loop → transaction monitor) end to end.",
+      "title": "Jurisdiction-contrast hero screen (EU vs India)",
+      "description": "The second hero: the SAME finding mapped to two regulatory worlds from the run-result's regulatory mapping — EU AI Act Art. 15 (OBL-EUAI-015) vs RBI FREE-AI (OBL-RBI-001) — showing one event triggers obligations across jurisdictions at once. Inherits the KS-0501 design system; custom SVG/HTML rendered from the KS-0500 run-result, live + replay.",
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "ui",
       "status": "planned",
+      "depends_on": ["KS-0500", "KS-0501"],
       "done_criteria": [
-        "one command drives the golden path across all three layers and produces a verifiable ledger trail"
+        "the screen renders the same finding's EU and India regulatory obligations from the run-result, inheriting the KS-0501 design tokens"
       ],
       "tests": []
     },
     {
       "id": "KS-0503",
-      "title": "Offline fallback demo path",
-      "description": "The demo runs without network/hosted NIM by falling back to the local backend, so the golden path works offline.",
+      "title": "Supporting shell — ledger, posture, assurance before/after",
+      "description": "The frame around the heroes: the cross-layer compliance posture, the hash-chained evidence-ledger view, and the assurance before/after (Garak 10/12 → 0/12 after the Guardrails patch), rendered from the run-result + ledger. This is the old 'posture dashboard' content, re-cast as the supporting context for the two hero screens rather than the centrepiece. Inherits the KS-0501 design system.",
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "ui",
       "status": "planned",
+      "depends_on": ["KS-0500", "KS-0501"],
       "done_criteria": [
-        "with the hosted backend unavailable, the demo completes via the local fallback without errors"
+        "the shell renders cross-layer posture, the verifiable ledger arc, and the assurance before/after from the run-result + ledger, in the shared KS-0501 design system"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0504",
+      "title": "Recorded-run fallback (offline demo path)",
+      "description": "A saved, verified run-result (and ledger snapshot) the demo replays when the live arc / hosted NIM is unavailable, so the golden path and every screen work offline. The honest-degradation + replay path KS-0500 enables, packaged as the rehearsal/offline default. Re-phased from the old 'offline fallback demo path' KS-0503.",
+      "phase": "5 — Integration & demo",
+      "layer": "Integration & demo",
+      "area": "demo",
+      "status": "planned",
+      "depends_on": ["KS-0500"],
+      "done_criteria": [
+        "with the live backend unavailable, the demo replays a saved run-result and renders every screen without network access"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0505",
+      "title": "Demo script + rehearsal (the narrated walkthrough)",
+      "description": "The end-to-end demo script tying the screens into a narrated walkthrough (seam hero → jurisdiction hero → supporting shell) with a rehearsal pass. The gated place where a static-vs-animated reveal call is made if rehearsal needs it (animation stays out of the per-screen builds).",
+      "phase": "5 — Integration & demo",
+      "layer": "Integration & demo",
+      "area": "demo",
+      "status": "planned",
+      "depends_on": ["KS-0501", "KS-0502", "KS-0503", "KS-0504"],
+      "done_criteria": [
+        "a documented demo script drives the full walkthrough across the screens from a single run, rehearsed end to end"
       ],
       "tests": []
     }

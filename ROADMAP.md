@@ -65,10 +65,18 @@ Mock vulnerable agent + Guardrails + Garak. (`KS-0300` prerequisite, then `KS-03
 
 ## Phase 5 — Integration & demo
 
-(`KS-0501`–`KS-0503`)
+(`KS-0500`–`KS-0505`) — narrative-first: two designed hero screens over a real
+run-result, framed by a supporting shell.
 
-- Posture dashboard (Streamlit) over the workflow and ledger. (`KS-0501`)
-- Golden-path end-to-end run across all three layers. (`KS-0502`)
-- Offline fallback so the demo runs without the hosted backend. (`KS-0503`)
+- Demo runner + serializable run-result — the UI's typed contract over the
+  Layer-1 arc (seam tx, both findings, the binding, report, hash-valid chain).
+  (`KS-0500`)
+- Shared design system + the **seam hero** — one transaction shown as both an
+  AI-security vulnerability and a financial crime, bound on the shared id. (`KS-0501`)
+- **Jurisdiction-contrast hero** — the same finding across EU vs India
+  obligations. (`KS-0502`)
+- Supporting shell — ledger, cross-layer posture, assurance before/after. (`KS-0503`)
+- Recorded-run fallback so every screen replays offline. (`KS-0504`)
+- Demo script + rehearsal — the narrated walkthrough. (`KS-0505`)
 
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._

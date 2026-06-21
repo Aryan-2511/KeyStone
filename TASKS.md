@@ -87,9 +87,20 @@
       live — KS-0405 (`keystone.assurance.layer1_milestone`, `keystone.agents.orchestrator`,
       `tests/test_layer1_milestone.py`)
 
-## Next — Phase 5 = Integration & demo
+## Next — Phase 5 = Integration & demo (narrative-first redesign)
 
-- [ ] Phase 5 — Integration & demo (posture dashboard, golden path, offline fallback) — KS-0501–KS-0503
+Two designed hero screens over a real run-result, framed by a supporting shell.
+
+- [x] Demo runner + serializable run-result (the UI's typed contract over the
+      Layer-1 arc) — KS-0500 (`keystone.demo`, `tests/test_demo_run_result.py`)
+- [ ] Shared design system + the **seam hero** screen (one event, two failures) — KS-0501
+- [ ] Jurisdiction-contrast hero (EU vs India) — KS-0502
+- [ ] Supporting shell (ledger / posture / assurance before-after) — KS-0503
+- [ ] Recorded-run fallback (offline replay) — KS-0504
+- [ ] Demo script + rehearsal — KS-0505
+
+(Re-phased from the old posture-dashboard / golden-path / offline-fallback trio;
+the dashboard content survives as the KS-0503 supporting shell.)
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
 

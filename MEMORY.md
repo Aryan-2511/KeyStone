@@ -504,3 +504,26 @@
 - **load_workflow auto-discovers plugins** and noisily logs an import failure for
   `nat.tool.nvidia_rag` (needs `langchain_core`, not installed). Non-fatal — our
   functions register via direct import, and the workflow runs fine.
+
+## Phase 5 — Integration & demo (narrative-first redesign)
+
+- **Phase 5 was re-scoped narrative-first (2026-06-21).** The old roadmap
+  (posture dashboard / golden path / offline fallback) predated the demo redesign
+  and was stale. New structure in `docs/feature_list.json` (source of truth):
+  KS-0500 = demo runner + serializable run-result; KS-0501 = shared design system +
+  the **seam hero** screen; KS-0502 = jurisdiction-contrast hero (EU vs India);
+  KS-0503 = supporting shell (the old dashboard content — ledger/posture/assurance
+  before-after); KS-0504 = recorded-run fallback; KS-0505 = demo script + rehearsal.
+  Edges: 0501/0502/0503 → 0500; 0502/0503 → 0501.
+- **The UI renders from ONE typed contract: `keystone.demo.RunResult` (KS-0500).**
+  `build_run_result()` composes the KS-0405 Layer-1 arc into a frozen, JSON-
+  serializable object — the seam transaction, both findings (L1 FATF + L2 vuln with
+  its OWASP/regulatory mapping), the binding (shared tx id + canonical signature),
+  the FINnet report, and the ordered hash-valid arc (incl. the full ledger entries).
+  It is a VIEW over the system of record (the ledger), not a new source of truth;
+  every value is from a real run (no mocked data — the "it's real" claim). Works
+  LIVE (`build_run_result`) and via REPLAY (`save_run_result`/`load_run_result`,
+  `KEYSTONE_RUN_JSON`, default `keystone-run.json`); a saved run re-verifies its own
+  chain offline (KS-0504). Runs on a throwaway ledger by default (one call = one
+  clean arc). `keystone.demo` is the integration layer: imports core + assurance
+  edge; core never imports it (import-linter KEPT).
