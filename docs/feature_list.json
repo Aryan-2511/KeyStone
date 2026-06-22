@@ -524,7 +524,7 @@
     {
       "id": "KS-0500",
       "title": "Demo runner + serializable run-result (the UI's typed contract)",
-      "description": "Composes the KS-0405 Layer-1 milestone arc into a typed, JSON-serializable RunResult that the Phase-5 front-end consumes: the seam transaction, the Layer-1 financial-crime finding (FATF, memo-blind), the Layer-2 AI-security vulnerability (the canonical VulnerabilitySignature + its OWASP/regulatory mapping, REFERENCED not re-run), the binding (the shared transaction id + canonical signature), the FINnet report, and the ordered hash-valid arc/chain summary. Works live (run the arc) and replays from a saved run (save/load JSON). No new detection capability — composition plus a typed VIEW over the system of record (the ledger). The single source the KS-0501/0502/0503 screens render from; the seam-hero redesign's enabling dependency.",
+      "description": "Composes the KS-0405 Layer-1 milestone arc into a typed, JSON-serializable RunResult that the Phase-5 front-end consumes: the seam transaction, the Layer-1 financial-crime finding (FATF, memo-blind), the Layer-2 AI-security vulnerability (the canonical VulnerabilitySignature + its OWASP/regulatory mapping with EU/India enforcement modality, REFERENCED not re-run), the binding (the shared transaction id + canonical signature), the STR rendered into BOTH FINnet AND goAML (one fact model, two formats — schema v2), and the ordered hash-valid arc/chain summary. Works live (run the arc) and replays from a saved run (save/load JSON). No new detection capability — composition plus a typed VIEW over the system of record (the ledger). The single source the KS-0501/0502/0503 screens render from; the seam-hero redesign's enabling dependency.",
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "demo",
@@ -540,7 +540,9 @@
         "tests/test_demo_run_result.py::test_values_come_from_the_real_run_not_hardcoded",
         "tests/test_demo_run_result.py::test_arc_is_whole_ordered_and_chain_valid",
         "tests/test_demo_run_result.py::test_run_result_round_trips_through_json",
-        "tests/test_demo_run_result.py::test_cli_writes_a_loadable_run"
+        "tests/test_demo_run_result.py::test_cli_writes_a_loadable_run",
+        "tests/test_demo_run_result.py::test_regulatory_modality_is_read_from_the_obligation_graph",
+        "tests/test_demo_run_result.py::test_report_renders_both_regulator_formats_from_one_fact_model"
       ]
     },
     {
@@ -572,16 +574,26 @@
     {
       "id": "KS-0502",
       "title": "Jurisdiction-contrast hero screen (EU vs India)",
-      "description": "The second hero: the SAME finding mapped to two regulatory worlds from the run-result's regulatory mapping — EU AI Act Art. 15 (OBL-EUAI-015) vs RBI FREE-AI (OBL-RBI-001) — showing one event triggers obligations across jurisdictions at once. Inherits the KS-0501 design system; custom SVG/HTML rendered from the KS-0500 run-result, live + replay.",
+      "description": "The second hero — the defense is fragmented, and Keystone unifies it. Two contrasts from the KS-0500 run-result, anchored on the same detected risk: (1) ONE RISK, TWO RULEBOOKS — the EU governs it as HARD LAW (binding, fineable; EU AI Act Art. 15 / OBL-EUAI-015) while India governs it by SELF-CERTIFICATION (advisory, principle-based; RBI FREE-AI / OBL-RBI-001), modalities read from the obligation graph and India framed with respect (a deliberate, innovation-preserving choice and the harder engineering problem, never 'behind'); (2) ONE REPORT, EVERY REGULATOR — the same signed STR rendered into FINnet (FIU-IND) AND goAML (UN, 70+ countries), one fact model two formats. Inherits the KS-0501 design system (keystone.ui.tokens + keystone.ui.svg); custom SVG embedded via components.v1.html, live + replay; ships its own AppTest gate.",
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "ui",
-      "status": "planned",
+      "status": "done",
       "depends_on": ["KS-0500", "KS-0501"],
       "done_criteria": [
-        "the screen renders the same finding's EU and India regulatory obligations from the run-result, inheriting the KS-0501 design tokens"
+        "the screen renders the EU hard-law vs India self-certification contrast (modalities from the obligation graph) and the same STR in both FINnet and goAML, all from the run-result (live + replay), inheriting the KS-0501 design tokens",
+        "India's framework is framed with respect (harder engineering problem, deliberate choice), never as deficient",
+        "an AppTest loads the running app (live + replay) and asserts it renders without exception"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_jurisdiction_screen.py::test_renders_the_real_modality_contrast_and_both_formats",
+        "tests/test_jurisdiction_screen.py::test_values_are_read_from_the_run_result_not_hardcoded",
+        "tests/test_jurisdiction_screen.py::test_screen_draws_colour_from_the_shared_tokens",
+        "tests/test_jurisdiction_screen.py::test_india_is_framed_with_respect_not_as_deficient",
+        "tests/test_jurisdiction_screen.py::test_missing_field_degrades_to_placeholder_not_fake_data",
+        "tests/test_jurisdiction_app.py::test_app_loads_and_runs_live_without_exception",
+        "tests/test_jurisdiction_app.py::test_app_renders_from_a_saved_run_replay"
+      ]
     },
     {
       "id": "KS-0503",

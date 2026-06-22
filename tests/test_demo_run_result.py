@@ -72,6 +72,35 @@ def test_values_come_from_the_real_run_not_hardcoded(tmp_path: Path) -> None:
     assert rr.ai_security.regulatory.india_obligation_id == mapping.india_obligation_id
 
 
+def test_regulatory_modality_is_read_from_the_obligation_graph(tmp_path: Path) -> None:
+    # The EU/India enforcement modalities come from the real obligation graph (the
+    # KS-0502 hard-law vs self-certification contrast), not assumed by jurisdiction.
+    reg = _run(tmp_path).ai_security.regulatory
+    assert reg.eu_modality == "HARD_LAW"
+    assert reg.india_modality == "SELF_CERTIFICATION"
+
+
+def test_report_renders_both_regulator_formats_from_one_fact_model(
+    tmp_path: Path,
+) -> None:
+    # The SAME facts rendered into FINnet (India) AND goAML (UN) — the pluggable-
+    # connector claim. Same transactions, same total, two shapes.
+    report = _run(tmp_path).report
+    finnet, goaml = report.finnet, report.goaml
+
+    assert finnet["report_type"] == "STR" and goaml["report_code"] == "STR"
+    assert finnet["total_amount"] == report.total_amount
+
+    finnet_txns = finnet["suspicious_transactions"]
+    goaml_txns = goaml["transactions"]
+    assert isinstance(finnet_txns, list) and isinstance(goaml_txns, list)
+    assert len(finnet_txns) == len(goaml_txns)
+    # Different field NAMES for the same fact (the "different shape" point).
+    assert isinstance(finnet_txns[0], dict) and isinstance(goaml_txns[0], dict)
+    assert "transaction_id" in finnet_txns[0]
+    assert "transactionnumber" in goaml_txns[0]
+
+
 def test_arc_is_whole_ordered_and_chain_valid(tmp_path: Path) -> None:
     rr = _run(tmp_path)
 

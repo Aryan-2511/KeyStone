@@ -32,7 +32,16 @@ from keystone.assurance.layer1_milestone import (
 from keystone.assurance.seam import seam_fraud_stream
 from keystone.core.fatf import Typology, detect
 from keystone.core.ledger import Ledger
-from keystone.core.reporting import ReportFacts, assemble_facts, template_narrative
+from keystone.core.obligations import load_obligations
+from keystone.core.reporting import (
+    Report,
+    ReportFacts,
+    ReportStatus,
+    assemble_facts,
+    template_narrative,
+    to_finnet,
+    to_goaml,
+)
 from keystone.llm.report_narrative import GuardedNarrative
 
 from .run_result import (
@@ -67,6 +76,15 @@ def run_json_path() -> str:
 def _template_narrate(facts: ReportFacts) -> GuardedNarrative:
     """The offline default: the deterministic, always-faithful template narrative."""
     return GuardedNarrative(text=template_narrative(facts), fell_back=False)
+
+
+def _obligation_modalities() -> dict[str, str]:
+    """Map obligation id -> enforcement modality (HARD_LAW / SELF_CERTIFICATION).
+
+    The jurisdiction contrast (KS-0502) reads the EU/India modalities from the real
+    obligation graph by id — it never assumes "EU = hard law" by convention.
+    """
+    return {o.id: o.enforcement_modality.value for o in load_obligations()}
 
 
 def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
@@ -106,6 +124,17 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
 
     sig = MEMO_INJECTION_SIGNATURE
     mapping = FAMILY_MAPPINGS[_INJECTION_FAMILY]
+    modalities = _obligation_modalities()
+
+    # Rebuild the signed report and render BOTH regulator formats from one fact model
+    # (the "one fact model, many connectors" claim, made literal for KS-0502).
+    report = Report(
+        facts=facts,
+        narrative=str(reported["narrative"]),
+        narrative_fell_back=bool(reported["narrative_fell_back"]),
+        status=ReportStatus(str(signed["status"])),
+        signed_by=str(signed["signed_by"]),
+    )
 
     return RunResult(
         schema_version=RUN_RESULT_SCHEMA_VERSION,
@@ -138,7 +167,11 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
             exploit_tool=sig.exploit_tool,
             description=sig.description,
             l2_reference=str(seam["l2_reference"]),
-            regulatory=RegulatoryMappingView(**mapping.model_dump()),
+            regulatory=RegulatoryMappingView(
+                **mapping.model_dump(),
+                eu_modality=modalities.get(mapping.eu_obligation_id, ""),
+                india_modality=modalities.get(mapping.india_obligation_id, ""),
+            ),
         ),
         binding=SeamBindingView(
             transaction_id=seam_tx_id,
@@ -157,6 +190,8 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
             transaction_count=int(reported["transaction_count"]),
             period_start=facts.period_start.isoformat(),
             period_end=facts.period_end.isoformat(),
+            finnet=to_finnet(report),
+            goaml=to_goaml(report),
         ),
         arc=ArcView(
             stages=tuple(

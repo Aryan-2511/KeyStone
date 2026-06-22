@@ -560,9 +560,30 @@
   capture after a REAL `time.sleep` once the app has rendered. The standalone-SVG
   screenshot proves the design; only the in-app capture proves it renders.
 - **GATE every Streamlit app with `streamlit.testing.v1.AppTest`** (e.g.
-  `tests/test_seam_app.py`). Helper-level unit tests + `make verify` passed twice
-  while the app was broken (blank panel, then an `ImportError` on load) because
-  NOTHING ran `seam_app.py` (0% line-coverage; AppTest's script-runner exec isn't
-  instrumented, but it DOES run the file). `AppTest.from_file(app).run()` +
-  `assert not at.exception` reproduces an import/render crash and fails the build.
-  KS-0502/0503 each need their own AppTest. A green gate is NOT done — run the app.
+  `tests/test_seam_app.py`, `tests/test_jurisdiction_app.py`). Helper-level unit
+  tests + `make verify` passed twice while the app was broken (blank panel, then an
+  `ImportError` on load) because NOTHING ran the app module (0% line-coverage;
+  AppTest's script-runner exec isn't instrumented, but it DOES run the file).
+  `AppTest.from_file(app).run()` + `assert not at.exception` reproduces an import/
+  render crash and fails the build. KS-0503 needs its own AppTest. A green gate is
+  NOT done — run the app.
+- **Shared UI rendering vocabulary: `keystone.ui.svg`** (TextStyle, text/lines/wrap/
+  pill/val/money/document, the ▮ `MISSING`). Both hero screens build from it +
+  `keystone.ui.tokens`, so they read as one product (the seam screen was refactored
+  onto it). New screens import these, not copies.
+- **The jurisdiction hero (`keystone.ui.jurisdiction_screen`, KS-0502)** proves the
+  defense is fragmented and Keystone unifies it, from the RunResult: (1) ONE RISK,
+  TWO RULEBOOKS — EU HARD_LAW (teal solid/filled) vs India SELF_CERTIFICATION (teal
+  dashed/outline), modalities read from the obligation graph, the same risk forking
+  down into both; (2) ONE REPORT, EVERY REGULATOR — one green fact-node fanning out
+  to FINnet + goAML cards (real field names, matching values = "same facts, different
+  shape"). Token roles here: teal = governance (both jurisdictions, differ by
+  treatment not hue, so neither reads as lesser), amber = the shared risk, NVIDIA
+  green = Keystone's own output. **India framing is LOCKED: respectful — the harder
+  engineering problem (principles, not rulebooks) and a deliberate, innovation-
+  preserving choice; NEVER "behind"/"deficient"** (a test enforces no such words).
+- **RunResult is schema v2 (KS-0502 extended KS-0500).** `report` now carries the
+  `finnet` AND `goaml` rendered dicts (one fact model → both formats, from the
+  `core.reporting` adapters), and `ai_security.regulatory` carries `eu_modality` /
+  `india_modality` from the obligation graph. Bump `RUN_RESULT_SCHEMA_VERSION` and
+  regenerate `tests/fixtures/seam_run_result.json` on any further shape change.

@@ -19,15 +19,16 @@ so the SVG can also be exported standalone (the visual-QA screenshot).
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import NamedTuple
-
 from keystone.demo import RunResult
 
 from . import tokens as T
-
-# Honest emptiness — shown for any field the run-result didn't supply.
-MISSING = "▮▮▮▮▮"
+from .svg import MISSING, TextStyle, document
+from .svg import lines as _lines
+from .svg import money as _money
+from .svg import pill as _pill
+from .svg import text as _text
+from .svg import val as _val
+from .svg import wrap as _wrap
 
 _VIEWBOX_W = 1280
 _VIEWBOX_H = 860
@@ -37,80 +38,7 @@ _VIEWBOX_H = 860
 _HERO_MAX_WIDTH = 1180
 SEAM_HEIGHT_PX = round(_HERO_MAX_WIDTH * _VIEWBOX_H / _VIEWBOX_W) + 18
 
-
-class TextStyle(NamedTuple):
-    """A bundled type treatment, so `_text` stays a 4-argument helper."""
-
-    size: int
-    fill: str = T.TEXT
-    family: str = T.STACK_BODY
-    weight: int = 400
-    anchor: str = "start"
-    spacing: float = 0.0
-
-
-# --- small SVG / formatting helpers ------------------------------------------
-
-
-def _esc(text: str) -> str:
-    return (
-        text.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-    )
-
-
-def _val(value: object) -> tuple[str, bool]:
-    """Return (display-text, is_missing). Empty/None → the ▮ placeholder."""
-    if value is None or (isinstance(value, str) and not value.strip()):
-        return MISSING, True
-    return str(value), False
-
-
-def _money(amount: float | None, currency: str | None) -> str:
-    if amount is None or currency is None:
-        return MISSING
-    return f"${amount:,.2f} {currency}"
-
-
-def _wrap(text: str, width: int) -> list[str]:
-    """Greedy word-wrap to `width` chars (manual layout — SVG has no flow)."""
-    words, lines, line = text.split(), [], ""
-    for w in words:
-        if line and len(line) + 1 + len(w) > width:
-            lines.append(line)
-            line = w
-        else:
-            line = f"{line} {w}".strip()
-    if line:
-        lines.append(line)
-    return lines
-
-
-def _text(x: float, y: float, s: str, style: TextStyle) -> str:
-    sp = f' letter-spacing="{style.spacing}"' if style.spacing else ""
-    return (
-        f'<text x="{x:.1f}" y="{y:.1f}" font-family="{style.family}" '
-        f'font-size="{style.size}" font-weight="{style.weight}" fill="{style.fill}" '
-        f'text-anchor="{style.anchor}"{sp}>{_esc(s)}</text>'
-    )
-
-
-def _lines(
-    x: float, y: float, rows: Iterable[str], leading: int, style: TextStyle
-) -> str:
-    return "".join(_text(x, y + i * leading, row, style) for i, row in enumerate(rows))
-
-
-def _pill(x: float, y: float, label: str, color: str) -> str:
-    """A small layer tag: a colour dot + a letter-spaced mono kicker."""
-    return f'<circle cx="{x + 4:.1f}" cy="{y - 4:.1f}" r="4" fill="{color}"/>' + _text(
-        x + 16,
-        y,
-        label,
-        TextStyle(T.TYPE_SCALE["eyebrow"], color, T.STACK_MONO, 600, spacing=1.6),
-    )
+_LABEL = "The seam: one transaction, two failures"
 
 
 def _datum(x: float, y: float, label: str, value: str, *, missing: bool) -> str:
@@ -136,16 +64,8 @@ def _datum(x: float, y: float, label: str, value: str, *, missing: bool) -> str:
 
 
 def _svg_document(body: str) -> str:
-    """Wrap composed parts in the self-contained SVG (fonts embedded for export)."""
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {_VIEWBOX_W} {_VIEWBOX_H}" '
-        f'width="100%" role="img" aria-label="The seam: one transaction, two failures">'
-        f"<defs><style>@import url('{T.GOOGLE_FONTS_HREF}');</style></defs>"
-        f'<rect x="0" y="0" width="{_VIEWBOX_W}" height="{_VIEWBOX_H}" fill="{T.INK}"/>'
-        f'<rect x="0.5" y="0.5" width="{_VIEWBOX_W - 1}" height="{_VIEWBOX_H - 1}" '
-        f'fill="none" stroke="{T.HAIRLINE}"/>'
-        f"{body}</svg>"
-    )
+    """Wrap composed parts in the shared self-contained SVG document."""
+    return document(body, width=_VIEWBOX_W, height=_VIEWBOX_H, label=_LABEL)
 
 
 def _empty_state(message: str) -> str:

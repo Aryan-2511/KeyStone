@@ -32,7 +32,7 @@ from keystone.core.ledger import LedgerEntry
 
 # Schema version for the on-disk run-result; bump on any breaking shape change so
 # a saved run that no longer matches fails loudly rather than rendering wrong.
-RUN_RESULT_SCHEMA_VERSION = 1
+RUN_RESULT_SCHEMA_VERSION = 2
 
 
 class SeamTransactionView(BaseModel):
@@ -77,8 +77,14 @@ class RegulatoryMappingView(BaseModel):
     owasp_agentic: str
     eu_ai_act: str
     eu_obligation_id: str
+    # The EU obligation's enforcement modality from the obligation graph — HARD_LAW
+    # (binding, fineable). The KS-0502 contrast reads this, never assumes it.
+    eu_modality: str
     india_principle: str
     india_obligation_id: str
+    # The India obligation's modality — SELF_CERTIFICATION (advisory, principle-based:
+    # RBI FREE-AI / DPDP / MeitY). A different governance choice, not a lesser one.
+    india_modality: str
 
 
 class AiSecurityView(BaseModel):
@@ -111,7 +117,13 @@ class SeamBindingView(BaseModel):
 
 
 class ReportView(BaseModel):
-    """The drafted, signed-off FINnet report summary."""
+    """The drafted, signed-off STR — its summary plus BOTH regulator renderings.
+
+    `finnet` (FIU-IND, India) and `goaml` (UN goAML, 70+ countries) are the SAME
+    facts rendered into two formats: the "one fact model, many connectors" claim the
+    KS-0502 screen makes literal. Both are produced by `keystone.core.reporting`
+    adapters over one `Report`, so they cannot drift from each other.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -125,6 +137,8 @@ class ReportView(BaseModel):
     transaction_count: int
     period_start: str
     period_end: str
+    finnet: dict[str, object]
+    goaml: dict[str, object]
 
 
 class ArcView(BaseModel):
