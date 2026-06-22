@@ -601,6 +601,22 @@
   (10/12 → 0/12). Run: `uv run streamlit run src/keystone/ui/shell_app.py`. The shell
   is the frame; the heroes spent the boldness. Its AppTest cycles ALL views in both
   modes. AppTest radios: select by `.label`, not index (creation order bit us).
+- **DEMO-DAY FALLBACK (KS-0504 run-book).** The committed recorded run is
+  `src/keystone/demo/recorded_run.json` (one source of truth, via
+  `keystone.demo.recorded_run_path()` / `load_recorded_run()`) — a genuinely-produced
+  v3 `build_run_result` output, NOT hand-edited. Regenerate after any schema change:
+  `uv run python -m keystone.demo src/keystone/demo/recorded_run.json`.
+  **On stage:** `uv run streamlit run src/keystone/ui/shell_app.py` — the shell opens
+  in **Replay saved run** mode BY DEFAULT (the safe default), replaying the recording
+  instantly. If you forget to flip anything, it still works. To show it building live,
+  flip Data source → **Live run** (also offline — the narrative uses the deterministic
+  template; no Ollama/GPU). **Offline guarantee (proven):** the Python replay path
+  (`load_recorded_run` + the five view builders) opens NO sockets — `tests/
+  test_offline_fallback.py` blocks `socket.connect`/`create_connection`/`getaddrinfo`
+  and still renders all five views. The ONLY network touch is the browser's optional
+  Google-Fonts `@import` in the SVG, which falls back to system fonts offline (affects
+  live and recorded equally — they stay indistinguishable). Both apps default replay to
+  the recording; a stray `keystone-run.json` no longer overrides it.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

@@ -15,19 +15,19 @@ and the honest empty state.
 from __future__ import annotations
 
 from collections.abc import Callable
-from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
 
-from keystone.demo import RunResult, build_run_result, load_run_result
+from keystone.demo import (
+    RunResult,
+    build_run_result,
+    load_run_result,
+    recorded_run_path,
+)
 from keystone.ui import shell_screens as views
 from keystone.ui.jurisdiction_screen import JURISDICTION_HEIGHT_PX, jurisdiction_html
 from keystone.ui.seam_screen import SEAM_HEIGHT_PX, seam_html
-
-_FIXTURE = (
-    Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "seam_run_result.json"
-)
 
 # label -> (html builder from a RunResult, iframe height). The first two HOST the
 # heroes verbatim; the rest are the supporting views.
@@ -54,10 +54,13 @@ _VIEWS: dict[str, tuple[Callable[[RunResult | None], str], int]] = {
 
 def _load_run() -> tuple[RunResult | None, str]:
     """Resolve the run-result for the chosen mode; return (result, status-note)."""
+    # Recorded run is the SAFE DEFAULT (first option): instant, deterministic, fully
+    # offline — the demo-day fallback. Flip to "Live run" to build the arc on stage
+    # (also offline; the narrative uses the deterministic template, no Ollama/GPU).
     mode = st.sidebar.radio(
         "Data source",
-        ("Live run", "Replay saved run"),
-        help="Live runs the Layer-1 arc now; replay reads a saved run-result.",
+        ("Replay saved run", "Live run"),
+        help="Replay reads the committed recorded run (offline); live builds the arc now.",
     )
     if mode == "Live run":
         if (
@@ -69,9 +72,9 @@ def _load_run() -> tuple[RunResult | None, str]:
         result: RunResult = st.session_state["live_run"]
         return result, "Live run of the Layer-1 arc."
 
-    # Default to the committed fixture (deterministic replay); the loader is
-    # version-aware, so any other path errors clearly instead of crashing.
-    path = st.sidebar.text_input("Saved run path", value=str(_FIXTURE))
+    # Default to the committed recorded run (deterministic, offline replay); the loader
+    # is version-aware, so any other path errors clearly instead of crashing.
+    path = st.sidebar.text_input("Saved run path", value=str(recorded_run_path()))
     try:
         return load_run_result(path), f"Replaying `{path}`."
     except (OSError, ValueError) as exc:

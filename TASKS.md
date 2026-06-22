@@ -104,7 +104,9 @@ Two designed hero screens over a real run-result, framed by a supporting shell.
       (`keystone.ui.shell_app` hosts both heroes + 3 views via `keystone.ui.shell_screens`;
       RunResult schema v3 = + referenced assurance before/after (`keystone.assurance.REFERENCED_ASSURANCE`);
       `tests/test_shell_screens.py`, `tests/test_shell_app.py`)
-- [ ] Recorded-run fallback (offline replay) — KS-0504
+- [x] Recorded-run fallback (offline replay) — KS-0504
+      (`src/keystone/demo/recorded_run.json` via `keystone.demo.recorded_run_path`;
+      the shell's safe default; proven offline in `tests/test_offline_fallback.py`)
 - [ ] Demo script + rehearsal — KS-0505
 
 (Re-phased from the old posture-dashboard / golden-path / offline-fallback trio;

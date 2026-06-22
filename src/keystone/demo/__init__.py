@@ -21,15 +21,19 @@ from .run_result import (
 )
 from .runner import (
     DEFAULT_RUN_PATH,
+    RECORDED_RUN_PATH,
     RunResultError,
     build_run_result,
+    load_recorded_run,
     load_run_result,
+    recorded_run_path,
     run_json_path,
     save_run_result,
 )
 
 __all__ = [
     "DEFAULT_RUN_PATH",
+    "RECORDED_RUN_PATH",
     "RUN_RESULT_SCHEMA_VERSION",
     "AiSecurityView",
     "ArcView",
@@ -41,7 +45,9 @@ __all__ = [
     "SeamBindingView",
     "SeamTransactionView",
     "build_run_result",
+    "load_recorded_run",
     "load_run_result",
+    "recorded_run_path",
     "run_json_path",
     "save_run_result",
 ]

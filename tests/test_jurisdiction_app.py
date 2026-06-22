@@ -13,6 +13,8 @@ from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
 
+from keystone.demo import recorded_run_path
+
 _APP = str(
     Path(__file__).resolve().parents[1]
     / "src"
@@ -20,7 +22,7 @@ _APP = str(
     / "ui"
     / "jurisdiction_app.py"
 )
-_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "seam_run_result.json"
+_FIXTURE = recorded_run_path()
 
 
 def _app() -> AppTest:

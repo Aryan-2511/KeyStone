@@ -11,17 +11,16 @@ shows a plain message and the honest empty state — never a crash or fake data.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import streamlit as st
 import streamlit.components.v1 as components
 
-from keystone.demo import RunResult, build_run_result, load_run_result
-from keystone.ui.jurisdiction_screen import JURISDICTION_HEIGHT_PX, jurisdiction_html
-
-_FIXTURE = (
-    Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "seam_run_result.json"
+from keystone.demo import (
+    RunResult,
+    build_run_result,
+    load_run_result,
+    recorded_run_path,
 )
+from keystone.ui.jurisdiction_screen import JURISDICTION_HEIGHT_PX, jurisdiction_html
 
 
 def _load_run() -> tuple[RunResult | None, str]:
@@ -41,10 +40,9 @@ def _load_run() -> tuple[RunResult | None, str]:
         result: RunResult = st.session_state["live_run"]
         return result, "Live run of the Layer-1 arc."
 
-    # Default to the committed v2 fixture (deterministic replay); a stray
-    # keystone-run.json in the cwd must NOT silently override it. Type any path to
-    # replay a different run — the loader is version-aware and errors clearly.
-    path = st.sidebar.text_input("Saved run path", value=str(_FIXTURE))
+    # Default to the committed recorded run (deterministic, offline replay). Type any
+    # path to replay a different run — the loader is version-aware and errors clearly.
+    path = st.sidebar.text_input("Saved run path", value=str(recorded_run_path()))
     try:
         return load_run_result(path), f"Replaying `{path}`."
     except (OSError, ValueError) as exc:

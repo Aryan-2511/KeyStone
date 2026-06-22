@@ -280,3 +280,20 @@ def load_run_result(path: str | Path | None = None) -> RunResult:
             f"saved run at {src} is not a valid v{RUN_RESULT_SCHEMA_VERSION} "
             f"run-result: {exc}"
         ) from exc
+
+
+# The committed, genuinely-produced demo recording (KS-0504) — the offline fallback
+# the UI replays when a live run isn't wanted/possible. It IS a real `build_run_result`
+# output, saved; never hand-edited. Regenerate with:
+#     uv run python -m keystone.demo src/keystone/demo/recorded_run.json
+RECORDED_RUN_PATH = Path(__file__).parent / "recorded_run.json"
+
+
+def recorded_run_path() -> Path:
+    """Path to the committed canonical recorded run — the offline demo fallback."""
+    return RECORDED_RUN_PATH
+
+
+def load_recorded_run() -> RunResult:
+    """Load the committed recorded run: deterministic, offline replay (no network/GPU)."""
+    return load_run_result(RECORDED_RUN_PATH)
