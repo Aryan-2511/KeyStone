@@ -24,11 +24,12 @@ repos:
     hooks:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
-        # tests/fixtures holds SYNTHETIC run-results whose ledger hash-chain
-        # entries are sha256 hex (high-entropy by construction, not secrets) and
-        # regenerate non-deterministically. Synthetic-data-only is project policy,
-        # so the fixtures dir is excluded from secret scanning, not baselined.
-        exclude: ^tests/fixtures/
+        # SYNTHETIC run-results carry ledger hash-chain entries (sha256 hex —
+        # high-entropy by construction, not secrets) that regenerate
+        # non-deterministically. Synthetic-data-only is project policy, so these are
+        # excluded from secret scanning, not baselined: the test fixtures dir and the
+        # committed demo recording (src/keystone/demo/recorded_run.json).
+        exclude: ^(tests/fixtures/|src/keystone/demo/recorded_run\.json$)
 
   # Architecture boundaries (deterministic core must not import the edge).
   # Local hook so it uses the project's pinned import-linter via uv.

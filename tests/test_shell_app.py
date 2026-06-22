@@ -12,10 +12,12 @@ from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
 
+from keystone.demo import recorded_run_path
+
 _APP = str(
     Path(__file__).resolve().parents[1] / "src" / "keystone" / "ui" / "shell_app.py"
 )
-_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "seam_run_result.json"
+_FIXTURE = recorded_run_path()
 
 
 def _app() -> AppTest:
@@ -31,10 +33,20 @@ def test_shell_loads_and_runs_live_across_all_views() -> None:
     at = _app().run()
     assert not at.exception, at.exception
     assert len(at.sidebar.radio) >= 2  # View + Data source
+    # Default is now the recorded run (safe default); select Live to test live mode.
+    _radio(at, "Data source").set_value("Live run")
+    at.run()
     for label in _radio(at, "View").options:
         _radio(at, "View").set_value(label)
         at.run()
         assert not at.exception, (label, at.exception)
+
+
+def test_recorded_run_is_the_safe_default_data_source() -> None:
+    # Demo insurance: on load (nothing flipped), the shell replays the recorded run.
+    at = _app().run()
+    assert not at.exception, at.exception
+    assert _radio(at, "Data source").value == "Replay saved run"
 
 
 def test_shell_renders_from_the_v2_saved_run_replay() -> None:

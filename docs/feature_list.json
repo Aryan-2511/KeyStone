@@ -624,16 +624,24 @@
     {
       "id": "KS-0504",
       "title": "Recorded-run fallback (offline demo path)",
-      "description": "A saved, verified run-result (and ledger snapshot) the demo replays when the live arc / hosted NIM is unavailable, so the golden path and every screen work offline. The honest-degradation + replay path KS-0500 enables, packaged as the rehearsal/offline default. Re-phased from the old 'offline fallback demo path' KS-0503.",
+      "description": "The demo safety net: a single committed, genuinely-produced v3 recorded run (src/keystone/demo/recorded_run.json, exposed via keystone.demo.recorded_run_path / load_recorded_run — one source of truth) the shell replays fully offline, indistinguishable from a live run. Recorded is the shell's SAFE DEFAULT (instant, deterministic, zero network/Ollama/GPU). Proven: the replay path renders all five views with sockets blocked. Hardening over the version-aware loader + replay KS-0500/0502 enabled; no new capability.",
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "demo",
-      "status": "planned",
-      "depends_on": ["KS-0500"],
+      "status": "done",
+      "depends_on": ["KS-0500", "KS-0503"],
       "done_criteria": [
-        "with the live backend unavailable, the demo replays a saved run-result and renders every screen without network access"
+        "a committed, genuinely-produced v3 recorded run replays through the real UI and renders all five views with NO network/Ollama (proven with sockets blocked)",
+        "the recorded run is version-clean, hash-chain valid offline, round-trips, and matches a fresh build on its substantive values (not hand-edited)",
+        "the recorded run is the shell's safe default data source (works if you forget to flip it)"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_offline_fallback.py::test_recorded_run_exists_is_v3_and_chain_valid",
+        "tests/test_offline_fallback.py::test_recorded_run_is_a_genuine_build_not_hand_edited",
+        "tests/test_offline_fallback.py::test_replay_renders_all_five_views_with_NO_network",
+        "tests/test_offline_fallback.py::test_recorded_run_is_the_default_replay_source",
+        "tests/test_shell_app.py::test_recorded_run_is_the_safe_default_data_source"
+      ]
     },
     {
       "id": "KS-0505",

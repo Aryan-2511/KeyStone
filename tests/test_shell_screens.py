@@ -8,13 +8,12 @@ and degrade honestly (empty state) — the same discipline as the heroes.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
-from keystone.demo import RunResult, load_run_result
+from keystone.demo import RunResult, load_run_result, recorded_run_path
 from keystone.ui import shell_screens as views
 from keystone.ui import tokens as T
 
-_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "seam_run_result.json"
+_FIXTURE = recorded_run_path()
 
 
 def _fixture() -> RunResult:
