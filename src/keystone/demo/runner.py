@@ -17,10 +17,13 @@ run replays identically (KS-0504 fallback).
 
 from __future__ import annotations
 
+import json
 import os
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
+
+from pydantic import ValidationError
 
 from keystone.assurance import FAMILY_MAPPINGS, MEMO_INJECTION_SIGNATURE
 from keystone.assurance.layer1_milestone import (
@@ -64,8 +67,12 @@ _INJECTION_FAMILY = "promptinject"
 DEFAULT_RUN_PATH = "keystone-run.json"
 
 
-class RunResultError(Exception):
-    """Raised when the arc does not yield a consistent, bindable run-result."""
+class RunResultError(ValueError):
+    """Raised when the arc / a saved run does not yield a valid run-result.
+
+    Subclasses `ValueError` so the Streamlit replay path's `except (OSError,
+    ValueError)` catches it and degrades to the honest empty state.
+    """
 
 
 def run_json_path() -> str:
@@ -232,6 +239,29 @@ def save_run_result(result: RunResult, path: str | Path | None = None) -> Path:
 
 
 def load_run_result(path: str | Path | None = None) -> RunResult:
-    """Load a saved run-result for replay (KS-0504 offline fallback)."""
+    """Load a saved run-result for replay (KS-0504 offline fallback).
+
+    Version-aware: a saved run from a different `schema_version` (e.g. a v1 run after
+    the v2 migration) raises a clear `RunResultError` telling you to regenerate it —
+    not a cryptic pydantic "extra inputs"/"field required" wall. The UI catches it
+    (RunResultError is a ValueError) and shows the honest empty state.
+    """
     src = Path(path) if path is not None else Path(run_json_path())
-    return RunResult.model_validate_json(src.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(src.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise RunResultError(f"{src} is not valid JSON: {exc}") from exc
+
+    version = data.get("schema_version") if isinstance(data, dict) else None
+    if version != RUN_RESULT_SCHEMA_VERSION:
+        raise RunResultError(
+            f"saved run at {src} is schema v{version}; this build expects "
+            f"v{RUN_RESULT_SCHEMA_VERSION}. Regenerate it with `python -m keystone.demo`."
+        )
+    try:
+        return RunResult.model_validate(data)
+    except ValidationError as exc:
+        raise RunResultError(
+            f"saved run at {src} is not a valid v{RUN_RESULT_SCHEMA_VERSION} "
+            f"run-result: {exc}"
+        ) from exc

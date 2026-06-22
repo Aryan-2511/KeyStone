@@ -568,7 +568,7 @@
         "tests/test_seam_screen.py::test_missing_field_degrades_to_placeholder_not_fake_data",
         "tests/test_seam_screen.py::test_no_run_renders_an_honest_empty_state",
         "tests/test_seam_app.py::test_app_loads_and_runs_live_without_exception",
-        "tests/test_seam_app.py::test_app_renders_from_a_saved_run_replay"
+        "tests/test_seam_app.py::test_app_renders_from_the_v2_saved_run_replay"
       ]
     },
     {
@@ -592,7 +592,7 @@
         "tests/test_jurisdiction_screen.py::test_india_is_framed_with_respect_not_as_deficient",
         "tests/test_jurisdiction_screen.py::test_missing_field_degrades_to_placeholder_not_fake_data",
         "tests/test_jurisdiction_app.py::test_app_loads_and_runs_live_without_exception",
-        "tests/test_jurisdiction_app.py::test_app_renders_from_a_saved_run_replay"
+        "tests/test_jurisdiction_app.py::test_app_renders_from_the_v2_saved_run_replay"
       ]
     },
     {
