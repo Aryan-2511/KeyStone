@@ -9,6 +9,7 @@ identically (the KS-0504 offline-fallback path).
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -20,6 +21,7 @@ from keystone.core.ledger import Ledger
 from keystone.demo import (
     RUN_RESULT_SCHEMA_VERSION,
     RunResult,
+    RunResultError,
     build_run_result,
     load_run_result,
     save_run_result,
@@ -135,6 +137,25 @@ def test_run_result_round_trips_through_json(tmp_path: Path) -> None:
     assert loaded.schema_version == RUN_RESULT_SCHEMA_VERSION
     # The loaded run re-verifies its own hash chain (offline evidence is intact).
     assert loaded.arc.chain_verified is True
+
+
+def test_loading_a_mismatched_schema_run_raises_a_clear_error(tmp_path: Path) -> None:
+    # A saved run from a different schema_version (e.g. a v1 run after the v2
+    # migration) must fail with a clear, actionable RunResultError — never a cryptic
+    # pydantic "extra inputs"/"field required" wall that crashes the replay screen.
+    rr = _run(tmp_path)
+    data = json.loads(
+        save_run_result(rr, tmp_path / "r.json").read_text(encoding="utf-8")
+    )
+    data["schema_version"] = RUN_RESULT_SCHEMA_VERSION - 1  # pretend it's the old shape
+    stale = tmp_path / "stale.json"
+    stale.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(RunResultError) as exc:
+        load_run_result(stale)
+    assert "schema" in str(exc.value).lower()
+    # It is a ValueError, so the UI's replay except-clause degrades gracefully.
+    assert isinstance(exc.value, ValueError)
 
 
 def test_build_on_default_ledger_produces_a_clean_arc() -> None:

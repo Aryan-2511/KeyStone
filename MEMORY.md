@@ -587,3 +587,13 @@
   `core.reporting` adapters), and `ai_security.regulatory` carries `eu_modality` /
   `india_modality` from the obligation graph. Bump `RUN_RESULT_SCHEMA_VERSION` and
   regenerate `tests/fixtures/seam_run_result.json` on any further shape change.
+- **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
+  A saved run from a different `schema_version` raises a clear "regenerate it"
+  `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a
+  ValueError the apps' `except (OSError, ValueError)` degrades to the honest empty
+  state instead of crashing. The schema-v2 bump broke seam REPLAY this way (a stale
+  v1 saved run); the fix is the version check + the apps defaulting replay to the
+  COMMITTED v2 fixture (a stray `keystone-run.json` in cwd must not silently
+  override). On ANY schema bump: regenerate the fixture AND the AppTest replay tests
+  must load it (they do, explicitly) — a green gate that doesn't replay the real
+  saved run is the hole that let this through.
