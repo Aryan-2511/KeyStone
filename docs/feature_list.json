@@ -1,7 +1,7 @@
 {
   "$schema_note": "Source of truth for what Keystone builds. Human views: ROADMAP.md (phases) and TASKS.md. Validated by scripts/validate_feature_list.py (run in pytest + CI). Phases 2–5 are aligned to the three compliance layers (build order = phase number; each phase names its layer) per ADR-0011. Each item carries a 'layer' tag. Do not invent scope beyond the roadmap.",
   "version": 2,
-  "updated": "2026-06-21",
+  "updated": "2026-06-23",
   "status_values": ["planned", "in_progress", "done"],
   "rules": [
     "id matches KS-NNNN and is unique",
@@ -654,6 +654,48 @@
       "depends_on": ["KS-0501", "KS-0502", "KS-0503", "KS-0504"],
       "done_criteria": [
         "a documented demo script drives the full walkthrough across the screens from a single run, rehearsed end to end"
+      ],
+      "tests": []
+    },
+    {
+      "id": "KS-0601",
+      "title": "Seam Framework abstraction (M1-01) — bind any (attack, crime) pair uniformly",
+      "description": "Generalises the single TXN-000016 seam (KS-0403) into a framework that binds ANY (OWASP LLM attack class, FATF financial-crime typology) pair under ONE uniform independence guarantee and ONE uniform build-failing drift assertion (keystone.assurance.framework). A pair is attack side (OWASP id + canonical VulnerabilitySignature + channel) × crime side (FATF typology + memo-blind detector) × a binding on a shared transaction id × a result classification (CLEAN / BOUNDARY / OPEN). The independence guarantee is a framework PROPERTY, not a per-pair test: bind() only ever hands the crime detector a FinancialProjection (the event with every attack channel stripped), and the detector is typed to accept that wrapper and nothing else, so it structurally cannot read the attack-bearing field. P1 (prompt-injection × structuring) is re-expressed as the framework's FIRST instance (P1_PAIR) and binds through bind(); ALL existing seam tests pass unchanged — the faithfulness proof. BOUNDARY (a pair that provably does NOT bind — P4) and OPEN (report-as-found — P5) are first-class results, not errors. Architecture only — no new pair, no RunResult/UI change; lives on the edge (import-linter KEPT, core stays unaware of attacks).",
+      "phase": "6 — Movement 1: the Seam Matrix",
+      "layer": "Movement 1 — Seam Matrix",
+      "area": "assurance",
+      "status": "done",
+      "depends_on": [
+        "KS-0403"
+      ],
+      "done_criteria": [
+        "all existing seam tests pass with P1 expressed THROUGH the framework (P1_PAIR bound by bind()) — the faithfulness proof; no existing assertion weakened",
+        "the uniform independence guarantee is enforced framework-level: the crime detector only ever receives the financial projection (FinancialProjection), never the attack-bearing channel, asserted over every registered pair",
+        "the build-failing drift assertion fires when a CLEAN pair's two sides are forced to disagree, and a BOUNDARY pair's 'no typology fires' negative is representable and proven by test"
+      ],
+      "tests": [
+        "tests/test_seam_framework.py::test_detector_never_receives_the_attack_channel",
+        "tests/test_seam_framework.py::test_p1_binds_clean_through_the_framework",
+        "tests/test_seam_framework.py::test_drift_fires_when_crime_side_stops_implicating",
+        "tests/test_seam_framework.py::test_drift_fires_when_attack_side_stops_resolving",
+        "tests/test_seam_framework.py::test_boundary_pair_binds_as_a_proven_negative",
+        "tests/test_seam_framework.py::test_boundary_drift_fires_if_a_typology_unexpectedly_fires",
+        "tests/test_seam.py::test_one_transaction_is_both_financial_crime_and_ai_vulnerability"
+      ]
+    },
+    {
+      "id": "KS-0602",
+      "title": "P2 — Prompt Injection × Rapid-movement/layering (M1-02)",
+      "description": "The seam matrix's second pair through the framework: a memo-borne prompt injection whose instruction drives FAST multi-hop onward movement, caught independently by the FATF rapid-movement/layering typology (already in the engine) on velocity + fan-out signals alone — the AML side never reads the memo. The generated transaction pattern must be visibly DISTINCT from P1's structuring cluster (fast-onward vs sub-threshold-many) so the two pairs fire distinct detectors and P2 adds real Axis-A breadth. Expressed as a SeamPair bound by the same framework bind() — no new framework, no weakening of the independence guarantee.",
+      "phase": "6 — Movement 1: the Seam Matrix",
+      "layer": "Movement 1 — Seam Matrix",
+      "area": "assurance",
+      "status": "planned",
+      "depends_on": [
+        "KS-0601"
+      ],
+      "done_criteria": [
+        "P2 binds CLEAN through the framework: the rapid-movement typology independently implicates the operative transaction, on a generated pattern provably distinct from P1's structuring cluster"
       ],
       "tests": []
     }

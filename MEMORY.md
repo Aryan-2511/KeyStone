@@ -617,6 +617,29 @@
   Google-Fonts `@import` in the SVG, which falls back to system fonts offline (affects
   live and recorded equally — they stay indistinguishable). Both apps default replay to
   the recording; a stray `keystone-run.json` no longer overrides it.
+- **The Seam Framework (`keystone.assurance.framework`, M1-01) generalises the one
+  seam into a class.** A `SeamPair` = an `AttackSide` (OWASP id + canonical
+  `VulnerabilitySignature` + `AttackChannel`) × a `CrimeSide` (FATF `Typology` +
+  memo-blind detector) × a `SeamResult` (CLEAN / BOUNDARY / OPEN). `bind(pair)`
+  enforces three inherited mechanisms — single source of truth (the attack resolves to
+  the SAME signature object by identity), demonstration-not-coincidence (crime finding
+  + resolvable attack implicate the SAME operative tx id), and build-failing drift
+  (disagreement raises `SeamDriftError`). **The independence guarantee is a framework
+  PROPERTY, not a per-pair test:** `bind` only ever hands the crime detector a
+  `FinancialProjection` (the event with the memo/attack channel stripped, via
+  `project_financial`), and `CrimeSide.detect` is *typed* to accept that wrapper and
+  nothing else — so the detector structurally cannot read the attack channel. A
+  BOUNDARY pair's result IS the negative (`bind` asserts ZERO typologies fire; P4 will
+  slot in here). P1 is re-expressed as `P1_PAIR` (in `keystone.assurance.seam`) and
+  binds through the framework with EVERY existing seam test unchanged — the faithfulness
+  proof. `prove_seam`/`seam_fraud_stream`/`resolve_signature` kept their signatures so
+  the Layer-1 milestone + demo runner are untouched. Pairs are registered in
+  `keystone.assurance.pairs.REGISTERED_PAIRS` (today just P1); the framework-level
+  guarantees are asserted over that tuple in `tests/test_seam_framework.py`. Lives on
+  the edge (import-linter KEPT; core stays attack-unaware). **Recon for the matrix
+  (locked in `M1-00` §7a):** the FATF engine has distinct structuring/rapid-movement/
+  large-transfer detectors (P2/P3 separable), but NO recipient/sanctions typology — so
+  P5 likely takes the §6 fallback (decided at M1-05).
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

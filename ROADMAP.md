@@ -79,4 +79,20 @@ run-result, framed by a supporting shell.
 - Recorded-run fallback so every screen replays offline. (`KS-0504`)
 - Demo script + rehearsal — the narrated walkthrough. (`KS-0505`)
 
+## Phase 6 — Movement 1: the Seam Matrix
+
+(`KS-0601`–) — design contract: [`M1-00_SEAM_MATRIX_DESIGN.md`](M1-00_SEAM_MATRIX_DESIGN.md).
+Generalise the single seam into a *characterized class*: a uniform framework that
+binds (OWASP attack × FATF typology) pairs under one independence guarantee and one
+build-failing drift assertion — including the honest boundary where the mapping does
+not hold.
+
+- The **seam framework abstraction** — bind any pair uniformly; P1 re-expressed as
+  its first passing instance (the faithfulness proof). (`KS-0601` / M1-01)
+- P2 rapid-movement, P3 large-transfer through the framework. (`KS-0602`+ / M1-02–03)
+- P4 — the characterized **boundary** (data-loss moves no money → no typology
+  fires; the negative is the result). (M1-04)
+- P5 — the **open** pair (tool-misuse → recipient screening; report as-found). (M1-05)
+- The characterized-mapping result — the matrix as a table/figure. (M1-06)
+
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._
