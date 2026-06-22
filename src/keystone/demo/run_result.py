@@ -32,7 +32,7 @@ from keystone.core.ledger import LedgerEntry
 
 # Schema version for the on-disk run-result; bump on any breaking shape change so
 # a saved run that no longer matches fails loudly rather than rendering wrong.
-RUN_RESULT_SCHEMA_VERSION = 2
+RUN_RESULT_SCHEMA_VERSION = 3
 
 
 class SeamTransactionView(BaseModel):
@@ -87,6 +87,26 @@ class RegulatoryMappingView(BaseModel):
     india_modality: str
 
 
+class AssuranceView(BaseModel):
+    """The referenced L2 find-and-patch result (KS-0304) — the before/after proof.
+
+    Carried from the canonical `REFERENCED_ASSURANCE` constant (referenced, not re-run):
+    `before_fails`/`prompt_cap` probes exploited the unguarded agent; `after_fails`
+    once the Guardrails rail was added. The KS-0503 before/after view renders this.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    prompt_cap: int
+    before_fails: int
+    after_fails: int
+    exploit_before: bool
+    exploit_after: bool
+    remediated: bool
+    found_by: str
+    patched_by: str
+
+
 class AiSecurityView(BaseModel):
     """Layer-2 side: the prompt-injection vulnerability, REFERENCED not re-run."""
 
@@ -103,6 +123,7 @@ class AiSecurityView(BaseModel):
     # patched) — referenced by signature identity, not re-run in this arc.
     l2_reference: str
     regulatory: RegulatoryMappingView
+    assurance: AssuranceView
 
 
 class SeamBindingView(BaseModel):

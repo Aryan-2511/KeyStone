@@ -41,6 +41,7 @@ from .garak_probe import (
     run_scan,
     scan_mock_agent,
 )
+from .referenced import REFERENCED_ASSURANCE, ReferencedAssurance
 from .seam import (
     SeamError,
     SeamProof,
@@ -67,6 +68,8 @@ __all__ = [
     "LEDGER_ACTION",
     "MEMO_INJECTION_SIGNATURE",
     "PINNED_GARAK_VERSION",
+    "REFERENCED_ASSURANCE",
+    "ReferencedAssurance",
     "PROMPT_INJECTION_FAMILIES",
     "TOOLS",
     "VULNERABLE_SYSTEM_PROMPT",

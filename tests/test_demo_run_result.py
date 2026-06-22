@@ -14,7 +14,11 @@ from pathlib import Path
 
 import pytest
 
-from keystone.assurance import FAMILY_MAPPINGS, MEMO_INJECTION_SIGNATURE
+from keystone.assurance import (
+    FAMILY_MAPPINGS,
+    MEMO_INJECTION_SIGNATURE,
+    REFERENCED_ASSURANCE,
+)
 from keystone.assurance.layer1_milestone import ARC
 from keystone.assurance.signature import CANONICAL_MEMO_EXPLOIT
 from keystone.core.ledger import Ledger
@@ -101,6 +105,19 @@ def test_report_renders_both_regulator_formats_from_one_fact_model(
     assert isinstance(finnet_txns[0], dict) and isinstance(goaml_txns[0], dict)
     assert "transaction_id" in finnet_txns[0]
     assert "transactionnumber" in goaml_txns[0]
+
+
+def test_assurance_before_after_is_the_referenced_canonical_result(
+    tmp_path: Path,
+) -> None:
+    # The L2 before/after (KS-0304) is REFERENCED, not re-run: it equals the canonical
+    # constant and reads as a real "found N, fixed to 0" remediation.
+    a = _run(tmp_path).ai_security.assurance
+    assert a.before_fails == REFERENCED_ASSURANCE.before_fails > 0
+    assert a.after_fails == 0
+    assert a.exploit_before is True and a.exploit_after is False
+    assert a.remediated is True
+    assert a.prompt_cap == REFERENCED_ASSURANCE.prompt_cap
 
 
 def test_arc_is_whole_ordered_and_chain_valid(tmp_path: Path) -> None:

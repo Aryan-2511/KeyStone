@@ -542,7 +542,9 @@
         "tests/test_demo_run_result.py::test_run_result_round_trips_through_json",
         "tests/test_demo_run_result.py::test_cli_writes_a_loadable_run",
         "tests/test_demo_run_result.py::test_regulatory_modality_is_read_from_the_obligation_graph",
-        "tests/test_demo_run_result.py::test_report_renders_both_regulator_formats_from_one_fact_model"
+        "tests/test_demo_run_result.py::test_report_renders_both_regulator_formats_from_one_fact_model",
+        "tests/test_demo_run_result.py::test_assurance_before_after_is_the_referenced_canonical_result",
+        "tests/test_demo_run_result.py::test_loading_a_mismatched_schema_run_raises_a_clear_error"
       ]
     },
     {
@@ -598,16 +600,26 @@
     {
       "id": "KS-0503",
       "title": "Supporting shell — ledger, posture, assurance before/after",
-      "description": "The frame around the heroes: the cross-layer compliance posture, the hash-chained evidence-ledger view, and the assurance before/after (Garak 10/12 → 0/12 after the Guardrails patch), rendered from the run-result + ledger. This is the old 'posture dashboard' content, re-cast as the supporting context for the two hero screens rather than the centrepiece. Inherits the KS-0501 design system.",
+      "description": "The navigable frame around the two hero screens: a sidebar shell (keystone.ui.shell_app) that HOSTS the existing seam + jurisdiction heroes (imported, not reimplemented) and adds three supporting views built on keystone.ui.svg — the hash-chained evidence ledger (the auditable-by-construction arc), the cross-layer posture (L3 obligations / L2 assurance / L1 fraud at a glance), and the assurance before/after (Garak 10/12 → 0/12 after the Guardrails patch, REFERENCED via the canonical RunResult v3 assurance block). Quiet by design (the heroes carry the thesis). Inherits the KS-0501 design system; embedded via components.v1.html, live + replay; ships its own AppTest gate.",
       "phase": "5 — Integration & demo",
       "layer": "Integration & demo",
       "area": "ui",
-      "status": "planned",
-      "depends_on": ["KS-0500", "KS-0501"],
+      "status": "done",
+      "depends_on": ["KS-0500", "KS-0501", "KS-0502"],
       "done_criteria": [
-        "the shell renders cross-layer posture, the verifiable ledger arc, and the assurance before/after from the run-result + ledger, in the shared KS-0501 design system"
+        "a single shell hosts both heroes (not reimplemented) and the three supporting views, navigable, rendering from the run-result (live + replay) in the shared design system",
+        "the ledger view shows the verifiable arc + chain, posture shows all three layers, and the before/after shows the real referenced 10/12 → 0/12 — all from the run-result",
+        "an AppTest loads the running shell and cycles every view (live + replay) without exception"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_shell_screens.py::test_ledger_view_renders_the_real_arc_and_chain",
+        "tests/test_shell_screens.py::test_posture_view_reads_all_three_layers_from_the_run_result",
+        "tests/test_shell_screens.py::test_before_after_view_shows_the_real_referenced_numbers",
+        "tests/test_shell_screens.py::test_before_after_follows_the_data_not_hardcoded",
+        "tests/test_shell_screens.py::test_views_draw_colour_from_the_shared_tokens",
+        "tests/test_shell_app.py::test_shell_loads_and_runs_live_across_all_views",
+        "tests/test_shell_app.py::test_shell_renders_from_the_v2_saved_run_replay"
+      ]
     },
     {
       "id": "KS-0504",
