@@ -1,22 +1,24 @@
-"""The L2↔L1 seam (KS-0403) — the thesis-closing milestone.
+"""P1 — prompt-injection × structuring — the Seam Framework's FIRST instance.
 
-ONE transaction that is simultaneously a financial crime AND an AI-security
-vulnerability:
+The thesis-closing milestone (KS-0403), now expressed THROUGH the Seam Framework
+(`keystone.assurance.framework`, M1-01). ONE transaction that is simultaneously a
+financial crime AND an AI-security vulnerability:
 
-- (Layer 1) it is part of a structuring / rapid-movement cluster the memo-BLIND
-  KS-0402 FATF engine flags on FINANCIAL grounds alone; and
+- (Layer 1) it is part of a structuring cluster the memo-BLIND KS-0402 FATF engine
+  flags on FINANCIAL grounds alone; and
 - (Layer 2) its memo IS `CANONICAL_MEMO_EXPLOIT` — the literal payload Garak flagged
   against the mock agent — resolving to `MEMO_INJECTION_SIGNATURE`.
 
-Both sides reference the ONE canonical definition imported from
-`keystone.assurance.signature` (single source of truth — never redefined here), and
-the financial detection relies on the FATF engine's memo-blindness (we do NOT make
-detection memo-aware). The strong claim is bound on a shared TRANSACTION ID: the
-transfer FATF flags == the transfer carrying the signature.
+P1 is no longer special-cased: it is a `SeamPair` (`P1_PAIR`) bound by the
+framework's `bind`, which inherits the three rigor mechanisms (single source of
+truth, demonstration-not-coincidence, build-failing drift) and the uniform
+independence guarantee (the detector only ever sees the financial projection, never
+the memo). P1 still passing through the framework is the proof the abstraction is
+faithful. `prove_seam` / `seam_fraud_stream` / `resolve_signature` keep their
+signatures so existing callers (the Layer-1 milestone, the demo) are unchanged.
 
-Boundary: this lives in `keystone.assurance` (the edge) because it imports both the
-assurance signature (edge) and the core transaction/FATF pieces; the core never
-imports it (import-linter KEPT).
+Boundary: this lives in `keystone.assurance` (the edge); the core never imports it
+(import-linter KEPT).
 """
 
 from __future__ import annotations
@@ -27,8 +29,23 @@ from keystone.core.fatf import Finding, Typology, detect, record_findings
 from keystone.core.ledger import Ledger
 from keystone.core.transactions import Transaction, sample_stream
 
+from .framework import (
+    AttackChannel,
+    AttackSide,
+    CrimeSide,
+    FinancialProjection,
+    SeamDriftError,
+    SeamEvent,
+    SeamPair,
+    SeamResult,
+    bind,
+)
 from .injection_patterns import is_data_field_injection
-from .signature import CANONICAL_MEMO_EXPLOIT, VulnerabilitySignature
+from .signature import (
+    CANONICAL_MEMO_EXPLOIT,
+    MEMO_INJECTION_SIGNATURE,
+    VulnerabilitySignature,
+)
 
 SEAM_AGENT = "l2-l1-seam"
 SEAM_LAYER = "L1+L2"
@@ -41,7 +58,7 @@ _THESIS = (
 
 
 class SeamError(Exception):
-    """Raised when the seam fraud does not bind both detections."""
+    """Raised when the P1 seam fraud does not bind both detections."""
 
 
 @dataclass(frozen=True)
@@ -87,55 +104,89 @@ def seam_fraud_stream() -> tuple[list[Transaction], str]:
     return planted, seam_tx_id
 
 
-def prove_seam(*, ledger: Ledger | None = None) -> SeamProof:
-    """Run BOTH detectors on the seam fraud and bind them on the shared tx id.
-
-    Layer 1: the memo-blind FATF engine flags a structuring finding implicating the
-    seam transaction. Layer 2: that SAME transaction's memo resolves to the canonical
-    `MEMO_INJECTION_SIGNATURE`. Raises `SeamError` if either side fails to implicate
-    the seam transaction. When a `ledger` is given, writes the Layer-1 fatf_finding
-    plus a `seam_binding` entry that names the same tx id and the signature.
-    """
+def _p1_plant() -> SeamEvent:
+    """The P1 event: the seam fraud stream + the operative (memo-bearing) transfer."""
     stream, seam_tx_id = seam_fraud_stream()
+    return SeamEvent(stream=tuple(stream), operative_tx_id=seam_tx_id)
 
-    fatf_finding = next(
-        (
-            f
-            for f in detect(stream)
-            if f.typology is Typology.STRUCTURING and seam_tx_id in f.transaction_ids
-        ),
-        None,
+
+def _p1_recognize(txn: Transaction) -> VulnerabilitySignature | None:
+    """P1's attack recognizer: resolve the transaction's MEMO channel to a signature.
+
+    Indirects through the module-level `resolve_signature` (looked up at call time)
+    so the drift guard can monkeypatch it.
+    """
+    return resolve_signature(txn.memo)
+
+
+def _p1_detect(projection: FinancialProjection) -> list[Finding]:
+    """P1's crime detector: the memo-blind FATF engine over the financial projection."""
+    return detect(projection.transactions)
+
+
+# P1 expressed as a framework pair — the FIRST instance of the seam matrix.
+P1_PAIR = SeamPair(
+    pair_id="P1",
+    title="Prompt Injection × Structuring",
+    attack=AttackSide(
+        owasp_id="LLM01",
+        name="Prompt Injection",
+        channel=AttackChannel.MEMO,
+        signature=MEMO_INJECTION_SIGNATURE,
+        recognize=_p1_recognize,
+    ),
+    crime=CrimeSide(typology=Typology.STRUCTURING, detect=_p1_detect),
+    result=SeamResult.CLEAN,
+    plant=_p1_plant,
+)
+
+
+def prove_seam(*, ledger: Ledger | None = None) -> SeamProof:
+    """Bind P1 through the framework and (optionally) record it to the ledger.
+
+    Delegates the detection + binding rigor to the framework's `bind` (Layer 1 = the
+    memo-blind FATF engine on the financial projection; Layer 2 = the operative tx
+    memo resolving to the canonical `MEMO_INJECTION_SIGNATURE`; bound on the shared
+    tx id). Raises `SeamError` if either side fails to implicate the seam transaction.
+    When a `ledger` is given, writes the Layer-1 fatf_finding plus a `seam_binding`
+    entry that names the same tx id and the signature.
+    """
+    try:
+        binding = bind(P1_PAIR)
+    except SeamDriftError as exc:
+        raise SeamError(str(exc)) from exc
+
+    if (
+        binding.transaction_id is None
+        or binding.crime_finding is None
+        or binding.signature is None
+    ):
+        raise SeamError("P1 seam did not bind both detections")
+
+    proof = SeamProof(
+        transaction_id=binding.transaction_id,
+        fatf_finding=binding.crime_finding,
+        signature=binding.signature,
     )
-    if fatf_finding is None:
-        raise SeamError(
-            f"FATF engine did not flag the seam transaction {seam_tx_id} as structuring"
-        )
-
-    seam_txn = next(t for t in stream if t.id == seam_tx_id)
-    signature = resolve_signature(seam_txn.memo)
-    if signature is None:
-        raise SeamError(
-            f"seam transaction {seam_tx_id} memo does not resolve to a signature"
-        )
 
     if ledger is not None:
-        record_findings([fatf_finding], ledger=ledger)
+        stream, seam_tx_id = seam_fraud_stream()
+        seam_txn = next(t for t in stream if t.id == seam_tx_id)
+        record_findings([proof.fatf_finding], ledger=ledger)
         ledger.append(
             agent=SEAM_AGENT,
             layer=SEAM_LAYER,
             action=SEAM_ACTION,
             payload={
-                "transaction_id": seam_tx_id,
+                "transaction_id": proof.transaction_id,
                 "thesis": _THESIS,
-                "fatf_typology": fatf_finding.typology.value,
-                "vulnerability_signature": signature.name,
-                "signature_field": signature.field.value,
-                "signature_outcome": signature.outcome.value,
+                "fatf_typology": proof.fatf_finding.typology.value,
+                "vulnerability_signature": proof.signature.name,
+                "signature_field": proof.signature.field.value,
+                "signature_outcome": proof.signature.outcome.value,
                 "memo_is_canonical_exploit": seam_txn.memo
                 == CANONICAL_MEMO_EXPLOIT.memo,
             },
         )
 
-    return SeamProof(
-        transaction_id=seam_tx_id, fatf_finding=fatf_finding, signature=signature
-    )
+    return proof

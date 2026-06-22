@@ -22,6 +22,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0011 | Realign phases 2–5 to the three compliance layers | Accepted |
 | 0012 | Obligation data model and storage (KS-0201) | Accepted |
 | 0013 | Override transitive cryptography<47 cap to clear GHSA-537c-gmf6-5ccf | Accepted |
+| 0014 | The Seam Framework: independence as a typed framework property | Accepted |
 
 ---
 
@@ -502,3 +503,52 @@ vulnerable package is gone.
 narrowly scoped to one package with a floor (`>=48.0.1`) rather than a pin, so
 routine patch upgrades still flow. If a future `nat-core` genuinely needs
 `cryptography<47` at runtime, the milestone test is the tripwire.
+
+## ADR-0014 — The Seam Framework: independence as a typed framework property
+
+**Status:** Accepted · **Date:** 2026-06-23
+
+**Context.** Movement 1 (`M1-00_SEAM_MATRIX_DESIGN.md`) generalises the single
+`TXN-000016` seam into a *characterized class* of (OWASP attack × FATF typology)
+pairs. The paper-critical objection to defeat is *"isn't the seam circular?"* —
+that the two detections secretly share the same signal. The anchor seam answered
+this per-instance with a memo-blindness test; a *class* claim needs the answer to
+be a uniform property of every pair, not a test re-written five times. M1-01 must
+also re-express the existing P1 seam THROUGH the framework without weakening any
+of its assertions (faithfulness), and must represent a *non-binding* pair (P4, the
+honest boundary) in the same structure as a binding one.
+
+**Decision.** Add `keystone.assurance.framework` on the edge (import-linter KEPT;
+core stays attack-unaware). A `SeamPair` = `AttackSide` (OWASP id + canonical
+`VulnerabilitySignature` + `AttackChannel`) × `CrimeSide` (FATF `Typology` +
+detector) × `SeamResult` (CLEAN / BOUNDARY / OPEN). `bind(pair)` enforces the three
+binding mechanisms once (single source of truth by signature identity;
+demonstration-not-coincidence via a shared operative transaction id;
+build-failing `SeamDriftError` on disagreement).
+
+The independence guarantee is encoded **structurally, not by discipline**:
+`bind` only ever hands the crime detector a `FinancialProjection` — the event with
+the attack channel (the memo) stripped by `project_financial` — and `CrimeSide.detect`
+is *typed* `Callable[[FinancialProjection], list[Finding]]`, so a detector cannot be
+handed a raw, attack-bearing `Transaction` stream. The property is then asserted once
+over `keystone.assurance.pairs.REGISTERED_PAIRS` rather than per pair. A BOUNDARY
+pair's result IS the proven negative (`bind` asserts zero typologies fire). P1 is
+re-expressed as `P1_PAIR` and binds through the framework with every existing seam
+test unchanged.
+
+**Alternatives rejected.** (a) *Keep memo-blindness as a per-pair test* — does not
+scale to a class claim and leaves independence as a convention a refactor can break.
+(b) *Project to a memo-free financial model and refactor `core.fatf` onto it* — would
+change the core's meaning and risk P1's semantics for no added rigor, since the
+detector is already memo-blind; the wrapper type achieves structural independence
+without touching core. (c) *Let `bind` pass the raw stream "because the detector is
+memo-blind anyway"* — rejected outright; that is exactly the circularity the property
+must defeat.
+
+**Consequences.** Pairs M1-02..M1-05 inherit independence + drift-protection by
+construction; adding a pair is registering a `SeamPair`, and it is automatically
+subjected to the framework-level property tests. The crime detector for every pair
+must be expressible over the financial projection (true for the existing FATF
+typologies). P5's recipient/sanctions typology does not yet exist in the engine
+(`M1-00` §7a) — that is a build question for M1-05, not a framework limitation; the
+framework already models its `TOOL_CALL` channel and `OPEN` result.

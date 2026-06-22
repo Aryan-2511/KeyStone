@@ -112,6 +112,30 @@ Two designed hero screens over a real run-result, framed by a supporting shell.
 (Re-phased from the old posture-dashboard / golden-path / offline-fallback trio;
 the dashboard content survives as the KS-0503 supporting shell.)
 
+## Movement 1 — the Seam Matrix (Phase 6; design contract `M1-00_SEAM_MATRIX_DESIGN.md`)
+
+> Generalise the single TXN-000016 seam into a *characterized class*: a uniform
+> framework binding (OWASP attack × FATF typology) pairs under one independence
+> guarantee + one build-failing drift assertion. Build the framework first, then
+> the pairs, then the result (same dependency discipline as the core build).
+
+- [x] **Seam Framework abstraction** — bind any (attack, crime) pair uniformly;
+      P1 re-expressed as the first instance through it (all existing seam tests
+      pass unchanged = faithfulness proof). Independence enforced framework-level
+      (the detector only ever sees a `FinancialProjection`, never the attack
+      channel); CLEAN / BOUNDARY / OPEN are first-class results. — M1-01 / KS-0601
+      (`keystone.assurance.framework`, `.pairs`; `tests/test_seam_framework.py`)
+- [ ] P2 — Prompt Injection × Rapid-movement/layering — M1-02 / KS-0602 (**next**)
+- [ ] P3 — Prompt Injection × Large-transfer/threshold — M1-03
+- [ ] P4 — Sensitive Information Disclosure × (none) — **the boundary** — M1-04
+- [ ] P5 — Excessive Agency / tool-misuse × unauthorized-recipient — **open** — M1-05
+- [ ] The characterized-mapping result (the matrix table/figure) — M1-06
+
+> Step-0 recon (locked in `M1-00` §7a): the FATF engine already has **distinct**
+> structuring / rapid-movement / large-transfer detectors (P2/P3 are separable,
+> no collapse risk). It has **no** recipient/sanctions typology, so P5 likely
+> takes the §6 fallback (a clean fourth injection pair) — decided at M1-05 start.
+
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
 
 > Tracked so they aren't lost. Revisit on the noted trigger; none block KS-0202.
