@@ -100,7 +100,10 @@ Two designed hero screens over a real run-result, framed by a supporting shell.
       (`keystone.ui.svg` shared primitives, `keystone.ui.jurisdiction_screen`,
       `keystone.ui.jurisdiction_app`; RunResult schema v2 = + goAML + EU/India
       modality; `tests/test_jurisdiction_screen.py`, `tests/test_jurisdiction_app.py`)
-- [ ] Supporting shell (ledger / posture / assurance before-after) — KS-0503
+- [x] Supporting shell (ledger / posture / assurance before-after) — KS-0503
+      (`keystone.ui.shell_app` hosts both heroes + 3 views via `keystone.ui.shell_screens`;
+      RunResult schema v3 = + referenced assurance before/after (`keystone.assurance.REFERENCED_ASSURANCE`);
+      `tests/test_shell_screens.py`, `tests/test_shell_app.py`)
 - [ ] Recorded-run fallback (offline replay) — KS-0504
 - [ ] Demo script + rehearsal — KS-0505
 

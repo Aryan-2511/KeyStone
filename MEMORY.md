@@ -587,6 +587,20 @@
   `core.reporting` adapters), and `ai_security.regulatory` carries `eu_modality` /
   `india_modality` from the obligation graph. Bump `RUN_RESULT_SCHEMA_VERSION` and
   regenerate `tests/fixtures/seam_run_result.json` on any further shape change.
+- **RunResult is schema v3 (KS-0503 extended it again).** `ai_security.assurance`
+  (`AssuranceView`) carries the referenced Layer-2 before/after — before_fails=10 /
+  after_fails=0 / prompt_cap=12 / exploit before→after — from the single-source
+  `keystone.assurance.REFERENCED_ASSURANCE` constant (referenced, NOT re-run, like the
+  l2_reference). The KS-0304 loop tests assert their real output EQUALS that constant,
+  so it can't drift. Regenerate the fixture on any schema bump.
+- **The KS-0503 shell is `keystone.ui.shell_app`.** A sidebar nav (View + Data source)
+  that HOSTS the two heroes verbatim (`seam_html` / `jurisdiction_html` — imported, NOT
+  reimplemented) and adds three quiet supporting views in `keystone.ui.shell_screens`
+  (built on `keystone.ui.svg`): the evidence ledger (the arc + chain), cross-layer
+  posture (L3 obligations / L2 assurance / L1 fraud), and the assurance before/after
+  (10/12 → 0/12). Run: `uv run streamlit run src/keystone/ui/shell_app.py`. The shell
+  is the frame; the heroes spent the boldness. Its AppTest cycles ALL views in both
+  modes. AppTest radios: select by `.label`, not index (creation order bit us).
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

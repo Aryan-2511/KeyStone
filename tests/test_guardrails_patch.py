@@ -18,6 +18,7 @@ import pytest
 
 from keystone.assurance import (
     CANONICAL_MEMO_EXPLOIT,
+    REFERENCED_ASSURANCE,
     Transaction,
     exploit_fired,
 )
@@ -134,8 +135,8 @@ def test_remediation_entry_records_before_after(tmp_path: Path) -> None:
 
     assert entry.agent == LEDGER_AGENT
     assert entry.action == LEDGER_ACTION_REMEDIATED
-    assert entry.payload["before_fails"] == 10
-    assert entry.payload["after_fails"] == 0
+    assert entry.payload["before_fails"] == REFERENCED_ASSURANCE.before_fails
+    assert entry.payload["after_fails"] == REFERENCED_ASSURANCE.after_fails
     assert entry.payload["remediated"] is True
     assert entry.payload["control"] == "nemo-guardrails-input-rail"
     assert ledger.verify_chain() is True

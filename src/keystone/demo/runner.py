@@ -25,7 +25,11 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from keystone.assurance import FAMILY_MAPPINGS, MEMO_INJECTION_SIGNATURE
+from keystone.assurance import (
+    FAMILY_MAPPINGS,
+    MEMO_INJECTION_SIGNATURE,
+    REFERENCED_ASSURANCE,
+)
 from keystone.assurance.layer1_milestone import (
     DEFAULT_SIGNER,
     MILESTONE_ACTION,
@@ -51,6 +55,7 @@ from .run_result import (
     RUN_RESULT_SCHEMA_VERSION,
     AiSecurityView,
     ArcView,
+    AssuranceView,
     FinancialCrimeView,
     RegulatoryMappingView,
     ReportView,
@@ -178,6 +183,16 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
                 **mapping.model_dump(),
                 eu_modality=modalities.get(mapping.eu_obligation_id, ""),
                 india_modality=modalities.get(mapping.india_obligation_id, ""),
+            ),
+            assurance=AssuranceView(
+                prompt_cap=REFERENCED_ASSURANCE.prompt_cap,
+                before_fails=REFERENCED_ASSURANCE.before_fails,
+                after_fails=REFERENCED_ASSURANCE.after_fails,
+                exploit_before=REFERENCED_ASSURANCE.exploit_before,
+                exploit_after=REFERENCED_ASSURANCE.exploit_after,
+                remediated=REFERENCED_ASSURANCE.remediated,
+                found_by=REFERENCED_ASSURANCE.found_by,
+                patched_by=REFERENCED_ASSURANCE.patched_by,
             ),
         ),
         binding=SeamBindingView(

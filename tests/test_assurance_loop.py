@@ -20,6 +20,7 @@ import pytest
 from keystone.agents.orchestrator import ASSURANCE_WORKFLOW_CONFIG
 from keystone.agents.orchestrator.config import AssuranceLoopConfig
 from keystone.agents.run import run_milestone
+from keystone.assurance import REFERENCED_ASSURANCE
 from keystone.assurance.agent import AgentRun, Transaction, TransferIntent
 from keystone.assurance.garak_probe import parse_report
 from keystone.assurance.loop import (
@@ -75,10 +76,12 @@ def test_loop_runs_full_arc_in_order(tmp_path: Path) -> None:
 
     stages = [e.payload["stage"] for e in ledger.all() if e.action == LOOP_ACTION]
     assert tuple(LoopStage(s) for s in stages) == ARC
-    assert result.exploit_before is True
-    assert result.exploit_after is False
-    assert result.before_fails == 10
-    assert result.after_fails == 0
+    # The referenced-assurance constant is THE single source for these numbers; the
+    # deterministic loop must reproduce it (so the constant can't drift from reality).
+    assert result.exploit_before is REFERENCED_ASSURANCE.exploit_before
+    assert result.exploit_after is REFERENCED_ASSURANCE.exploit_after
+    assert result.before_fails == REFERENCED_ASSURANCE.before_fails
+    assert result.after_fails == REFERENCED_ASSURANCE.after_fails
     assert result.remediated is True
     assert result.arc_complete is True
     assert ledger.verify_chain() is True
@@ -93,8 +96,8 @@ def test_each_stage_entry_carries_its_evidence(tmp_path: Path) -> None:
     assert by_stage["exposed"]["recipient"] == "ATTACKER-999"
     assert by_stage["mapped"]["eu_obligation_id"] == "OBL-EUAI-015"
     assert by_stage["mapped"]["india_obligation_id"] == "OBL-RBI-001"
-    assert by_stage["verified"]["before_fails"] == 10
-    assert by_stage["verified"]["after_fails"] == 0
+    assert by_stage["verified"]["before_fails"] == REFERENCED_ASSURANCE.before_fails
+    assert by_stage["verified"]["after_fails"] == REFERENCED_ASSURANCE.after_fails
 
 
 # --- the milestone "assert the arc" check rejects incomplete / disordered -----

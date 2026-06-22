@@ -1,6 +1,6 @@
 {
-  "schema_version": 2,
-  "generated_at": "2026-06-21T19:28:28.545573+00:00",
+  "schema_version": 3,
+  "generated_at": "2026-06-22T06:07:18.033392+00:00",
   "seam_transaction": {
     "id": "TXN-000016",
     "timestamp": "2026-01-02T00:12:00+00:00",
@@ -56,6 +56,16 @@
       "india_principle": "RBI FREE-AI 'Trust is the Foundation' (Sutra)",
       "india_obligation_id": "OBL-RBI-001",
       "india_modality": "SELF_CERTIFICATION"
+    },
+    "assurance": {
+      "prompt_cap": 12,
+      "before_fails": 10,
+      "after_fails": 0,
+      "exploit_before": true,
+      "exploit_after": false,
+      "remediated": true,
+      "found_by": "Garak (LLM01 prompt injection)",
+      "patched_by": "NeMo Guardrails input rail"
     }
   },
   "binding": {
@@ -224,7 +234,7 @@
     "entries": [
       {
         "id": 1,
-        "ts": "2026-06-21T19:28:28.503213+00:00",
+        "ts": "2026-06-22T06:07:17.989044+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -234,11 +244,11 @@
           "transaction_count": 39
         },
         "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-        "entry_hash": "c82fef3533c4a6423cde9c7db64fbee006df1b1d22a19b2c0530bf4be7ad707d"
+        "entry_hash": "b398bf7dd811683d3500772583cd0d0d794f88f7714ff30a81c5aa9f92523ef4"
       },
       {
         "id": 2,
-        "ts": "2026-06-21T19:28:28.510093+00:00",
+        "ts": "2026-06-22T06:07:18.005103+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -259,12 +269,12 @@
           ],
           "typology": "STRUCTURING"
         },
-        "prev_hash": "c82fef3533c4a6423cde9c7db64fbee006df1b1d22a19b2c0530bf4be7ad707d",
-        "entry_hash": "7adf447cb2b09f5ed506611c0a2bbf3d7d5bac6e51ffbb6af40d14150d74100b"
+        "prev_hash": "b398bf7dd811683d3500772583cd0d0d794f88f7714ff30a81c5aa9f92523ef4",
+        "entry_hash": "07f690263725993a7533643f2e19b618a1a871e7d7c40afaf25a178d2b386f67"
       },
       {
         "id": 3,
-        "ts": "2026-06-21T19:28:28.520146+00:00",
+        "ts": "2026-06-22T06:07:18.005103+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -275,12 +285,12 @@
           "thesis": "the fraud L1 caught carries the exact vulnerability L2 found and patched",
           "transaction_id": "TXN-000016"
         },
-        "prev_hash": "7adf447cb2b09f5ed506611c0a2bbf3d7d5bac6e51ffbb6af40d14150d74100b",
-        "entry_hash": "ec2b490180826f7a843a2e94db94c20997f8cff1095bc72d8183be1fd94d7bc3"
+        "prev_hash": "07f690263725993a7533643f2e19b618a1a871e7d7c40afaf25a178d2b386f67",
+        "entry_hash": "11add4ebe6136840d134a13d264f84141f8d7a1d802479174aac9420b769ea09"
       },
       {
         "id": 4,
-        "ts": "2026-06-21T19:28:28.527815+00:00",
+        "ts": "2026-06-22T06:07:18.005103+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -362,12 +372,12 @@
           "total_amount": 85417.57,
           "transaction_count": 9
         },
-        "prev_hash": "ec2b490180826f7a843a2e94db94c20997f8cff1095bc72d8183be1fd94d7bc3",
-        "entry_hash": "35ab18f0daefe3591241e57722d472fa50de2bafb3ffd901221d72c4aa9cf810"
+        "prev_hash": "11add4ebe6136840d134a13d264f84141f8d7a1d802479174aac9420b769ea09",
+        "entry_hash": "0e1999de565294301b5ef6c97445b8b76f105c26d68d61b8a1f40a80ade617a8"
       },
       {
         "id": 5,
-        "ts": "2026-06-21T19:28:28.530906+00:00",
+        "ts": "2026-06-22T06:07:18.025374+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -376,8 +386,8 @@
           "stage": "signed",
           "status": "SIGNED"
         },
-        "prev_hash": "35ab18f0daefe3591241e57722d472fa50de2bafb3ffd901221d72c4aa9cf810",
-        "entry_hash": "e61eaaf2dfa037a818b4c0b3801ef88bc6c925eb8172f8d1a4c8941c5919e16e"
+        "prev_hash": "0e1999de565294301b5ef6c97445b8b76f105c26d68d61b8a1f40a80ade617a8",
+        "entry_hash": "928fcc8802e8a588ff302a64d657ba9b347b8d1650b44ecb0f54243424d0e1fc"
       }
     ]
   }
