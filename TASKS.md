@@ -165,6 +165,30 @@ the dashboard content survives as the KS-0503 supporting shell.)
 > no collapse risk). It has **no** recipient/sanctions typology, so P5 likely
 > takes the §6 fallback (a clean fourth injection pair) — decided at M1-05 start.
 
+## Movement 2 — Regulatory Convergence (design contract `M2-00_CONVERGENCE_DESIGN.md`)
+
+> Turn "a seam event is *analogous* to a compliance failure" into "a seam event *is* the
+> audit evidence that satisfies-or-violates a named, real obligation" — grounded in real
+> before/after data, across EU hard law + India advisory. Build the evidence model first,
+> then the rigorous obligation mappings, then the convergence result/UI.
+
+- [x] **The Evidence Model** — a typed `EvidenceRelationship` binding a seam event to an
+      EXISTING L3 obligation, carrying the four-part rigor as structure (obligation +
+      requirement + mandatory reason + a satisfy/violate state DERIVED from before/after).
+      Subsumes L3 (not parallel); boundary first-class; "not lawyers" encoded. Proven by
+      ONE reference mapping (P1 × EU Art. 15). — M2-01 / KS-0607
+      (`keystone.convergence`; `tests/test_evidence_model.py`)
+- [ ] The rigorous obligation mappings (§4: ISO 42001 / NIST AI RMF / RBI + the DPDP
+      boundary), each clearing the four-part bar — M2-02 / KS-0608 (**next**)
+- [ ] The convergence result + UI (the loop made visible: seam event → obligations,
+      violated→satisfied, EU + India) — M2-0n
+
+> Step-0 L3 recon (locked in `M2-00` §7a): L3 obligations (`OBL-EUAI-015`, `OBL-RBI-001`,
+> DPDP `OBL-DPDPA-*`) carry id/citation/modality/jurisdiction/control_ids — the evidence
+> model references them (subsumes, not parallel). Before/after reachable via
+> `REFERENCED_ASSURANCE`. DPDP boundary obligations already exist (no new obligation
+> needed). Reference mapping = EU Art. 15 (`OBL-EUAI-015` → `CTL-ROBUST-01`, ISO 42001 + NIST).
+
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
 
 > Tracked so they aren't lost. Revisit on the noted trigger; none block KS-0202.

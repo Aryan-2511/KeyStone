@@ -815,6 +815,50 @@
         "tests/test_matrix_app.py::test_replay_of_an_incompatible_run_degrades_without_crashing",
         "tests/test_shell_app.py::test_shell_loads_and_runs_live_across_all_views"
       ]
+    },
+    {
+      "id": "KS-0607",
+      "title": "The Evidence Model — seam event AS compliance audit evidence (M2-01)",
+      "description": "Movement 2's architectural core (the analog of M1-01's framework): a typed EvidenceRelationship (keystone.convergence) binding a seam event to a named, EXISTING Layer-3 obligation, carrying the M2-00 §2 four-part rigor AS STRUCTURE so an inadmissible mapping cannot be constructed — (1) obligation (ObligationRef.from_obligation, built FROM the real core.obligations graph by id, NOT a parallel registry — subsumes L3), (2) requirement (the real control text), (3) reason (MANDATORY, non-empty — the anti-checklist guard, enforced at construction), and (4) a SATISFY/VIOLATE state DERIVED from the before/after assurance data (derive_state: VIOLATE while the attack succeeds, SATISFY once detected+blocked — a pure function of the numbers, never a static flag). The relationship carries BeforeAfter (built FROM REFERENCED_ASSURANCE 10->0, can't drift) and exposes BOTH pre_state (VIOLATE) + post_state (SATISFY) + the temporal transition. The boundary (EvidenceKind.NOT_EVIDENCED — 'this event does NOT evidence this obligation', reason still mandatory) is first-class, mirroring M1's BOUNDARY. The model names itself as defensible technical-compliance EVIDENCE REASONING, NOT a legal/certified verdict (EVIDENCE_DISCLAIMER, M2-00 §6). Proven by ONE reference mapping (P1 memo-injection × EU AI Act Art. 15, OBL-EUAI-015 / CTL-ROBUST-01 — VIOLATE->SATISFY); the other mappings are M2-02+. Edge logic over L3 + the matrix; the core stays unaware (import-linter KEPT). L3 untouched.",
+      "phase": "6 — Movement 2: Regulatory Convergence",
+      "layer": "Movement 2 — Convergence",
+      "area": "convergence",
+      "status": "done",
+      "depends_on": [
+        "KS-0606",
+        "KS-0201",
+        "KS-0202"
+      ],
+      "done_criteria": [
+        "the reference mapping constructs with all four parts (real cited obligation + requirement grounded in the control text + a specific mandatory reason + a satisfy/violate state), and SUBSUMES the existing L3 obligation (ObligationRef built from the loaded Obligation, not a parallel registry)",
+        "the satisfy/violate state is DERIVED from the before/after data, not asserted: changing the before/after numbers changes the derived state, and the mapping's numbers equal REFERENCED_ASSURANCE (can't drift); the relationship carries BOTH states + the VIOLATE->SATISFY transition",
+        "a reason is mandatory (constructing without one fails), the boundary (NOT_EVIDENCED) relationship is representable as a first-class outcome, and the 'not lawyers' framing is encoded; existing L3 stays green and unchanged in meaning"
+      ],
+      "tests": [
+        "tests/test_evidence_model.py::test_reference_mapping_has_all_four_parts",
+        "tests/test_evidence_model.py::test_reference_mapping_subsumes_the_existing_l3_obligation",
+        "tests/test_evidence_model.py::test_changing_the_before_after_numbers_changes_the_state",
+        "tests/test_evidence_model.py::test_mapping_carries_both_states_and_the_transition",
+        "tests/test_evidence_model.py::test_a_relationship_without_a_reason_is_inadmissible",
+        "tests/test_evidence_model.py::test_boundary_relationship_is_representable",
+        "tests/test_evidence_model.py::test_model_names_itself_as_evidence_reasoning_not_a_verdict"
+      ]
+    },
+    {
+      "id": "KS-0608",
+      "title": "The rigorous obligation mappings (M2-02)",
+      "description": "Each named §4 obligation's rigorous evidence relationship to the matrix, through the M2-01 evidence model — clearing the four-part bar with a before/after state: ISO 42001 (input-manipulation control), NIST AI RMF (semantic-threat modeling), RBI FREE-AI Sutra 1 (OBL-RBI-001, advisory), plus the DPDP data-protection BOUNDARY obligation (evidenced only by the P4 exfil class, NOT_EVIDENCED by fund-movement events). Narrow-and-deep: a few obligations each rigorously evidenced, spanning EU hard law + India advisory. No checklist breadth.",
+      "phase": "6 — Movement 2: Regulatory Convergence",
+      "layer": "Movement 2 — Convergence",
+      "area": "convergence",
+      "status": "planned",
+      "depends_on": [
+        "KS-0607"
+      ],
+      "done_criteria": [
+        "each named obligation (ISO 42001 / NIST AI RMF / RBI Sutra 1 + the DPDP boundary) has a rigorous EvidenceRelationship clearing the four-part bar with its before/after state, spanning both jurisdictions and both enforcement modalities; the DPDP boundary is a principled NOT_EVIDENCED"
+      ],
+      "tests": []
     }
   ]
 }

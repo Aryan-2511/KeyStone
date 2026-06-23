@@ -737,6 +737,30 @@
   `docs/assets/m1-06-matrix-hero.png`. To re-screenshot a hero offline: render
   `*_html(load_recorded_run())` to an HTML file and headless-Chrome `--screenshot` it
   (Streamlit's live page needs a websocket render that headless Chrome won't drive).
+- **M2-01 (KS-0607) = the Evidence Model — MOVEMENT 2's architectural core (the analog of
+  M1-01).** New EDGE package `keystone.convergence` (added to import-linter's
+  forbidden-for-core list). `EvidenceRelationship` (pydantic, frozen) binds a seam event
+  to a real obligation, carrying the M2-00 §2 four-part rigor AS STRUCTURE: `obligation`
+  (`ObligationRef.from_obligation` — built FROM the EXISTING `core.obligations` graph by
+  id, NOT a parallel registry — subsumes L3), `requirement` (the real control text),
+  `reason` (MANDATORY non-empty — the anti-checklist guard, enforced by a field_validator),
+  and a satisfy/violate `state` DERIVED (never asserted). **State derivation** (`derive_state`,
+  M2-00 §3): VIOLATE while the attack succeeds (`fails>0 or exploit_fired`), SATISFY only
+  when detected+blocked (`fails==0 and not exploit`) — a pure function of the numbers. The
+  relationship carries `BeforeAfter` (built FROM `REFERENCED_ASSURANCE` 10→0, can't drift)
+  and exposes BOTH `pre_state` (VIOLATE) + `post_state` (SATISFY) + the `transition` — the
+  temporal contribution. **Boundary is first-class:** `EvidenceKind.NOT_EVIDENCED` (no
+  before_after, no state, but reason still mandatory) expresses "this event does NOT
+  evidence this obligation" (e.g. DPDP ↔ fund-movement) — mirrors M1's BOUNDARY. **"Not
+  lawyers" encoded:** `EVIDENCE_DISCLAIMER` + the type docstring name it defensible
+  technical-compliance EVIDENCE REASONING, not a legal/certified verdict (M2-00 §6). **The
+  ONE reference mapping** (`keystone.convergence.mappings.REFERENCE_MAPPING`, the "P1 is
+  first instance" proof): P1 memo-injection × EU AI Act Art. 15 (`OBL-EUAI-015`, hard law)
+  via `CTL-ROBUST-01` (ISO 42001 Clause 8 + NIST MEASURE) — VIOLATE→SATISFY from 10→0. Only
+  ONE mapping built (M2-02+ adds the rest). **Recon (locked in `M2-00` §7a):** L3 obligation
+  shape (id/instrument/citation/modality/jurisdiction/control_ids), before/after reachable
+  via REFERENCED_ASSURANCE, DPDP boundary obligations already exist (`OBL-DPDPA-008` etc.).
+  L3 untouched (28 obligations + controls green).
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

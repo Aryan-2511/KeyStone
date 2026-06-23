@@ -161,7 +161,7 @@ root_package = "keystone"
 
 [[tool.importlinter.contracts]]
 # The contract name doubles as the failure message / remediation hint.
-name = "Deterministic core must not import the edge (agents/policy/llm/ui/assurance) — move shared logic into keystone.core or invert the dependency"
+name = "Deterministic core must not import the edge (agents/policy/llm/ui/assurance/convergence) — move shared logic into keystone.core or invert the dependency"
 type = "forbidden"
 source_modules = ["keystone.core"]
 forbidden_modules = [
@@ -170,4 +170,5 @@ forbidden_modules = [
     "keystone.llm",
     "keystone.ui",
     "keystone.assurance",
+    "keystone.convergence",
 ]

@@ -102,4 +102,19 @@ not hold.
 > **+ 1 BOUNDARY** (data-loss exfil), across two axes. See the figure at
 > [`docs/assets/m1-06-matrix-hero.png`](docs/assets/m1-06-matrix-hero.png).
 
+## Movement 2 — Regulatory Convergence
+
+(`KS-0607`–) — design contract: [`M2-00_CONVERGENCE_DESIGN.md`](M2-00_CONVERGENCE_DESIGN.md).
+Turn a seam event from *analogous* to a compliance failure into *being* the audit
+evidence that satisfies-or-violates a named, real obligation — grounded in real
+before/after data, across EU hard law + India advisory.
+
+- The **evidence model** — a typed relationship binding a seam event to an existing L3
+  obligation, with the four-part rigor as structure and a satisfy/violate state DERIVED
+  from before/after (violated pre-patch → satisfied post-patch). Proven by one reference
+  mapping (P1 × EU Art. 15). (`KS-0607` / M2-01)
+- The rigorous obligation mappings (§4: ISO 42001 / NIST AI RMF / RBI + the DPDP
+  boundary), each clearing the four-part bar. (`KS-0608` / M2-02)
+- The convergence result + UI — the loop made visible. (M2-0n)
+
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._
