@@ -140,8 +140,18 @@ the dashboard content survives as the KS-0503 supporting shell.)
       money → zero typologies fire → the seam provably does NOT bind. Principled (a
       property of the attack, not a missing detector) and build-protected. — M1-04 /
       KS-0604 (`keystone.assurance.seam_p4`; `tests/test_seam_p4.py`)
-- [ ] P5 — Excessive Agency / tool-misuse × unauthorized-recipient — **open** — M1-05 / KS-0605 (**next**)
-- [ ] The characterized-mapping result (the matrix table/figure) — M1-06
+- [x] **P5 — Excessive Agency / tool-misuse × unauthorized-recipient** — Axis B (beyond
+      injection, OWASP LLM08). Built via PATH A: a NEW minimal, INDEPENDENT recipient
+      screen (standing flagged-destination list in `core.fatf`) — the only new detector
+      in M1. Binds CLEAN as-found (honest caveat: the tool-call channel is synthetically
+      represented). — M1-05 / KS-0605 (`core.fatf.FLAGGED_DESTINATIONS`,
+      `keystone.assurance.seam_p5`; `tests/test_seam_p5.py`)
+- [ ] The characterized-mapping result (the matrix table/figure) — M1-06 / KS-0606 (**next**)
+
+> **The seam matrix is COMPLETE.** Final as-found distribution: **4 CLEAN** (P1
+> structuring, P2 rapid-movement, P3 large-transfer, P5 unauthorized-recipient) **+ 1
+> BOUNDARY** (P4 exfil). Two axes sampled: Axis A (one attack class → three typologies,
+> P1-P3) and Axis B (beyond injection — P4 boundary at LLM06, P5 clean at LLM08).
 
 > Step-0 recon (locked in `M1-00` §7a): the FATF engine already has **distinct**
 > structuring / rapid-movement / large-transfer detectors (P2/P3 are separable,
