@@ -130,8 +130,12 @@ the dashboard content survives as the KS-0503 supporting shell.)
       fires `RAPID_MOVEMENT` and NOT `STRUCTURING`, detector-distinct from P1. — M1-02 /
       KS-0602 (`keystone.assurance.seam_p2`, `core.transactions.rapid_sample_stream`;
       `tests/test_seam_p2.py`)
-- [ ] P3 — Prompt Injection × Large-transfer/threshold — M1-03 / KS-0603 (**next**)
-- [ ] P4 — Sensitive Information Disclosure × (none) — **the boundary** — M1-04
+- [x] **P3 — Prompt Injection × Large-transfer/threshold** — binds CLEAN through the
+      UNCHANGED framework; a single ≥$10k transfer fires `LARGE_TRANSFER` and NEITHER
+      other typology (the cleanly-exclusive pair). Completes Axis A (one attack class →
+      three distinct typologies). — M1-03 / KS-0603 (`keystone.assurance.seam_p3`,
+      `core.transactions.large_sample_stream`; `tests/test_seam_p3.py`)
+- [ ] P4 — Sensitive Information Disclosure × (none) — **the boundary** — M1-04 / KS-0604 (**next**)
 - [ ] P5 — Excessive Agency / tool-misuse × unauthorized-recipient — **open** — M1-05
 - [ ] The characterized-mapping result (the matrix table/figure) — M1-06
 

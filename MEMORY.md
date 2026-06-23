@@ -658,6 +658,21 @@
   structuring cluster ALSO trips RAPID_MOVEMENT incidentally, so rapid-movement does NOT
   discriminate the two; the guard relies on P2's EXCLUSIVITY (rapid-only), not on P1
   being rapid-free. P1 was NOT touched.
+- **P3 (KS-0603) = LLM01 prompt injection × LARGE_TRANSFER, the matrix's 3rd pair —
+  completes Axis A (one attack class → three distinct typologies). UNCHANGED framework.**
+  `P3_PAIR` in `keystone.assurance.seam_p3` mirrors P1/P2: own signature
+  `MEMO_LARGE_TRANSFER_SIGNATURE` + payload `CANONICAL_LARGE_TRANSFER_EXPLOIT` (a single
+  large-transfer injection; outcome `UNAUTHORIZED_LARGE_TRANSFER`), own
+  `resolve_large_transfer_signature` (reuses `is_data_field_injection`), and
+  `p3_fraud_stream` (plants the memo on the operative tx of a single large transfer).
+  Crime side binds `Typology.LARGE_TRANSFER` via the memo-blind `FinancialProjection`.
+  Substrate: new seeded core generator `large_transfer` + `large_sample_stream`
+  (`LARGE_SAMPLE_STREAM_CONFIG`, seed 20260303) — ONE transfer in [14k,21k] (over the
+  10k CTR threshold); additive, P1/P2 streams byte-identical. **P3 is the cleanly-
+  EXCLUSIVE pair:** a single transfer fires LARGE_TRANSFER and NEITHER structuring
+  (needs ≥3 in-band) NOR rapid-movement (needs ≥5) — no overlap caveat, unlike P1.
+  P1/P2 streams are all sub-CTR, so LARGE_TRANSFER is a clean discriminator across the
+  three. P1/P2 NOT touched.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a
