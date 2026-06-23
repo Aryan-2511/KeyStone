@@ -21,6 +21,10 @@ class Typology(enum.StrEnum):
     STRUCTURING = "STRUCTURING"
     RAPID_MOVEMENT = "RAPID_MOVEMENT"
     LARGE_TRANSFER = "LARGE_TRANSFER"
+    # KS-0605 (P5): a payment whose DESTINATION is on a standing flagged-destination
+    # list (sanctions-style screening). A new SIGNAL TYPE — list membership, not an
+    # intrinsic money pattern — but the same memo-blind, financial-signal-only contract.
+    UNAUTHORIZED_RECIPIENT = "UNAUTHORIZED_RECIPIENT"
 
 
 class Severity(enum.StrEnum):

@@ -692,6 +692,29 @@
   `SeamDriftError` ("boundary no longer holds"), exactly like CLEAN-pair drift. Do NOT
   force a weak positive — the clean negative IS the result (M1-00 §4). Framework
   UNCHANGED (the BOUNDARY structure existed from M1-01); P1-P3 untouched.
+- **P5 (KS-0605) = OWASP LLM08 tool-misuse × UNAUTHORIZED_RECIPIENT — Axis B (beyond
+  injection), built via PATH A. THE SEAM MATRIX IS NOW COMPLETE.** The ONLY new detector
+  in all of M1: a STANDING flagged-destination screen in `core.fatf` —
+  `FLAGGED_DESTINATIONS = {ACC-9001,9002,9003}` (fixed core data, attack-unaware, like a
+  sanctions list) + `_detect_unauthorized_recipient` (fires when a TRANSFER's
+  `recipient_account` is on the list; memo-blind, reads destination only). **Independence
+  argument (the key for P5):** the list is STANDING and attack-independent — proven by
+  `test_p5_screen_fires_on_the_destination_even_with_no_attack_present` (a payment to a
+  flagged dest with a benign memo STILL fires; the screen flags the destination on its
+  own terms, NOT because the attack named it). `P5_PAIR` in `keystone.assurance.seam_p5`:
+  attack = LLM08 (channel `TOOL_CALL`, `TOOL_MISUSE_SIGNATURE`, outcome
+  `UNAUTHORIZED_RECIPIENT_PAYMENT`); the operative payment carries a `[agent-tool-call]`
+  trace (`CANONICAL_TOOL_MISUSE_MEMO`) recognised by a BESPOKE marker check
+  (`resolve_tool_misuse_signature`), NOT `is_data_field_injection` (P5 is NOT an
+  injection). The P5 stream re-targets a benign transfer to a flagged dest at a moderate
+  sub-threshold amount → fires UNAUTHORIZED_RECIPIENT ONLY (distinct from the 3
+  fund-movement typologies). **AS-FOUND result: P5 binds CLEAN.** Honest caveat: the
+  tool-call channel is SYNTHETICALLY represented (no real tool-call surface in our
+  substrate → trace-in-memo + bespoke marker), so P5's attack-side is more synthetic than
+  P1-P3's reused injection detector — the CRIME side, however, is fully real/independent.
+  **Final matrix distribution: 4 CLEAN (P1 structuring, P2 rapid, P3 large, P5 recipient)
+  + 1 BOUNDARY (P4 exfil).** Core stays attack-unaware (the standing list is core data;
+  the edge references it to direct the payment). P1-P4 untouched.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

@@ -761,17 +761,47 @@
     },
     {
       "id": "KS-0605",
-      "title": "P5 — Excessive Agency / tool-misuse × unauthorized-recipient — THE OPEN ONE (M1-05)",
-      "description": "The seam matrix's OPEN pair (Axis B; OWASP LLM08 excessive agency / tool-misuse — the agent is induced to MISUSE a tool to pay a flagged/unauthorized recipient, a different mechanism than injection-into-memo). Detection is recipient-screening / unauthorized-destination (sanctions-style). Status genuinely OPEN: hypothesised CLEAN but reported as-found. DEPENDENCY (M1-00 §6/§7a recon): core.fatf has NO recipient/sanctions typology today — its typologies are all fund-MOVEMENT (structuring/rapid/large). So P5 needs either a new, well-bounded recipient-screening typology OR the documented §6 FALLBACK to a clean fourth injection×typology pair. Decide at M1-05 start. Expressed through the framework (TOOL_CALL channel + OPEN result already modelled); no framework change.",
+      "title": "P5 — Excessive Agency / tool-misuse × unauthorized-recipient (M1-05)",
+      "description": "The seam matrix's Axis-B pair (OWASP LLM08 excessive agency / tool-misuse — a DIFFERENT attack class than P1-P4's injection), built via PATH A (M1-00 §6). The ONLY new detection mechanism in all of Movement 1: a minimal, well-bounded, INDEPENDENT recipient screen in core.fatf — a STANDING flagged-destination list (FLAGGED_DESTINATIONS, fixed attack-unaware core data, sanctions-style) + _detect_unauthorized_recipient firing the UNAUTHORIZED_RECIPIENT typology when a transfer's DESTINATION is on the list (memo-blind; reads destination only — a new SIGNAL TYPE, list membership, not an intrinsic money pattern). P5_PAIR (keystone.assurance.seam_p5): the agent misuses its transfer tool to pay a flagged destination; the operative payment carries a [agent-tool-call] trace (TOOL_MISUSE_SIGNATURE, channel TOOL_CALL) recognised by a bespoke marker (NOT the injection detector — P5 is not an injection). Independence is proven: the screen fires on a flagged destination even with NO attack present (the standing list flags it on its own terms). As-found result: P5 binds CLEAN, with the honest caveat that the tool-call channel is synthetically represented (trace-in-memo) since the substrate has no separate tool-call surface — the crime side is fully real and independent. Core stays attack-unaware; no schema/UI change.",
+      "phase": "6 — Movement 1: the Seam Matrix",
+      "layer": "Movement 1 — Seam Matrix",
+      "area": "assurance",
+      "status": "done",
+      "depends_on": [
+        "KS-0601"
+      ],
+      "done_criteria": [
+        "P5 binds as-found (CLEAN) through the unchanged framework: the SAME payment id carries the tool-misuse signature AND is independently caught as UNAUTHORIZED_RECIPIENT (destination on the standing flagged list, memo-blind)",
+        "INDEPENDENCE is proven: the recipient screen fires on destination/list-membership ALONE and the flagged list is STANDING (attack-independent) — a payment to a flagged destination with NO attack present still fires; the framework REGISTERED_PAIRS independence test covers P5",
+        "the new UNAUTHORIZED_RECIPIENT typology is well-bounded (a fixed standing list + a membership check, no fuzzy matching/feed) and distinct from the three fund-movement typologies; drift raises SeamDriftError; P1-P4 and all prior tests stay green, untouched"
+      ],
+      "tests": [
+        "tests/test_seam_p5.py::test_p5_one_payment_is_both_financial_crime_and_ai_vulnerability",
+        "tests/test_seam_p5.py::test_p5_attack_is_excessive_agency_not_injection",
+        "tests/test_seam_p5.py::test_p5_screen_fires_on_the_destination_even_with_no_attack_present",
+        "tests/test_seam_p5.py::test_p5_pattern_fires_unauthorized_recipient_only",
+        "tests/test_seam_p5.py::test_p5_fails_loud_if_tool_trace_stops_resolving",
+        "tests/test_fatf.py::test_unauthorized_recipient_fires_on_a_flagged_destination",
+        "tests/test_seam_framework.py::test_detector_never_receives_the_attack_channel"
+      ]
+    },
+    {
+      "id": "KS-0606",
+      "title": "The characterized-mapping RESULT — the seam matrix table/figure (M1-06)",
+      "description": "Movement 1's central result + the demo's 'it's a law' moment: the completed seam matrix as a table/figure with the result distribution and boundary analysis. The matrix is COMPLETE (P1-P5 built): 4 CLEAN (P1 structuring / P2 rapid-movement / P3 large-transfer / P5 unauthorized-recipient) + 1 BOUNDARY (P4 exfil), across two axes (Axis A: one attack class -> three typologies; Axis B: beyond injection — the P4 boundary at LLM06 and the P5 clean at LLM08). Surfaces the existing REGISTERED_PAIRS + per-pair bindings into a typed result view / figure; the paper's characterized-mapping artifact. RunResult/UI surface lands here (deferred from M1-01..05).",
       "phase": "6 — Movement 1: the Seam Matrix",
       "layer": "Movement 1 — Seam Matrix",
       "area": "assurance",
       "status": "planned",
       "depends_on": [
-        "KS-0601"
+        "KS-0601",
+        "KS-0602",
+        "KS-0603",
+        "KS-0604",
+        "KS-0605"
       ],
       "done_criteria": [
-        "P5 is expressed through the framework and its outcome reported as-found: either it binds (a recipient/unauthorized-destination signal independently flags the attack's recipient, memo/channel-blind) OR the M1-00 §6 fallback is taken (a clean fourth injection×typology pair), with the decision and rationale recorded"
+        "the completed matrix (all five pairs + their CLEAN/BOUNDARY results) is surfaced as a single characterized-mapping result (table/figure) with the result distribution and the P4 boundary analysis, derived from REGISTERED_PAIRS (one source of truth)"
       ],
       "tests": []
     }

@@ -35,6 +35,14 @@ LEDGER_AGENT = "fatf-monitor"
 LEDGER_LAYER = "L1"
 LEDGER_ACTION = "fatf_finding"
 
+# A STANDING flagged-destination list (KS-0605) — sanctions-style recipient screening.
+# This is fixed core data that exists INDEPENDENTLY of any attack: the screen flags a
+# payment because its destination is on this list, exactly as a real sanctions screen
+# would, never because some attack named the recipient. Synthetic, minimal (a small
+# fixed set in a dedicated ACC-9xxx range, disjoint from the normal account pool) — NOT
+# a real feed, NOT fuzzy matching, NOT entity resolution. Just membership.
+FLAGGED_DESTINATIONS: frozenset[str] = frozenset({"ACC-9001", "ACC-9002", "ACC-9003"})
+
 
 @dataclass(frozen=True)
 class FatfThresholds:
@@ -182,6 +190,42 @@ def _detect_large_transfer(
     return findings
 
 
+def _detect_unauthorized_recipient(
+    transactions: Sequence[Transaction],
+    flagged: frozenset[str] = FLAGGED_DESTINATIONS,
+) -> list[Finding]:
+    """Flag transfers whose DESTINATION is on the standing flagged-destination list.
+
+    Memo-blind: reads the recipient account (a financial signal) and checks membership
+    of the STANDING `flagged` list — never any attack channel, never why the payment was
+    made. Sanctions-style screening: a new SIGNAL TYPE (list membership) distinct from
+    the intrinsic-pattern typologies above.
+    """
+    findings: list[Finding] = []
+    for txn in transactions:
+        if txn.tx_type is TransactionType.TRANSFER and txn.recipient_account in flagged:
+            findings.append(
+                Finding(
+                    typology=Typology.UNAUTHORIZED_RECIPIENT,
+                    severity=Severity.HIGH,
+                    account=txn.sender_account,
+                    transaction_ids=(txn.id,),
+                    signal={
+                        "recipient_account": txn.recipient_account,
+                        "amount": txn.amount,
+                        "flagged_list_size": len(flagged),
+                    },
+                    rationale=(
+                        f"Transfer from {txn.sender_account} to "
+                        f"{txn.recipient_account}, which is on the standing "
+                        "flagged-destination (sanctions-style) screening list — "
+                        "unauthorized / prohibited recipient."
+                    ),
+                )
+            )
+    return findings
+
+
 def detect(
     transactions: Sequence[Transaction], thresholds: FatfThresholds = DEFAULT_THRESHOLDS
 ) -> list[Finding]:
@@ -193,6 +237,7 @@ def detect(
         *_detect_structuring(transactions, thresholds),
         *_detect_rapid_movement(transactions, thresholds),
         *_detect_large_transfer(transactions, thresholds),
+        *_detect_unauthorized_recipient(transactions),
     ]
     return sorted(findings, key=lambda f: (f.typology.value, f.account))
 

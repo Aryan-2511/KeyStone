@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from .engine import (
     DEFAULT_THRESHOLDS,
+    FLAGGED_DESTINATIONS,
     LEDGER_ACTION,
     LEDGER_AGENT,
     LEDGER_LAYER,
@@ -22,6 +23,7 @@ from .models import Finding, Severity, Typology
 
 __all__ = [
     "DEFAULT_THRESHOLDS",
+    "FLAGGED_DESTINATIONS",
     "LEDGER_ACTION",
     "LEDGER_AGENT",
     "LEDGER_LAYER",

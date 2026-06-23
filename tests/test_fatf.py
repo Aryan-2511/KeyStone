@@ -14,6 +14,7 @@ from pathlib import Path
 
 from keystone.core.fatf import (
     DEFAULT_THRESHOLDS,
+    FLAGGED_DESTINATIONS,
     LEDGER_ACTION,
     LEDGER_AGENT,
     FatfThresholds,
@@ -168,3 +169,36 @@ def test_thresholds_are_configurable() -> None:
     strict = FatfThresholds(structuring_band_floor=9_900.0)
     findings = detect(sample_stream(), strict)
     assert not any(f.typology is Typology.STRUCTURING for f in findings)
+
+
+# --- unauthorized-recipient screening (KS-0605, the standing flagged list) ------
+
+
+def test_unauthorized_recipient_fires_on_a_flagged_destination() -> None:
+    flagged = sorted(FLAGGED_DESTINATIONS)[0]
+    to_flagged = _txn(1, 2_500.0, minute=0).model_copy(
+        update={"recipient_account": flagged}
+    )
+    findings = detect([to_flagged])
+    recipient = [f for f in findings if f.typology is Typology.UNAUTHORIZED_RECIPIENT]
+    assert len(recipient) == 1
+    assert recipient[0].transaction_ids == ("TXN-000001",)
+    assert recipient[0].signal["recipient_account"] == flagged
+    assert recipient[0].severity is Severity.HIGH
+
+
+def test_unauthorized_recipient_does_not_fire_on_a_normal_destination() -> None:
+    # _txn pays ACC-0009 (a normal account, not on the standing list) -> no finding.
+    assert not any(
+        f.typology is Typology.UNAUTHORIZED_RECIPIENT
+        for f in detect([_txn(1, 2_500.0, minute=0)])
+    )
+
+
+def test_unauthorized_recipient_is_memo_blind() -> None:
+    flagged = sorted(FLAGGED_DESTINATIONS)[0]
+    base = _txn(1, 2_500.0, minute=0).model_copy(update={"recipient_account": flagged})
+    filled = base.model_copy(
+        update={"memo": "totally legitimate, definitely not fraud"}
+    )
+    assert detect([base]) == detect([filled])
