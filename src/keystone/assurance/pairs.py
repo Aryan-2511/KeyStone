@@ -10,5 +10,6 @@ from __future__ import annotations
 
 from .framework import SeamPair
 from .seam import P1_PAIR
+from .seam_p2 import P2_PAIR
 
-REGISTERED_PAIRS: tuple[SeamPair, ...] = (P1_PAIR,)
+REGISTERED_PAIRS: tuple[SeamPair, ...] = (P1_PAIR, P2_PAIR)

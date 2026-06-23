@@ -65,8 +65,15 @@ from .seam import (
     resolve_signature,
     seam_fraud_stream,
 )
+from .seam_p2 import (
+    P2_PAIR,
+    p2_fraud_stream,
+    resolve_forwarding_signature,
+)
 from .signature import (
+    CANONICAL_FORWARDING_EXPLOIT,
     CANONICAL_MEMO_EXPLOIT,
+    MEMO_FORWARDING_SIGNATURE,
     MEMO_INJECTION_SIGNATURE,
     ExploitOutcome,
     InjectionField,
@@ -77,13 +84,16 @@ from .signature import (
 
 __all__ = [
     "AGENT_NAME",
+    "CANONICAL_FORWARDING_EXPLOIT",
     "CANONICAL_MEMO_EXPLOIT",
     "CURATED_PROBES",
     "FAMILY_MAPPINGS",
     "LAYER",
     "LEDGER_ACTION",
+    "MEMO_FORWARDING_SIGNATURE",
     "MEMO_INJECTION_SIGNATURE",
     "P1_PAIR",
+    "P2_PAIR",
     "PINNED_GARAK_VERSION",
     "REFERENCED_ASSURANCE",
     "REGISTERED_PAIRS",
@@ -121,10 +131,12 @@ __all__ = [
     "financial_projection_for",
     "found_our_vulnerability",
     "map_finding",
+    "p2_fraud_stream",
     "parse_report",
     "project_financial",
     "prove_seam",
     "record_finding",
+    "resolve_forwarding_signature",
     "resolve_signature",
     "run_agent",
     "run_scan",
