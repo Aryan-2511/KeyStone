@@ -712,7 +712,32 @@
     {
       "id": "KS-0603",
       "title": "P3 — Prompt Injection × Large-transfer/threshold (M1-03)",
-      "description": "The seam matrix's third pair through the framework, completing Axis-A breadth (small-many / fast-onward / single-large): a memo-borne prompt injection whose instruction drives a SINGLE threshold-breaching transfer, caught independently by the FATF large-transfer/threshold typology (LARGE_TRANSFER) on amount alone — the AML side never reads the memo. Expressed as a SeamPair bound by the same framework bind(); its pattern must fire LARGE_TRANSFER and be distinct from P1/P2 (a single >=CTR-threshold transfer, not a sub-threshold band or fast fan-out). No new framework, no schema/UI change.",
+      "description": "The seam matrix's third pair through the UNCHANGED M1-01 framework, completing Axis A (one attack class — OWASP LLM01 — manifesting as THREE distinct FATF typologies: small-many / fast-onward / single-large). A memo-borne prompt injection (CANONICAL_LARGE_TRANSFER_EXPLOIT -> MEMO_LARGE_TRANSFER_SIGNATURE) instructs a SINGLE threshold-breaching transfer, caught independently by the FATF large-transfer/threshold typology (LARGE_TRANSFER) on AMOUNT alone — the AML side never reads the memo (inherited FinancialProjection independence). P3_PAIR (keystone.assurance.seam_p3) mirrors P1/P2 and registers in REGISTERED_PAIRS, inheriting bind()'s three rigor mechanisms — no new framework machinery. Substrate: a new seeded core generator (large_transfer / large_sample_stream) emitting one transfer in [14k,21k] over the 10k CTR threshold; additive, so P1/P2 streams stay byte-identical. P3 is the cleanly-EXCLUSIVE pair: a single transfer fires LARGE_TRANSFER and NEITHER structuring (needs >=3 in-band) nor rapid-movement (needs >=5 velocity). Core+assurance only; no schema/UI change.",
+      "phase": "6 — Movement 1: the Seam Matrix",
+      "layer": "Movement 1 — Seam Matrix",
+      "area": "assurance",
+      "status": "done",
+      "depends_on": [
+        "KS-0601"
+      ],
+      "done_criteria": [
+        "P3 binds CLEAN through the UNCHANGED framework: the SAME transaction id carries the P3 large-transfer signature AND is independently caught as LARGE_TRANSFER (memo-blind, on amount) — the strong shared-transaction-id assertion mirrored from P1/P2",
+        "the distinctness guard holds in full: P3's pattern fires LARGE_TRANSFER and NEITHER structuring nor rapid-movement (the cleanly-exclusive single-typology pair, no overlap caveat)",
+        "P3 inherits the framework's independence property and build-failing drift assertion; P1, P2, and all prior tests stay green, untouched"
+      ],
+      "tests": [
+        "tests/test_seam_p3.py::test_p3_one_transaction_is_both_financial_crime_and_ai_vulnerability",
+        "tests/test_seam_p3.py::test_p3_memo_is_the_canonical_exploit_literal",
+        "tests/test_seam_p3.py::test_p3_fatf_catches_the_seam_regardless_of_memo",
+        "tests/test_seam_p3.py::test_p3_pattern_fires_large_transfer_only",
+        "tests/test_seam_p3.py::test_p3_fails_loud_if_memo_stops_resolving",
+        "tests/test_seam_framework.py::test_detector_never_receives_the_attack_channel"
+      ]
+    },
+    {
+      "id": "KS-0604",
+      "title": "P4 — Sensitive Information Disclosure × (none) — THE BOUNDARY (M1-04)",
+      "description": "The characterized BOUNDARY of the seam matrix (Axis B; OWASP LLM06): an exfil/data-loss attack that leaks another party's data and moves NO money — so NO transaction-monitoring typology can fire, and the seam provably does NOT bind. Expressed as a SeamPair with result=BOUNDARY through the framework's existing boundary support: bind() asserts the crime detector fires ZERO typologies; the negative IS the result, stated and tested (not an error). Do NOT force a weak positive binding — the clean negative is P4's whole value (the paper's limitations section: the seam covers fund-movement attacks, not data-loss). No new framework, no schema/UI change.",
       "phase": "6 — Movement 1: the Seam Matrix",
       "layer": "Movement 1 — Seam Matrix",
       "area": "assurance",
@@ -721,7 +746,7 @@
         "KS-0601"
       ],
       "done_criteria": [
-        "P3 binds CLEAN through the framework: the large-transfer typology independently implicates the operative transaction on amount alone, on a single threshold-breaching transfer distinct from P1's structuring band and P2's rapid fan-out"
+        "P4 is represented as a BOUNDARY pair through the framework and binds as a proven NEGATIVE: the crime detector fires ZERO typologies on the exfil attack, asserted by test (the negative is the result, not a forced positive)"
       ],
       "tests": []
     }

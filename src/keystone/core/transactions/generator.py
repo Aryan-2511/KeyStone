@@ -35,6 +35,13 @@ RAPID_MIN_COUNT = 6
 RAPID_AMOUNT_FLOOR = 1_000.0
 RAPID_AMOUNT_CEIL = 4_000.0
 
+# Large-transfer (the P3 seam pattern, KS-0603). A SINGLE transfer at/over the CTR
+# reporting threshold — independently suspicious as LARGE_TRANSFER on amount alone, a
+# distinct shape from structuring (a sub-threshold band) and rapid-movement (fast
+# fan-out). Floor sits clearly OVER `STRUCTURING_THRESHOLD` so it breaches the threshold.
+LARGE_TRANSFER_FLOOR = 14_000.0
+LARGE_TRANSFER_CEIL = 21_000.0
+
 # Fixed epoch so streams are reproducible (never `datetime.now`).
 _EPOCH = datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC)
 
@@ -60,6 +67,7 @@ class StreamConfig:
     account_pool: int = 25
     structuring_clusters: int = 0
     rapid_clusters: int = 0
+    large_transfers: int = 0
     currency: Currency = Currency.USD
     start: datetime.datetime = _EPOCH
 
@@ -171,12 +179,37 @@ def rapid_movement_cluster(
     return rows
 
 
+def large_transfer(
+    rng: random.Random, accounts: list[str], start: datetime.datetime
+) -> list[_Raw]:
+    """One large-transfer event (FATF threshold breach).
+
+    A SINGLE transfer at/over the CTR reporting threshold — independently suspicious as
+    LARGE_TRANSFER on AMOUNT alone. A clean, distinct shape: one transfer (so it cannot
+    trip structuring's `>= 3` band or rapid-movement's `>= 5` velocity rule). No memo
+    content required.
+    """
+    sender, recipient = rng.sample(accounts, 2)
+    clock = start + datetime.timedelta(minutes=rng.randint(1, 30))
+    return [
+        _Raw(
+            timestamp=clock,
+            sender=sender,
+            recipient=recipient,
+            amount=round(rng.uniform(LARGE_TRANSFER_FLOOR, LARGE_TRANSFER_CEIL), 2),
+            tx_type=TransactionType.TRANSFER,
+            memo=rng.choice(_BENIGN_MEMOS),
+        )
+    ]
+
+
 def generate_stream(config: StreamConfig | None = None) -> list[Transaction]:
     """Generate a reproducible stream: same config → byte-identical Transactions.
 
     Produces `normal_count` ordinary transactions plus `structuring_clusters` seeded
-    structuring clusters and `rapid_clusters` seeded rapid-movement clusters, then
-    orders by timestamp and assigns stable ids.
+    structuring clusters, `rapid_clusters` seeded rapid-movement clusters, and
+    `large_transfers` seeded single threshold-breaching transfers, then orders by
+    timestamp and assigns stable ids.
     """
     cfg = config or StreamConfig()
     # Synthetic data MUST be seed-reproducible (a CSPRNG can't be); not security.
@@ -190,6 +223,9 @@ def generate_stream(config: StreamConfig | None = None) -> list[Transaction]:
     for index in range(cfg.rapid_clusters):
         cluster_start = cfg.start + datetime.timedelta(days=10 + index)
         rows += rapid_movement_cluster(rng, accounts, cluster_start)
+    for index in range(cfg.large_transfers):
+        event_start = cfg.start + datetime.timedelta(days=20 + index)
+        rows += large_transfer(rng, accounts, event_start)
 
     rows.sort(key=lambda r: (r.timestamp, r.sender, r.recipient))
     return [
@@ -220,6 +256,12 @@ RAPID_SAMPLE_STREAM_CONFIG = StreamConfig(
     seed=20260202, normal_count=30, rapid_clusters=1
 )
 
+# The P3 (KS-0603) fixture: normal traffic + one single threshold-breaching transfer.
+# Its own seed/config so the large-transfer event is a reproducible stream of its own.
+LARGE_SAMPLE_STREAM_CONFIG = StreamConfig(
+    seed=20260303, normal_count=30, large_transfers=1
+)
+
 
 def sample_stream() -> list[Transaction]:
     """The deterministic Layer-1 sample stream (normal + one structuring cluster)."""
@@ -231,7 +273,15 @@ def rapid_sample_stream() -> list[Transaction]:
     return generate_stream(RAPID_SAMPLE_STREAM_CONFIG)
 
 
+def large_sample_stream() -> list[Transaction]:
+    """The deterministic P3 sample stream (normal + one large threshold-breaching transfer)."""
+    return generate_stream(LARGE_SAMPLE_STREAM_CONFIG)
+
+
 __all__ = [
+    "LARGE_SAMPLE_STREAM_CONFIG",
+    "LARGE_TRANSFER_CEIL",
+    "LARGE_TRANSFER_FLOOR",
     "RAPID_AMOUNT_CEIL",
     "RAPID_AMOUNT_FLOOR",
     "RAPID_MIN_COUNT",
@@ -241,6 +291,8 @@ __all__ = [
     "STRUCTURING_THRESHOLD",
     "StreamConfig",
     "generate_stream",
+    "large_sample_stream",
+    "large_transfer",
     "rapid_movement_cluster",
     "rapid_sample_stream",
     "sample_stream",
