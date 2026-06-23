@@ -636,7 +636,7 @@
         "the recorded run is the shell's safe default data source (works if you forget to flip it)"
       ],
       "tests": [
-        "tests/test_offline_fallback.py::test_recorded_run_exists_is_v3_and_chain_valid",
+        "tests/test_offline_fallback.py::test_recorded_run_exists_is_current_version_and_chain_valid",
         "tests/test_offline_fallback.py::test_recorded_run_is_a_genuine_build_not_hand_edited",
         "tests/test_offline_fallback.py::test_replay_renders_all_five_views_with_NO_network",
         "tests/test_offline_fallback.py::test_recorded_run_is_the_default_replay_source",
@@ -788,22 +788,33 @@
     {
       "id": "KS-0606",
       "title": "The characterized-mapping RESULT — the seam matrix table/figure (M1-06)",
-      "description": "Movement 1's central result + the demo's 'it's a law' moment: the completed seam matrix as a table/figure with the result distribution and boundary analysis. The matrix is COMPLETE (P1-P5 built): 4 CLEAN (P1 structuring / P2 rapid-movement / P3 large-transfer / P5 unauthorized-recipient) + 1 BOUNDARY (P4 exfil), across two axes (Axis A: one attack class -> three typologies; Axis B: beyond injection — the P4 boundary at LLM06 and the P5 clean at LLM08). Surfaces the existing REGISTERED_PAIRS + per-pair bindings into a typed result view / figure; the paper's characterized-mapping artifact. RunResult/UI surface lands here (deferred from M1-01..05).",
+      "description": "Movement 1's central result + the demo's 'it's a law' moment: the completed seam matrix surfaced as a RESULT — a typed `matrix` block on the RunResult (schema v4, DERIVED from REGISTERED_PAIRS, nothing hardcoded) and a third hero screen (keystone.ui.matrix_screen / matrix_app). The matrix block carries per pair the attack (OWASP id + plain name), the FATF typology (plain label or None for the boundary), the result, and the axis grouping (A vary typology / B vary attack class), plus the distribution (4 CLEAN + 1 BOUNDARY), the BOUNDARY_STATEMENT, and the one independence property the framework carries. The hero is a CONVERGENCE figure (sibling of the seam hero): five attacks flow through ONE central framework element (which states independence once) out to their results; the axis grouping is visual (anti-cherry-pick sampling); P4 the boundary gets equal weight + a distinct dashed treatment, terminating in an explicit proven result, never an empty slot. Caveats (P1 rapid-movement overlap; P5's synthetic tool-call channel) are reachable detail in the shell, off the hero. Schema v4 migration kept every replay path green (seam / jurisdiction / shell, live + replay; recorded_run.json regenerated). The matrix plugs into the shell as a third hero. AppTest gates the app (live + replay + forced-break). Composition only — no new detection capability; completes the Seam Matrix.",
       "phase": "6 — Movement 1: the Seam Matrix",
       "layer": "Movement 1 — Seam Matrix",
-      "area": "assurance",
-      "status": "planned",
+      "area": "demo",
+      "status": "done",
       "depends_on": [
         "KS-0601",
         "KS-0602",
         "KS-0603",
         "KS-0604",
-        "KS-0605"
+        "KS-0605",
+        "KS-0500"
       ],
       "done_criteria": [
-        "the completed matrix (all five pairs + their CLEAN/BOUNDARY results) is surfaced as a single characterized-mapping result (table/figure) with the result distribution and the P4 boundary analysis, derived from REGISTERED_PAIRS (one source of truth)"
+        "the completed matrix (all five pairs + their CLEAN/BOUNDARY results, the distribution, the boundary statement, the independence property) is surfaced as a typed `matrix` block on the RunResult, DERIVED from REGISTERED_PAIRS (add a pair -> it appears; nothing hardcoded), at schema v4 with every replay path migrated and green",
+        "a third hero screen renders the matrix as a convergence figure from the RunResult matrix block (five attacks -> one framework -> results), with the axis grouping visual and P4 rendered as a DELIBERATE boundary result (distinct dashed treatment + the boundary statement), never an empty/missing slot; the caveats live as reachable shell detail off the hero",
+        "the matrix app is gated by an AppTest (live + replay, catches a forced break) and is hosted in the shell as a third hero; make check / make verify green with mypy strict / Ruff / import-linter clean"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_demo_run_result.py::test_matrix_block_is_derived_from_registered_pairs",
+        "tests/test_matrix_screen.py::test_matrix_renders_the_real_matrix_values",
+        "tests/test_matrix_screen.py::test_matrix_is_derived_from_the_run_not_hardcoded",
+        "tests/test_matrix_screen.py::test_boundary_pair_renders_as_a_deliberate_result_not_empty",
+        "tests/test_matrix_app.py::test_app_loads_and_runs_without_exception",
+        "tests/test_matrix_app.py::test_replay_of_an_incompatible_run_degrades_without_crashing",
+        "tests/test_shell_app.py::test_shell_loads_and_runs_live_across_all_views"
+      ]
     }
   ]
 }

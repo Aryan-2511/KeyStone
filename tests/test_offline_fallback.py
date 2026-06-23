@@ -3,7 +3,7 @@
 The whole point of this task: the committed recorded run replays through the real UI
 with ZERO network and ZERO Ollama/GPU, indistinguishable from a live run. These tests
 PROVE the replay path is offline (sockets blocked → still renders all five views), and
-that the recording is a genuine, version-clean, chain-valid v3 run.
+that the recording is a genuine, version-clean, chain-valid run at the current schema.
 """
 
 from __future__ import annotations
@@ -24,10 +24,10 @@ from keystone.ui.seam_screen import seam_svg
 from keystone.ui.shell_screens import before_after_svg, ledger_svg, posture_svg
 
 
-def test_recorded_run_exists_is_v3_and_chain_valid() -> None:
+def test_recorded_run_exists_is_current_version_and_chain_valid() -> None:
     assert recorded_run_path().is_file()
     rr = load_recorded_run()
-    assert rr.schema_version == RUN_RESULT_SCHEMA_VERSION == 3
+    assert rr.schema_version == RUN_RESULT_SCHEMA_VERSION == 4
     # The recording re-verifies its own hash chain offline — tamper-evident evidence.
     assert rr.arc.chain_verified is True
     assert rr.arc.arc_complete is True

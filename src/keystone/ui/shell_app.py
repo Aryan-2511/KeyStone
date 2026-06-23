@@ -27,9 +27,14 @@ from keystone.demo import (
 )
 from keystone.ui import shell_screens as views
 from keystone.ui.jurisdiction_screen import JURISDICTION_HEIGHT_PX, jurisdiction_html
+from keystone.ui.matrix_screen import MATRIX_CAVEATS, MATRIX_HEIGHT_PX, matrix_html
 from keystone.ui.seam_screen import SEAM_HEIGHT_PX, seam_html
 
-# label -> (html builder from a RunResult, iframe height). The first two HOST the
+# The matrix view's label — when it's selected, the shell surfaces the honest caveats
+# as reachable detail (off the hero, so it stays clean).
+_MATRIX_VIEW = "③ The seam matrix — five attacks, one law"
+
+# label -> (html builder from a RunResult, iframe height). The first three HOST the
 # heroes verbatim; the rest are the supporting views.
 _VIEWS: dict[str, tuple[Callable[[RunResult | None], str], int]] = {
     "① Seam — one event, two failures": (seam_html, SEAM_HEIGHT_PX),
@@ -37,15 +42,16 @@ _VIEWS: dict[str, tuple[Callable[[RunResult | None], str], int]] = {
         jurisdiction_html,
         JURISDICTION_HEIGHT_PX,
     ),
-    "③ Evidence ledger": (
+    _MATRIX_VIEW: (matrix_html, MATRIX_HEIGHT_PX),
+    "④ Evidence ledger": (
         lambda r: views.view_html(views.ledger_svg(r)),
         views.LEDGER_HEIGHT_PX,
     ),
-    "④ Cross-layer posture": (
+    "⑤ Cross-layer posture": (
         lambda r: views.view_html(views.posture_svg(r)),
         views.POSTURE_HEIGHT_PX,
     ),
-    "⑤ Assurance before / after": (
+    "⑥ Assurance before / after": (
         lambda r: views.view_html(views.before_after_svg(r)),
         views.BEFORE_AFTER_HEIGHT_PX,
     ),
@@ -91,6 +97,12 @@ def render() -> None:
 
     build_html, height = _VIEWS[view]
     components.html(build_html(result), height=height, scrolling=False)
+
+    # The matrix hero stays clean; its honest caveats live here as reachable detail.
+    if view == _MATRIX_VIEW:
+        with st.expander("Honest caveats — the matrix's fine print"):
+            for caveat in MATRIX_CAVEATS:
+                st.markdown(f"- {caveat}")
 
 
 if __name__ == "__main__":

@@ -15,9 +15,11 @@ from pathlib import Path
 import pytest
 
 from keystone.assurance import (
+    BOUNDARY_STATEMENT,
     FAMILY_MAPPINGS,
     MEMO_INJECTION_SIGNATURE,
     REFERENCED_ASSURANCE,
+    REGISTERED_PAIRS,
 )
 from keystone.assurance.layer1_milestone import ARC
 from keystone.assurance.signature import CANONICAL_MEMO_EXPLOIT
@@ -118,6 +120,36 @@ def test_assurance_before_after_is_the_referenced_canonical_result(
     assert a.exploit_before is True and a.exploit_after is False
     assert a.remediated is True
     assert a.prompt_cap == REFERENCED_ASSURANCE.prompt_cap
+
+
+# --- the characterized seam-matrix block (M1-06) ------------------------------
+
+
+def test_matrix_block_is_derived_from_registered_pairs(tmp_path: Path) -> None:
+    matrix = _run(tmp_path).matrix
+
+    # One row per registered pair, in order — derived, nothing hardcoded.
+    assert tuple(p.pair_id for p in matrix.pairs) == tuple(
+        p.pair_id for p in REGISTERED_PAIRS
+    )
+    # Each row mirrors its SeamPair's declared mapping.
+    for row, pair in zip(matrix.pairs, REGISTERED_PAIRS, strict=True):
+        assert row.attack_owasp_id == pair.attack.owasp_id
+        assert row.attack_name == pair.attack.name
+        assert row.result == pair.result.value.upper()
+        expected_typ = pair.crime.typology.value if pair.crime.typology else None
+        assert row.typology == expected_typ
+        # Axis A holds the attack class (LLM01); Axis B varies it.
+        assert row.axis == ("A" if pair.attack.owasp_id == "LLM01" else "B")
+
+    # The result distribution + the boundary statement (the paper's figure).
+    assert matrix.clean_count == sum(1 for p in matrix.pairs if p.result == "CLEAN")
+    assert matrix.boundary_count == sum(
+        1 for p in matrix.pairs if p.result == "BOUNDARY"
+    )
+    assert matrix.clean_count == 4 and matrix.boundary_count == 1
+    assert matrix.boundary_statement == BOUNDARY_STATEMENT
+    assert matrix.independence_property  # the framework's one independence line
 
 
 def test_arc_is_whole_ordered_and_chain_valid(tmp_path: Path) -> None:

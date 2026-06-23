@@ -51,6 +51,7 @@ from keystone.core.reporting import (
 )
 from keystone.llm.report_narrative import GuardedNarrative
 
+from .matrix import build_matrix_view
 from .run_result import (
     RUN_RESULT_SCHEMA_VERSION,
     AiSecurityView,
@@ -223,6 +224,7 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
             chain_verified=ledger.verify_chain(),
             entries=tuple(entries),
         ),
+        matrix=build_matrix_view(),
     )
 
 

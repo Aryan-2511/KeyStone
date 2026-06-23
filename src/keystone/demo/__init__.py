@@ -8,11 +8,14 @@ imports this layer (import-linter KEPT).
 
 from __future__ import annotations
 
+from .matrix import build_matrix_view
 from .run_result import (
     RUN_RESULT_SCHEMA_VERSION,
     AiSecurityView,
     ArcView,
     FinancialCrimeView,
+    MatrixPairView,
+    MatrixView,
     RegulatoryMappingView,
     ReportView,
     RunResult,
@@ -38,12 +41,15 @@ __all__ = [
     "AiSecurityView",
     "ArcView",
     "FinancialCrimeView",
+    "MatrixPairView",
+    "MatrixView",
     "RegulatoryMappingView",
     "ReportView",
     "RunResult",
     "RunResultError",
     "SeamBindingView",
     "SeamTransactionView",
+    "build_matrix_view",
     "build_run_result",
     "load_recorded_run",
     "load_run_result",

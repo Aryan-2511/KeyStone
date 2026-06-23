@@ -92,7 +92,14 @@ not hold.
 - P2 rapid-movement, P3 large-transfer through the framework. (`KS-0602`+ / M1-02–03)
 - P4 — the characterized **boundary** (data-loss moves no money → no typology
   fires; the negative is the result). (M1-04)
-- P5 — the **open** pair (tool-misuse → recipient screening; report as-found). (M1-05)
-- The characterized-mapping result — the matrix as a table/figure. (M1-06)
+- P5 — the **open** pair (tool-misuse → recipient screening; reported CLEAN as-found,
+  via a new standing recipient screen). (M1-05)
+- The characterized-mapping result — the matrix as a RESULT (a `matrix` block on the
+  RunResult + the third hero, a convergence figure). (M1-06)
+
+> **Movement 1 is COMPLETE** (`KS-0601`–`KS-0606`). The characterized mapping:
+> **4 CLEAN** (structuring / rapid-movement / large-transfer / unauthorized-recipient)
+> **+ 1 BOUNDARY** (data-loss exfil), across two axes. See the figure at
+> [`docs/assets/m1-06-matrix-hero.png`](docs/assets/m1-06-matrix-hero.png).
 
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._
