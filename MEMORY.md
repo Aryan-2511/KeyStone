@@ -715,6 +715,28 @@
   **Final matrix distribution: 4 CLEAN (P1 structuring, P2 rapid, P3 large, P5 recipient)
   + 1 BOUNDARY (P4 exfil).** Core stays attack-unaware (the standing list is core data;
   the edge references it to direct the payment). P1-P4 untouched.
+- **M1-06 (KS-0606) = the characterized-mapping RESULT — MOVEMENT 1 COMPLETE.** The
+  RunResult is **schema v4**: a new `matrix` block (`keystone.demo.matrix.build_matrix_view`,
+  models `MatrixView`/`MatrixPairView`) DERIVED from `REGISTERED_PAIRS` — nothing
+  hardcoded (add a pair → it appears). Per pair: attack (OWASP id + plain name), FATF
+  typology (plain label or None), result (CLEAN/BOUNDARY), axis (`A` if owasp_id==LLM01
+  else `B`). Plus distribution (4 CLEAN + 1 BOUNDARY), `BOUNDARY_STATEMENT`, and the one
+  `independence_property` line. **Schema bump migrated the only fixture** (`recorded_run.json`,
+  regenerated as a genuine v4 build) and kept EVERY replay path green (seam/jurisdiction/
+  shell, live+replay) — the v2-lesson honoured. **The hero** `keystone.ui.matrix_screen`
+  (`matrix_html`/`matrix_svg`, `MATRIX_HEIGHT_PX`) + `matrix_app`: a CONVERGENCE figure
+  (sibling of the seam hero — same amber convergence diamond) — five attacks (purple,
+  left, grouped by Axis A/B brackets) flow through ONE central amber FRAMEWORK spine
+  (states independence ONCE) out to results (berry CLEAN typologies, right; P4 a DASHED
+  amber BOUNDARY with an explicit "no money → no typology, by nature not by gap" result +
+  the boundary statement in the footer — equal weight, never an empty slot). Plain-
+  language labels for every OWASP/FATF id. Hosted in `shell_app` as a 3rd hero (view ③;
+  views renumbered to ⑥). **Caveats** (`MATRIX_CAVEATS` — P1's incidental rapid-movement
+  overlap; P5's synthetic tool-call channel) live as a reachable shell EXPANDER, OFF the
+  hero. AppTest gates `matrix_app` (live + replay + forced-break). Screenshot:
+  `docs/assets/m1-06-matrix-hero.png`. To re-screenshot a hero offline: render
+  `*_html(load_recorded_run())` to an HTML file and headless-Chrome `--screenshot` it
+  (Streamlit's live page needs a websocket render that headless Chrome won't drive).
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

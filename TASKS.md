@@ -146,12 +146,19 @@ the dashboard content survives as the KS-0503 supporting shell.)
       in M1. Binds CLEAN as-found (honest caveat: the tool-call channel is synthetically
       represented). — M1-05 / KS-0605 (`core.fatf.FLAGGED_DESTINATIONS`,
       `keystone.assurance.seam_p5`; `tests/test_seam_p5.py`)
-- [ ] The characterized-mapping result (the matrix table/figure) — M1-06 / KS-0606 (**next**)
+- [x] **The characterized-mapping result** — the matrix as a RESULT: a `matrix` block on
+      the RunResult (schema v4, derived from `REGISTERED_PAIRS`) + the third hero
+      (convergence figure: five attacks → one framework → results; P4 a deliberate
+      dashed boundary). Hosted in the shell; AppTest-gated; caveats reachable off the
+      hero. — M1-06 / KS-0606 (`keystone.demo.matrix`, `keystone.ui.matrix_screen` /
+      `matrix_app`; `tests/test_matrix_screen.py`, `tests/test_matrix_app.py`;
+      screenshot `docs/assets/m1-06-matrix-hero.png`)
 
-> **The seam matrix is COMPLETE.** Final as-found distribution: **4 CLEAN** (P1
-> structuring, P2 rapid-movement, P3 large-transfer, P5 unauthorized-recipient) **+ 1
-> BOUNDARY** (P4 exfil). Two axes sampled: Axis A (one attack class → three typologies,
-> P1-P3) and Axis B (beyond injection — P4 boundary at LLM06, P5 clean at LLM08).
+> **MOVEMENT 1 IS COMPLETE.** Final as-found distribution: **4 CLEAN** (P1 structuring,
+> P2 rapid-movement, P3 large-transfer, P5 unauthorized-recipient) **+ 1 BOUNDARY** (P4
+> exfil). Two axes sampled: Axis A (one attack class → three typologies, P1-P3) and Axis
+> B (beyond injection — P4 boundary at LLM06, P5 clean at LLM08). The characterized
+> mapping + its boundary is surfaced as the M1-06 result/figure.
 
 > Step-0 recon (locked in `M1-00` §7a): the FATF engine already has **distinct**
 > structuring / rapid-movement / large-transfer detectors (P2/P3 are separable,
