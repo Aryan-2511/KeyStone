@@ -686,7 +686,33 @@
     {
       "id": "KS-0602",
       "title": "P2 — Prompt Injection × Rapid-movement/layering (M1-02)",
-      "description": "The seam matrix's second pair through the framework: a memo-borne prompt injection whose instruction drives FAST multi-hop onward movement, caught independently by the FATF rapid-movement/layering typology (already in the engine) on velocity + fan-out signals alone — the AML side never reads the memo. The generated transaction pattern must be visibly DISTINCT from P1's structuring cluster (fast-onward vs sub-threshold-many) so the two pairs fire distinct detectors and P2 adds real Axis-A breadth. Expressed as a SeamPair bound by the same framework bind() — no new framework, no weakening of the independence guarantee.",
+      "description": "The seam matrix's second pair through the UNCHANGED M1-01 framework: a memo-borne prompt injection (CANONICAL_FORWARDING_EXPLOIT -> MEMO_FORWARDING_SIGNATURE) whose instruction drives FAST onward fan-out, caught independently by the FATF rapid-movement/layering typology (RAPID_MOVEMENT) on velocity + fan-out alone — the AML side never reads the memo (inherited FinancialProjection independence). P2_PAIR (keystone.assurance.seam_p2) mirrors P1 and registers alongside it in REGISTERED_PAIRS, inheriting bind()'s three rigor mechanisms — no new framework machinery. Its substrate is a new seeded core generator (rapid_movement_cluster / rapid_sample_stream): small (<5k) fast fan-out to distinct recipients — additive, so P1's sample_stream stays byte-identical. Anti-collapse (M1-00 §6): P2's pattern fires RAPID_MOVEMENT and NOT STRUCTURING (sub-band), detector-distinct from P1's structuring cluster. Core+assurance only; no schema/UI change. Axis-A breadth (same attack class as P1, a new typology).",
+      "phase": "6 — Movement 1: the Seam Matrix",
+      "layer": "Movement 1 — Seam Matrix",
+      "area": "assurance",
+      "status": "done",
+      "depends_on": [
+        "KS-0601"
+      ],
+      "done_criteria": [
+        "P2 binds CLEAN through the UNCHANGED framework: the SAME transaction id carries the P2 forwarding signature AND is independently caught as RAPID_MOVEMENT (memo-blind) — the strong shared-transaction-id assertion mirrored from P1",
+        "the anti-collapse distinctness guard holds: P2's pattern fires RAPID_MOVEMENT and NOT STRUCTURING (a visibly different shape from P1's sub-threshold structuring cluster), and the two pairs bind to distinct typologies",
+        "P2 inherits the framework's independence property and build-failing drift assertion (forcing P2's two sides to disagree raises SeamDriftError); P1 and all prior tests stay green, untouched"
+      ],
+      "tests": [
+        "tests/test_seam_p2.py::test_p2_one_transaction_is_both_financial_crime_and_ai_vulnerability",
+        "tests/test_seam_p2.py::test_p2_memo_is_the_canonical_exploit_literal",
+        "tests/test_seam_p2.py::test_p2_fatf_catches_the_seam_regardless_of_memo",
+        "tests/test_seam_p2.py::test_p2_pattern_fires_rapid_movement_not_structuring",
+        "tests/test_seam_p2.py::test_p1_and_p2_are_detector_distinct",
+        "tests/test_seam_p2.py::test_p2_fails_loud_if_memo_stops_resolving",
+        "tests/test_seam_framework.py::test_detector_never_receives_the_attack_channel"
+      ]
+    },
+    {
+      "id": "KS-0603",
+      "title": "P3 — Prompt Injection × Large-transfer/threshold (M1-03)",
+      "description": "The seam matrix's third pair through the framework, completing Axis-A breadth (small-many / fast-onward / single-large): a memo-borne prompt injection whose instruction drives a SINGLE threshold-breaching transfer, caught independently by the FATF large-transfer/threshold typology (LARGE_TRANSFER) on amount alone — the AML side never reads the memo. Expressed as a SeamPair bound by the same framework bind(); its pattern must fire LARGE_TRANSFER and be distinct from P1/P2 (a single >=CTR-threshold transfer, not a sub-threshold band or fast fan-out). No new framework, no schema/UI change.",
       "phase": "6 — Movement 1: the Seam Matrix",
       "layer": "Movement 1 — Seam Matrix",
       "area": "assurance",
@@ -695,7 +721,7 @@
         "KS-0601"
       ],
       "done_criteria": [
-        "P2 binds CLEAN through the framework: the rapid-movement typology independently implicates the operative transaction, on a generated pattern provably distinct from P1's structuring cluster"
+        "P3 binds CLEAN through the framework: the large-transfer typology independently implicates the operative transaction on amount alone, on a single threshold-breaching transfer distinct from P1's structuring band and P2's rapid fan-out"
       ],
       "tests": []
     }

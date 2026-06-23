@@ -634,12 +634,30 @@
   binds through the framework with EVERY existing seam test unchanged — the faithfulness
   proof. `prove_seam`/`seam_fraud_stream`/`resolve_signature` kept their signatures so
   the Layer-1 milestone + demo runner are untouched. Pairs are registered in
-  `keystone.assurance.pairs.REGISTERED_PAIRS` (today just P1); the framework-level
-  guarantees are asserted over that tuple in `tests/test_seam_framework.py`. Lives on
-  the edge (import-linter KEPT; core stays attack-unaware). **Recon for the matrix
-  (locked in `M1-00` §7a):** the FATF engine has distinct structuring/rapid-movement/
-  large-transfer detectors (P2/P3 separable), but NO recipient/sanctions typology — so
-  P5 likely takes the §6 fallback (decided at M1-05).
+  `keystone.assurance.pairs.REGISTERED_PAIRS` (P1 + P2); the framework-level
+  guarantees are asserted over that tuple in `tests/test_seam_framework.py` (adding a
+  pair auto-subjects it to the independence + drift tests). Lives on the edge
+  (import-linter KEPT; core stays attack-unaware). **Recon for the matrix (locked in
+  `M1-00` §7a):** the FATF engine has distinct structuring/rapid-movement/large-transfer
+  detectors (P2/P3 separable), but NO recipient/sanctions typology — so P5 likely takes
+  the §6 fallback (decided at M1-05).
+- **P2 (KS-0602) = LLM01 prompt injection × RAPID_MOVEMENT, the matrix's 2nd pair —
+  through the UNCHANGED framework (no new machinery).** `P2_PAIR` in
+  `keystone.assurance.seam_p2` mirrors P1: its own canonical signature
+  `MEMO_FORWARDING_SIGNATURE` + payload `CANONICAL_FORWARDING_EXPLOIT` (a forwarding/
+  layering injection; outcome `UNAUTHORIZED_ONWARD_TRANSFER`) in `signature.py`, its own
+  `resolve_forwarding_signature` (reuses the SAME `is_data_field_injection` detector,
+  maps to P2's signature), and `p2_fraud_stream` (plants the memo on the operative tx of
+  a rapid-movement cluster). Crime side binds `Typology.RAPID_MOVEMENT` via the
+  framework's `FinancialProjection` (memo-blind). The P2 substrate is a NEW seeded core
+  generator: `rapid_movement_cluster` + `rapid_sample_stream`
+  (`RAPID_SAMPLE_STREAM_CONFIG`, seed 20260202) — small (<5k) fast fan-out to DISTINCT
+  recipients; additive, so P1's `sample_stream` stays byte-identical. **Distinctness /
+  anti-collapse (M1-00 §6):** P2's pattern fires RAPID_MOVEMENT and NOT STRUCTURING
+  (sub-band) — STRUCTURING is the discriminator. **Honest caveat:** P1's dense
+  structuring cluster ALSO trips RAPID_MOVEMENT incidentally, so rapid-movement does NOT
+  discriminate the two; the guard relies on P2's EXCLUSIVITY (rapid-only), not on P1
+  being rapid-free. P1 was NOT touched.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

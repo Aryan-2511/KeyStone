@@ -10,17 +10,21 @@ or network deps (ADR-0008).
 from __future__ import annotations
 
 from .generator import (
+    RAPID_SAMPLE_STREAM_CONFIG,
     SAMPLE_STREAM_CONFIG,
     STRUCTURING_MIN_COUNT,
     STRUCTURING_THRESHOLD,
     StreamConfig,
     generate_stream,
+    rapid_movement_cluster,
+    rapid_sample_stream,
     sample_stream,
     structuring_cluster,
 )
 from .models import Currency, Transaction, TransactionType
 
 __all__ = [
+    "RAPID_SAMPLE_STREAM_CONFIG",
     "SAMPLE_STREAM_CONFIG",
     "STRUCTURING_MIN_COUNT",
     "STRUCTURING_THRESHOLD",
@@ -29,6 +33,8 @@ __all__ = [
     "Transaction",
     "TransactionType",
     "generate_stream",
+    "rapid_movement_cluster",
+    "rapid_sample_stream",
     "sample_stream",
     "structuring_cluster",
 ]

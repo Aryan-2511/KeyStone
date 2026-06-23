@@ -125,8 +125,12 @@ the dashboard content survives as the KS-0503 supporting shell.)
       (the detector only ever sees a `FinancialProjection`, never the attack
       channel); CLEAN / BOUNDARY / OPEN are first-class results. — M1-01 / KS-0601
       (`keystone.assurance.framework`, `.pairs`; `tests/test_seam_framework.py`)
-- [ ] P2 — Prompt Injection × Rapid-movement/layering — M1-02 / KS-0602 (**next**)
-- [ ] P3 — Prompt Injection × Large-transfer/threshold — M1-03
+- [x] **P2 — Prompt Injection × Rapid-movement/layering** — binds CLEAN through the
+      UNCHANGED framework; its rapid-movement cluster (small fast fan-out, sub-band)
+      fires `RAPID_MOVEMENT` and NOT `STRUCTURING`, detector-distinct from P1. — M1-02 /
+      KS-0602 (`keystone.assurance.seam_p2`, `core.transactions.rapid_sample_stream`;
+      `tests/test_seam_p2.py`)
+- [ ] P3 — Prompt Injection × Large-transfer/threshold — M1-03 / KS-0603 (**next**)
 - [ ] P4 — Sensitive Information Disclosure × (none) — **the boundary** — M1-04
 - [ ] P5 — Excessive Agency / tool-misuse × unauthorized-recipient — **open** — M1-05
 - [ ] The characterized-mapping result (the matrix table/figure) — M1-06
