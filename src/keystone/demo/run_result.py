@@ -32,7 +32,8 @@ from keystone.core.ledger import LedgerEntry
 
 # Schema version for the on-disk run-result; bump on any breaking shape change so
 # a saved run that no longer matches fails loudly rather than rendering wrong.
-RUN_RESULT_SCHEMA_VERSION = 3
+# v4 (M1-06): added the `matrix` block (the characterized seam-matrix result).
+RUN_RESULT_SCHEMA_VERSION = 4
 
 
 class SeamTransactionView(BaseModel):
@@ -181,6 +182,46 @@ class ArcView(BaseModel):
         return len(self.entries)
 
 
+class MatrixPairView(BaseModel):
+    """One (attack, financial-crime) pair in the characterized seam matrix (M1-06).
+
+    Derived from `keystone.assurance.pairs.REGISTERED_PAIRS` — never hardcoded. Carries
+    the mapping a reviewer reads off the figure: the attack class (OWASP id + plain
+    name), the FATF typology it binds to (plain name + label, or None for the boundary),
+    the result, and the axis grouping (A = vary the typology, hold the attack class;
+    B = vary the attack class — the anti-cherry-pick sampling).
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    pair_id: str
+    attack_owasp_id: str
+    attack_name: str
+    # The FATF typology this pair binds to, or None for the BOUNDARY pair (no typology).
+    typology: str | None
+    typology_label: str
+    result: str  # "CLEAN" | "BOUNDARY"
+    axis: str  # "A" | "B"
+
+
+class MatrixView(BaseModel):
+    """The characterized seam-matrix result (M1-06) — the paper's central figure.
+
+    The whole matrix as a single derived artifact: the per-pair mapping, the result
+    distribution, the boundary statement (P4), and the ONE independence property the
+    shared framework carries (stated once, not per pair). All derived from
+    `REGISTERED_PAIRS` so adding a pair appears here with nothing hardcoded.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    pairs: tuple[MatrixPairView, ...]
+    clean_count: int
+    boundary_count: int
+    boundary_statement: str
+    independence_property: str
+
+
 class RunResult(BaseModel):
     """One end-to-end Layer-1 run, as the typed object the front-end renders."""
 
@@ -194,3 +235,5 @@ class RunResult(BaseModel):
     binding: SeamBindingView
     report: ReportView
     arc: ArcView
+    # The characterized seam-matrix result (M1-06) — derived from REGISTERED_PAIRS.
+    matrix: MatrixView

@@ -636,7 +636,7 @@
         "the recorded run is the shell's safe default data source (works if you forget to flip it)"
       ],
       "tests": [
-        "tests/test_offline_fallback.py::test_recorded_run_exists_is_v3_and_chain_valid",
+        "tests/test_offline_fallback.py::test_recorded_run_exists_is_current_version_and_chain_valid",
         "tests/test_offline_fallback.py::test_recorded_run_is_a_genuine_build_not_hand_edited",
         "tests/test_offline_fallback.py::test_replay_renders_all_five_views_with_NO_network",
         "tests/test_offline_fallback.py::test_recorded_run_is_the_default_replay_source",
