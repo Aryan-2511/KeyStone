@@ -737,7 +737,32 @@
     {
       "id": "KS-0604",
       "title": "P4 — Sensitive Information Disclosure × (none) — THE BOUNDARY (M1-04)",
-      "description": "The characterized BOUNDARY of the seam matrix (Axis B; OWASP LLM06): an exfil/data-loss attack that leaks another party's data and moves NO money — so NO transaction-monitoring typology can fire, and the seam provably does NOT bind. Expressed as a SeamPair with result=BOUNDARY through the framework's existing boundary support: bind() asserts the crime detector fires ZERO typologies; the negative IS the result, stated and tested (not an error). Do NOT force a weak positive binding — the clean negative is P4's whole value (the paper's limitations section: the seam covers fund-movement attacks, not data-loss). No new framework, no schema/UI change.",
+      "description": "The characterized BOUNDARY of the seam matrix (Axis B; OWASP LLM06, the 'Vault Whisper' exfil class, cf. arXiv:2601.22569) — a PROVEN NEGATIVE, the paper's credibility anchor. An exfiltration injection (EXFIL_INJECTION_SIGNATURE, outcome DATA_DISCLOSURE) LEAKS another party's data and moves NO money, so the event's financial footprint is empty and NO transaction-monitoring typology can fire — the seam provably does NOT bind. P4_PAIR (keystone.assurance.seam_p4) is a result=BOUNDARY pair through the framework's existing boundary support (crime.typology=None; bind() asserts ZERO typologies fire and returns an all-None binding). The negative is PRINCIPLED, not incidental: it is a property of the attack (a data-disclosure outcome produces no transaction → nothing for any typology to act on), proven by running the SAME full detect suite that fires on P1/P2/P3 and showing it fires zero on P4. Build-protected: if exfil ever moved money (a typology fires), bind() raises SeamDriftError. No forced positive (M1-00 §4 forbids it); no new framework/typology, no schema/UI change.",
+      "phase": "6 — Movement 1: the Seam Matrix",
+      "layer": "Movement 1 — Seam Matrix",
+      "area": "assurance",
+      "status": "done",
+      "depends_on": [
+        "KS-0601"
+      ],
+      "done_criteria": [
+        "P4 registers as a result=BOUNDARY pair and binds as a PROVEN NEGATIVE through the unchanged framework: the exfil attack signature resolves (the attack is real and present), AND zero typologies fire on its financial projection, AND bind() returns an all-None boundary binding",
+        "the negative is demonstrated PRINCIPLED not incidental: P4's financial projection contains no fund movement (a data-disclosure outcome produces no transaction), and the SAME full detect suite that fires on P1/P2/P3 fires zero on P4 — so the zero is a property of the attack, not a missing detector",
+        "the boundary is build-protected: forcing a typology to fire on P4 raises SeamDriftError ('boundary no longer holds'), then the real pair binds as BOUNDARY again; P1-P3 and all prior tests stay green, untouched"
+      ],
+      "tests": [
+        "tests/test_seam_p4.py::test_p4_binds_as_a_proven_boundary",
+        "tests/test_seam_p4.py::test_p4_exfil_attack_is_real_but_moves_no_money",
+        "tests/test_seam_p4.py::test_p4_negative_is_principled_not_incidental",
+        "tests/test_seam_p4.py::test_p4_boundary_fails_loud_if_a_typology_ever_fires",
+        "tests/test_seam_p4.py::test_p4_boundary_statement_is_the_characterization",
+        "tests/test_seam_framework.py::test_detector_never_receives_the_attack_channel"
+      ]
+    },
+    {
+      "id": "KS-0605",
+      "title": "P5 — Excessive Agency / tool-misuse × unauthorized-recipient — THE OPEN ONE (M1-05)",
+      "description": "The seam matrix's OPEN pair (Axis B; OWASP LLM08 excessive agency / tool-misuse — the agent is induced to MISUSE a tool to pay a flagged/unauthorized recipient, a different mechanism than injection-into-memo). Detection is recipient-screening / unauthorized-destination (sanctions-style). Status genuinely OPEN: hypothesised CLEAN but reported as-found. DEPENDENCY (M1-00 §6/§7a recon): core.fatf has NO recipient/sanctions typology today — its typologies are all fund-MOVEMENT (structuring/rapid/large). So P5 needs either a new, well-bounded recipient-screening typology OR the documented §6 FALLBACK to a clean fourth injection×typology pair. Decide at M1-05 start. Expressed through the framework (TOOL_CALL channel + OPEN result already modelled); no framework change.",
       "phase": "6 — Movement 1: the Seam Matrix",
       "layer": "Movement 1 — Seam Matrix",
       "area": "assurance",
@@ -746,7 +771,7 @@
         "KS-0601"
       ],
       "done_criteria": [
-        "P4 is represented as a BOUNDARY pair through the framework and binds as a proven NEGATIVE: the crime detector fires ZERO typologies on the exfil attack, asserted by test (the negative is the result, not a forced positive)"
+        "P5 is expressed through the framework and its outcome reported as-found: either it binds (a recipient/unauthorized-destination signal independently flags the attack's recipient, memo/channel-blind) OR the M1-00 §6 fallback is taken (a clean fourth injection×typology pair), with the decision and rationale recorded"
       ],
       "tests": []
     }

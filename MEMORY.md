@@ -673,6 +673,25 @@
   (needs ≥3 in-band) NOR rapid-movement (needs ≥5) — no overlap caveat, unlike P1.
   P1/P2 streams are all sub-CTR, so LARGE_TRANSFER is a clean discriminator across the
   three. P1/P2 NOT touched.
+- **P4 (KS-0604) = THE CHARACTERIZED BOUNDARY (OWASP LLM06 exfil × none) — a PROVEN
+  NEGATIVE, the paper's credibility anchor.** `P4_PAIR` in `keystone.assurance.seam_p4`
+  is a `result=BOUNDARY` pair: an exfiltration injection (the "Vault Whisper" class, cf.
+  arXiv:2601.22569) that LEAKS data and moves NO money. `EXFIL_INJECTION_SIGNATURE`
+  (outcome `DATA_DISCLOSURE`, NOT a transfer) + bare string `CANONICAL_EXFIL_MEMO`
+  (deliberately NOT a `MaliciousMemoExample` — no recipient/amount because no money
+  moves). `crime.typology=None` so `bind()` requires ZERO findings of ANY typology; the
+  plant (`p4_exfil_event`) returns an EMPTY financial stream, so the full FATF suite
+  fires nothing. **The exact one-sentence boundary statement** (`BOUNDARY_STATEMENT`,
+  for the M1-06 write-up): *"The seam covers attacks that manifest as fund movement; it
+  does not cover attacks that manifest as data loss. P4 (sensitive-information
+  disclosure) is that boundary."* **The negative is PRINCIPLED, not incidental:** it is a
+  property of the ATTACK (a data-disclosure outcome produces no transaction → nothing for
+  any typology to fire on), NOT a missing detector — proven by running the SAME full
+  `detect` suite that fires on P1/P2/P3's fund-movement streams and showing it fires zero
+  on P4. **Build-protected:** if exfil ever moved money (a typology fires), `bind` raises
+  `SeamDriftError` ("boundary no longer holds"), exactly like CLEAN-pair drift. Do NOT
+  force a weak positive — the clean negative IS the result (M1-00 §4). Framework
+  UNCHANGED (the BOUNDARY structure existed from M1-01); P1-P3 untouched.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

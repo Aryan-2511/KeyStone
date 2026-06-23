@@ -75,10 +75,18 @@ from .seam_p3 import (
     p3_fraud_stream,
     resolve_large_transfer_signature,
 )
+from .seam_p4 import (
+    BOUNDARY_STATEMENT,
+    P4_PAIR,
+    p4_exfil_event,
+    resolve_exfil_signature,
+)
 from .signature import (
+    CANONICAL_EXFIL_MEMO,
     CANONICAL_FORWARDING_EXPLOIT,
     CANONICAL_LARGE_TRANSFER_EXPLOIT,
     CANONICAL_MEMO_EXPLOIT,
+    EXFIL_INJECTION_SIGNATURE,
     MEMO_FORWARDING_SIGNATURE,
     MEMO_INJECTION_SIGNATURE,
     MEMO_LARGE_TRANSFER_SIGNATURE,
@@ -91,10 +99,13 @@ from .signature import (
 
 __all__ = [
     "AGENT_NAME",
+    "BOUNDARY_STATEMENT",
+    "CANONICAL_EXFIL_MEMO",
     "CANONICAL_FORWARDING_EXPLOIT",
     "CANONICAL_LARGE_TRANSFER_EXPLOIT",
     "CANONICAL_MEMO_EXPLOIT",
     "CURATED_PROBES",
+    "EXFIL_INJECTION_SIGNATURE",
     "FAMILY_MAPPINGS",
     "LAYER",
     "LEDGER_ACTION",
@@ -104,6 +115,7 @@ __all__ = [
     "P1_PAIR",
     "P2_PAIR",
     "P3_PAIR",
+    "P4_PAIR",
     "PINNED_GARAK_VERSION",
     "REFERENCED_ASSURANCE",
     "REGISTERED_PAIRS",
@@ -143,10 +155,12 @@ __all__ = [
     "map_finding",
     "p2_fraud_stream",
     "p3_fraud_stream",
+    "p4_exfil_event",
     "parse_report",
     "project_financial",
     "prove_seam",
     "record_finding",
+    "resolve_exfil_signature",
     "resolve_forwarding_signature",
     "resolve_large_transfer_signature",
     "resolve_signature",
