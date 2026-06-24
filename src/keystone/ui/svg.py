@@ -91,13 +91,16 @@ def pill(x: float, y: float, label: str, color: str) -> str:
 
 
 def document(body: str, *, width: int, height: int, label: str) -> str:
-    """Wrap composed parts in a self-contained SVG (fonts embedded for export)."""
+    """Wrap composed parts in a self-contained SVG (fonts embedded for export).
+
+    The canvas fills with `T.INK` — the SAME colour the Streamlit page uses (UI-01) — so
+    the hero sits flush on the page. No outer border: a 1px frame would read as a
+    "pasted picture" edge; the SVG floats directly on the matching background.
+    """
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
         f'width="100%" role="img" aria-label="{esc(label)}">'
         f"<defs><style>@import url('{T.GOOGLE_FONTS_HREF}');</style></defs>"
         f'<rect x="0" y="0" width="{width}" height="{height}" fill="{T.INK}"/>'
-        f'<rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" '
-        f'fill="none" stroke="{T.HAIRLINE}"/>'
         f"{body}</svg>"
     )

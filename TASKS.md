@@ -203,6 +203,15 @@ the dashboard content survives as the KS-0503 supporting shell.)
 > `REFERENCED_ASSURANCE`. DPDP boundary obligations already exist (no new obligation
 > needed). Reference mapping = EU Art. 15 (`OBL-EUAI-015` → `CTL-ROBUST-01`, ISO 42001 + NIST).
 
+## UI polish
+
+- [x] **Seamless embedding** — the four heroes sit FLUSH on the page (no "pasted picture"
+      seam): one background token (`T.INK`) now drives the Streamlit theme + every SVG
+      canvas + every iframe; `svg.document`'s outer frame dropped; a shared `embed_hero`
+      strips the iframe chrome. Drift-guarded. Cosmetic only. — UI-01 / KS-0610
+      (`keystone.ui.embed`, `tokens`, `svg`; before/after in `docs/assets/ui-01-*.png`)
+- [ ] The live-execution view — UI-02 (**next**)
+
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
 
 > Tracked so they aren't lost. Revisit on the noted trigger; none block KS-0202.
