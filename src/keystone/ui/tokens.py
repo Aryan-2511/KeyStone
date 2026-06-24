@@ -29,9 +29,13 @@ BERRY = "#890C58"  # L1 — financial-crime (FATF / AML world)
 AMBER = "#B56A00"  # seam / target — the one transaction both worlds land on
 
 # Surface ramp — a near-dark evidence ledger, deepest where the proof sits.
-INK = "#0E0F12"  # the deepest panel — the SVG/evidence canvas
-PANEL = "#14171C"  # near-dark panel — Streamlit secondary background
-BG = "#1A1A1A"  # page background (the deck's dark)
+# INK is THE single app/canvas background (UI-01): the Streamlit page, every hero SVG
+# fill, and every embedded iframe all use it, so the heroes sit FLUSH on the page with no
+# "pasted picture" seam. Reconciled here so the three surfaces can never drift apart
+# (tests/test_ui_tokens.py asserts theme == SVG == this token).
+INK = "#0E0F12"  # the single app + SVG/iframe canvas background (page = canvas)
+PANEL = "#14171C"  # near-dark panel — Streamlit secondary background (the sidebar)
+BG = "#1A1A1A"  # legacy deck dark (superseded by INK as the page bg; kept for the palette)
 HAIRLINE = "#2A2D34"  # 1px rules / borders on the dark surface
 MUTED = "#5E5E5E"  # muted ink — de-emphasised labels, disabled
 TEXT_DIM = "#9BA0A6"  # secondary text on dark
@@ -127,7 +131,9 @@ def streamlit_theme() -> dict[str, str]:
     return {
         "base": "dark",
         "primaryColor": NVIDIA_GREEN,
-        "backgroundColor": BG,
+        # The page background IS the SVG/iframe canvas (INK) — so the embedded heroes
+        # sit flush on the page, no "pasted picture" seam (UI-01).
+        "backgroundColor": INK,
         "secondaryBackgroundColor": PANEL,
         "textColor": TEXT,
         "font": "sans-serif",

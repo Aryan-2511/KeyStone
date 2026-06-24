@@ -803,6 +803,22 @@
   forced-break). Screenshot: `docs/assets/m2-0n-convergence-hero.png`. **Note on the
   task's "schema #7":** the version is a monotonic counter checked by exact equality — it
   was at v4, so the correct bump is v5 (not 7).
+- **UI-01 (KS-0610) = seamless embedding — the heroes sit FLUSH, no "pasted picture" seam.**
+  Root cause (audit): the Streamlit page bg was `T.BG` (#1A1A1A) but every hero SVG +
+  iframe used `T.INK` (#0E0F12) — two different near-blacks — PLUS `svg.document` drew a 1px
+  outer hairline border (the framed-rectangle edge). **Systemic fix (one token, three
+  surfaces):** `T.INK` is now THE single app background — `tokens.streamlit_theme()`
+  `backgroundColor` → INK (mirrored in `.streamlit/config.toml`; the `test_ui_tokens`
+  drift-guard keeps them lock-step AND now asserts theme == SVG canvas == iframe surface ==
+  INK). `svg.document` keeps the INK fill but DROPS the outer border. New
+  `keystone.ui.embed.embed_hero(html, height)` is the ONE embed path: injects `SEAMLESS_CSS`
+  (strips the components.v1.html iframe's border/inset) then `components.html(...)` —
+  keeping the KS-0501 sizing (components.v1.html + height-from-viewBox; NOT st.html). All
+  four hero apps + the shell route through `embed_hero` (the `components` import removed from
+  each). `T.BG` is now legacy (palette only). Purely cosmetic — no logic/data/schema change.
+  Before/after proof: `docs/assets/ui-01-before-seam.png` (the rectangle) vs
+  `docs/assets/ui-01-after-seamless.png` (flush). "Seamless" is a LOOKS judgment — eyeball
+  it live (`uv run streamlit run src/keystone/ui/shell_app.py`); the gate can't see it.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

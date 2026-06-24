@@ -17,7 +17,6 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from keystone.demo import (
     RunResult,
@@ -27,6 +26,7 @@ from keystone.demo import (
 )
 from keystone.ui import shell_screens as views
 from keystone.ui.convergence_screen import CONVERGENCE_HEIGHT_PX, convergence_html
+from keystone.ui.embed import embed_hero
 from keystone.ui.jurisdiction_screen import JURISDICTION_HEIGHT_PX, jurisdiction_html
 from keystone.ui.matrix_screen import MATRIX_CAVEATS, MATRIX_HEIGHT_PX, matrix_html
 from keystone.ui.seam_screen import SEAM_HEIGHT_PX, seam_html
@@ -101,7 +101,7 @@ def render() -> None:
     st.sidebar.caption(note)
 
     build_html, height = _VIEWS[view]
-    components.html(build_html(result), height=height, scrolling=False)
+    embed_hero(build_html(result), height)
 
     # The matrix hero stays clean; its honest caveats live here as reachable detail.
     if view == _MATRIX_VIEW:

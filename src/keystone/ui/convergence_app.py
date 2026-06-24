@@ -16,7 +16,6 @@ state. Embedded via `components.v1.html` (an iframe), NEVER `st.html`.
 from __future__ import annotations
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from keystone.demo import (
     RunResult,
@@ -25,6 +24,7 @@ from keystone.demo import (
     recorded_run_path,
 )
 from keystone.ui.convergence_screen import CONVERGENCE_HEIGHT_PX, convergence_html
+from keystone.ui.embed import embed_hero
 
 
 def _load_run() -> tuple[RunResult | None, str]:
@@ -59,9 +59,7 @@ def render() -> None:
     )
     result, note = _load_run()
     st.sidebar.caption(note)
-    components.html(
-        convergence_html(result), height=CONVERGENCE_HEIGHT_PX, scrolling=False
-    )
+    embed_hero(convergence_html(result), CONVERGENCE_HEIGHT_PX)
 
 
 if __name__ == "__main__":

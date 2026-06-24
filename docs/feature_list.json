@@ -896,6 +896,31 @@
         "tests/test_convergence_app.py::test_replay_of_an_incompatible_run_degrades_without_crashing",
         "tests/test_shell_app.py::test_shell_loads_and_runs_live_across_all_views"
       ]
+    },
+    {
+      "id": "KS-0610",
+      "title": "Seamless hero embedding — one background token, no pasted-picture seam (UI-01)",
+      "description": "Cosmetic fix so the four heroes sit FLUSH on the Streamlit page (no 'pasted picture' rectangle). Audit root cause: the page background was T.BG (#1A1A1A) but every hero SVG + iframe used T.INK (#0E0F12) — two different near-blacks — and svg.document drew a 1px outer hairline border (the framed-rectangle edge). Systemic fix (one token, three surfaces): T.INK is now THE single app background — tokens.streamlit_theme() backgroundColor -> INK (mirrored in .streamlit/config.toml; the test_ui_tokens drift-guard keeps them lock-step and now asserts theme == SVG canvas == iframe surface == INK). svg.document keeps the INK fill but drops the outer border. New keystone.ui.embed.embed_hero is the ONE embed path: injects SEAMLESS_CSS (strips the components.v1.html iframe's border/inset) then components.html(...), keeping the KS-0501 sizing (NOT st.html). All four hero apps + the shell route through embed_hero. Purely cosmetic — no logic / data / schema / RunResult change; every replay path + the recorded fallback stay green. 'Seamless' is a looks judgment eyeballed live (the gate can't see it); before/after proof in docs/assets/ui-01-*.png.",
+      "phase": "6 — UI polish",
+      "layer": "UI / front-end",
+      "area": "ui",
+      "status": "done",
+      "depends_on": [
+        "KS-0609",
+        "KS-0501"
+      ],
+      "done_criteria": [
+        "one background token (T.INK) drives all three surfaces — the Streamlit theme backgroundColor, every hero SVG canvas fill, and every embedded iframe — so the heroes sit flush with no visible rectangle/border; a drift-guard test asserts the three agree so the seam can't silently return",
+        "the fix is systemic (single source) not four one-off patches: the shared svg.document, tokens.streamlit_theme/config.toml, and one embed_hero helper drive all four heroes + the shell; the KS-0501 height-from-viewBox embedding and components.v1.html (NOT st.html) are kept intact",
+        "purely cosmetic: no logic/data/schema/RunResult change; all four hero AppTests (live + replay) and every replay path + the recorded fallback stay green; make check / make verify green"
+      ],
+      "tests": [
+        "tests/test_ui_tokens.py::test_streamlit_config_mirrors_the_tokens",
+        "tests/test_ui_tokens.py::test_one_background_token_across_theme_svg_and_iframe",
+        "tests/test_seam_app.py::test_app_loads_and_runs_live_without_exception",
+        "tests/test_convergence_app.py::test_app_loads_and_runs_without_exception",
+        "tests/test_shell_app.py::test_shell_loads_and_runs_live_across_all_views"
+      ]
     }
   ]
 }

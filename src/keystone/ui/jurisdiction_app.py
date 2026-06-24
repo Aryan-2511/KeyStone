@@ -12,7 +12,6 @@ shows a plain message and the honest empty state — never a crash or fake data.
 from __future__ import annotations
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from keystone.demo import (
     RunResult,
@@ -20,6 +19,7 @@ from keystone.demo import (
     load_run_result,
     recorded_run_path,
 )
+from keystone.ui.embed import embed_hero
 from keystone.ui.jurisdiction_screen import JURISDICTION_HEIGHT_PX, jurisdiction_html
 
 
@@ -56,9 +56,7 @@ def render() -> None:
     )
     result, note = _load_run()
     st.sidebar.caption(note)
-    components.html(
-        jurisdiction_html(result), height=JURISDICTION_HEIGHT_PX, scrolling=False
-    )
+    embed_hero(jurisdiction_html(result), JURISDICTION_HEIGHT_PX)
 
 
 if __name__ == "__main__":

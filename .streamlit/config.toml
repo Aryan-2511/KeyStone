@@ -7,7 +7,7 @@
 [theme]
 base = "dark"
 primaryColor = "#76B900"            # NVIDIA green — brand anchor
-backgroundColor = "#1A1A1A"         # page background (the deck's dark)
-secondaryBackgroundColor = "#14171C" # near-dark "ledger" panel
+backgroundColor = "#0E0F12"         # INK — page = SVG/iframe canvas (heroes sit flush, no seam)
+secondaryBackgroundColor = "#14171C" # near-dark "ledger" panel (the sidebar)
 textColor = "#ECEDEE"               # primary text on dark
 font = "sans-serif"

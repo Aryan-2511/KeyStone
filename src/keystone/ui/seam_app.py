@@ -16,7 +16,6 @@ empty state — never a crash or fabricated data.
 from __future__ import annotations
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from keystone.demo import (
     RunResult,
@@ -24,6 +23,7 @@ from keystone.demo import (
     load_run_result,
     recorded_run_path,
 )
+from keystone.ui.embed import embed_hero
 from keystone.ui.seam_screen import SEAM_HEIGHT_PX, seam_html
 
 
@@ -60,9 +60,9 @@ def render() -> None:
 
     result, note = _load_run()
     st.sidebar.caption(note)
-    # An iframe (components.html), NOT st.html: st.html sanitises the inline SVG away,
-    # leaving an empty main panel. The iframe renders the self-contained hero document.
-    components.html(seam_html(result), height=SEAM_HEIGHT_PX, scrolling=False)
+    # Embedded flush via the shared seamless embed (iframe, NOT st.html — st.html
+    # sanitises the inline SVG away; embed_hero strips the iframe frame so it sits flush).
+    embed_hero(seam_html(result), SEAM_HEIGHT_PX)
 
 
 if __name__ == "__main__":
