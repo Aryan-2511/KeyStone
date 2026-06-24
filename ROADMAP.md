@@ -113,8 +113,9 @@ before/after data, across EU hard law + India advisory.
   obligation, with the four-part rigor as structure and a satisfy/violate state DERIVED
   from before/after (violated pre-patch → satisfied post-patch). Proven by one reference
   mapping (P1 × EU Art. 15). (`KS-0607` / M2-01)
-- The rigorous obligation mappings (§4: ISO 42001 / NIST AI RMF / RBI + the DPDP
-  boundary), each clearing the four-part bar. (`KS-0608` / M2-02)
-- The convergence result + UI — the loop made visible. (M2-0n)
+- The rigorous obligation mappings (`REGISTERED_MAPPINGS`): EU Art.15 + Art.9 (hard law),
+  RBI Sutra 1 (advisory) — ISO 42001 + NIST surfaced via the control spine — and the DPDP
+  data-protection boundary (NOT_EVIDENCED by fund movement). (`KS-0608` / M2-02)
+- The convergence result + UI — the loop made visible. (`KS-0609` / M2-0n)
 
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._

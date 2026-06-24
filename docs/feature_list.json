@@ -847,16 +847,42 @@
     {
       "id": "KS-0608",
       "title": "The rigorous obligation mappings (M2-02)",
-      "description": "Each named §4 obligation's rigorous evidence relationship to the matrix, through the M2-01 evidence model — clearing the four-part bar with a before/after state: ISO 42001 (input-manipulation control), NIST AI RMF (semantic-threat modeling), RBI FREE-AI Sutra 1 (OBL-RBI-001, advisory), plus the DPDP data-protection BOUNDARY obligation (evidenced only by the P4 exfil class, NOT_EVIDENCED by fund-movement events). Narrow-and-deep: a few obligations each rigorously evidenced, spanning EU hard law + India advisory. No checklist breadth.",
+      "description": "The convergence claim POPULATED: keystone.convergence.REGISTERED_MAPPINGS — the P1 memo-injection seam event AS audit evidence for a narrow-and-deep set of named, REAL L3 obligations, each clearing the M2-00 §2 four-part bar with a defensible reason grounded in the obligation's actual control text and a satisfy/violate state DERIVED from the before/after. Built through the M2-01 model (no new architecture). 3 EVIDENCED + 1 BOUNDARY: EU AI Act Art. 15 (OBL-EUAI-015, hard law, CTL-ROBUST-01 / ISO 42001 Cl.8 + NIST MEASURE — the M2-01 reference mapping, kept in the set); EU AI Act Art. 9 (OBL-EUAI-009, hard law, CTL-RISK-01 / ISO 42001 6.1&8.2 + NIST MAP/MANAGE — the ISO input-manipulation risk-treatment + NIST semantic-threat framings); RBI FREE-AI Sutra 1 (OBL-RBI-001, advisory, CTL-GOV-01 / ISO 42001 Cl.5 + NIST GOVERN — the India advisory half); and the DPDP s.8 BOUNDARY (OBL-DPDPA-008, NOT_EVIDENCED by fund-movement events — a data-protection obligation is evidenced by data-loss/P4, not fund movement). The set spans EU hard law + India advisory (real per-obligation modality, not country-inferred), every ref resolves to a real L3 obligation, and ISO 42001 + NIST are evidenced via the control spine (they are the control library's frameworks, not L3 obligations — not invented as standalone obligations). No UI yet (M2-0n); L3 / M1 untouched.",
+      "phase": "6 — Movement 2: Regulatory Convergence",
+      "layer": "Movement 2 — Convergence",
+      "area": "convergence",
+      "status": "done",
+      "depends_on": [
+        "KS-0607"
+      ],
+      "done_criteria": [
+        "REGISTERED_MAPPINGS holds the §4 set through the M2-01 model: each mapping clears the four-part bar (real cited obligation + requirement grounded in the control text + a specific non-empty reason + a DERIVED satisfy/violate state), and every obligation ref resolves to a REAL loaded L3 obligation (from_obligation), not invented",
+        "the cross-jurisdiction modality spread is present and REAL per-obligation (not country-inferred): the set includes >=1 HARD_LAW (EU Art. 15/9) and >=1 ADVISORY (RBI Sutra 1) evidenced obligation, spanning EU + India; ISO 42001 + NIST are surfaced via the control spine of real obligations",
+        "the DPDP boundary (OBL-DPDPA-008) is a principled NOT_EVIDENCED with a required reason (data-protection is evidenced by data-loss, not fund movement) — as principled as the P4 matrix boundary; satisfy/violate stays DERIVED across the set; make check / make verify green"
+      ],
+      "tests": [
+        "tests/test_obligation_mappings.py::test_every_mapping_refs_a_real_l3_obligation",
+        "tests/test_obligation_mappings.py::test_reference_mapping_is_in_the_set_not_duplicated",
+        "tests/test_obligation_mappings.py::test_set_spans_hard_law_and_advisory_real_modality",
+        "tests/test_obligation_mappings.py::test_evidenced_mappings_surface_iso42001_and_nist",
+        "tests/test_obligation_mappings.py::test_evidenced_mappings_derive_violate_then_satisfy",
+        "tests/test_obligation_mappings.py::test_dpdp_boundary_is_a_principled_not_evidenced"
+      ]
+    },
+    {
+      "id": "KS-0609",
+      "title": "The convergence result + UI (M2-0n)",
+      "description": "Movement 2's result made visible: the convergence loop as a figure/hero — this seam event -> these named obligations, violated->satisfied, across EU hard law + India advisory, with the DPDP boundary shown as a deliberate non-mapping. Derived from REGISTERED_MAPPINGS (the single source, nothing hardcoded); the satisfy/violate transition + the EVIDENCE_DISCLAIMER surfaced honestly. Likely a RunResult schema bump (a convergence block) + a screen hosted in the shell, with an AppTest gate (the M1-06 schema+UI lessons apply). The paper's convergence figure.",
       "phase": "6 — Movement 2: Regulatory Convergence",
       "layer": "Movement 2 — Convergence",
       "area": "convergence",
       "status": "planned",
       "depends_on": [
-        "KS-0607"
+        "KS-0608",
+        "KS-0606"
       ],
       "done_criteria": [
-        "each named obligation (ISO 42001 / NIST AI RMF / RBI Sutra 1 + the DPDP boundary) has a rigorous EvidenceRelationship clearing the four-part bar with its before/after state, spanning both jurisdictions and both enforcement modalities; the DPDP boundary is a principled NOT_EVIDENCED"
+        "the convergence loop is surfaced as a result/figure derived from REGISTERED_MAPPINGS (the seam event -> named obligations, violated->satisfied, EU + India + the DPDP boundary), honestly framed (EVIDENCE_DISCLAIMER), with every replay path green and an AppTest gate if a screen ships"
       ],
       "tests": []
     }
