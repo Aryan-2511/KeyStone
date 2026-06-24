@@ -210,7 +210,13 @@ the dashboard content survives as the KS-0503 supporting shell.)
       canvas + every iframe; `svg.document`'s outer frame dropped; a shared `embed_hero`
       strips the iframe chrome. Drift-guarded. Cosmetic only. — UI-01 / KS-0610
       (`keystone.ui.embed`, `tokens`, `svg`; before/after in `docs/assets/ui-01-*.png`)
-- [ ] The live-execution view — UI-02 (**next**)
+- [x] **Live-execution view + sidebar polish** — the system VISIBLY runs: the shell's
+      entry point reveals the five real arc steps progressively (ledger growing 1→5),
+      arriving at the four heroes as destinations; identical reveal in live (computes now)
+      and recorded (paced real replay, not instant/faked); the sidebar restyled to the
+      design system with "▶ Run the arc" as the primary action. No schema change. —
+      UI-02 / KS-0611 (`keystone.ui.run_view` / `run_app` / `sidebar`, `shell_app`;
+      `tests/test_run_view.py`, `test_run_app.py`; screenshot `docs/assets/ui-02-run-view.png`)
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
 
