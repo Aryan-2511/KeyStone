@@ -33,7 +33,8 @@ from keystone.core.ledger import LedgerEntry
 # Schema version for the on-disk run-result; bump on any breaking shape change so
 # a saved run that no longer matches fails loudly rather than rendering wrong.
 # v4 (M1-06): added the `matrix` block (the characterized seam-matrix result).
-RUN_RESULT_SCHEMA_VERSION = 4
+# v5 (M2-0n): added the `convergence` block (the regulatory-convergence result).
+RUN_RESULT_SCHEMA_VERSION = 5
 
 
 class SeamTransactionView(BaseModel):
@@ -222,6 +223,54 @@ class MatrixView(BaseModel):
     independence_property: str
 
 
+class ConvergenceMappingView(BaseModel):
+    """One seam-event → obligation evidence relationship (M2-0n), for the hero.
+
+    Derived from `keystone.convergence.REGISTERED_MAPPINGS` — never hardcoded. Carries
+    the four-part rigor a reviewer reads (obligation + requirement + reason), the
+    enforcement modality, and — for EVIDENCED mappings — the VIOLATE→SATISFY states with
+    the before/after numbers that CAUSE the flip. `kind` is EVIDENCED or NOT_EVIDENCED
+    (the DPDP boundary). For the boundary the states/numbers are None.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    obligation_id: str
+    obligation_label: str
+    jurisdiction: str
+    modality: str  # "HARD_LAW" | "SELF_CERTIFICATION"
+    modality_label: str  # plain language: "hard law" | "advisory"
+    requirement: str
+    reason: str
+    kind: str  # "EVIDENCED" | "NOT_EVIDENCED"
+    # The temporal state-flip — None for the boundary (no satisfy/violate state).
+    pre_state: str | None  # "VIOLATE"
+    post_state: str | None  # "SATISFY"
+    before_fails: int | None
+    after_fails: int | None
+    prompt_cap: int | None
+
+
+class ConvergenceView(BaseModel):
+    """The regulatory-convergence result (M2-0n) — the loop made visible.
+
+    The whole evidence set as a derived artifact: per-mapping the obligation it
+    evidences (violated→satisfied, or the boundary), the cross-jurisdiction modality
+    spread, and the honest `disclaimer`. All derived from `REGISTERED_MAPPINGS` so
+    adding a mapping appears here with nothing hardcoded.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    mappings: tuple[ConvergenceMappingView, ...]
+    evidenced_count: int
+    boundary_count: int
+    hard_law_count: int
+    advisory_count: int
+    jurisdictions: tuple[str, ...]
+    disclaimer: str
+
+
 class RunResult(BaseModel):
     """One end-to-end Layer-1 run, as the typed object the front-end renders."""
 
@@ -237,3 +286,5 @@ class RunResult(BaseModel):
     arc: ArcView
     # The characterized seam-matrix result (M1-06) — derived from REGISTERED_PAIRS.
     matrix: MatrixView
+    # The regulatory-convergence result (M2-0n) — derived from REGISTERED_MAPPINGS.
+    convergence: ConvergenceView

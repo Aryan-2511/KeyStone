@@ -23,6 +23,7 @@ from keystone.assurance import (
 )
 from keystone.assurance.layer1_milestone import ARC
 from keystone.assurance.signature import CANONICAL_MEMO_EXPLOIT
+from keystone.convergence import EVIDENCE_DISCLAIMER, REGISTERED_MAPPINGS
 from keystone.core.ledger import Ledger
 from keystone.demo import (
     RUN_RESULT_SCHEMA_VERSION,
@@ -150,6 +151,37 @@ def test_matrix_block_is_derived_from_registered_pairs(tmp_path: Path) -> None:
     assert matrix.clean_count == 4 and matrix.boundary_count == 1
     assert matrix.boundary_statement == BOUNDARY_STATEMENT
     assert matrix.independence_property  # the framework's one independence line
+
+
+# --- the regulatory-convergence block (M2-0n) ---------------------------------
+
+
+def test_convergence_block_is_derived_from_registered_mappings(tmp_path: Path) -> None:
+    conv = _run(tmp_path).convergence
+
+    # One row per registered mapping, in order — derived, nothing hardcoded.
+    assert tuple(m.obligation_id for m in conv.mappings) == tuple(
+        m.obligation.id for m in REGISTERED_MAPPINGS
+    )
+    for row, mapping in zip(conv.mappings, REGISTERED_MAPPINGS, strict=True):
+        assert (
+            row.modality == mapping.obligation.modality
+        )  # real per-obligation modality
+        assert row.kind == mapping.kind.value
+        # The rendered state matches the model's DERIVED state (not re-asserted).
+        assert row.pre_state == (mapping.pre_state.value if mapping.pre_state else None)
+        assert row.post_state == (
+            mapping.post_state.value if mapping.post_state else None
+        )
+
+    # The result summary + the honest disclaimer (on the result, not just the model).
+    assert conv.evidenced_count == sum(
+        1 for m in conv.mappings if m.kind == "EVIDENCED"
+    )
+    assert conv.boundary_count == 1
+    assert conv.hard_law_count >= 1 and conv.advisory_count >= 1
+    assert set(conv.jurisdictions) >= {"EU", "INDIA"}
+    assert conv.disclaimer == EVIDENCE_DISCLAIMER
 
 
 def test_arc_is_whole_ordered_and_chain_valid(tmp_path: Path) -> None:
