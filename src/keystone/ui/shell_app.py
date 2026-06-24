@@ -26,6 +26,7 @@ from keystone.demo import (
     recorded_run_path,
 )
 from keystone.ui import shell_screens as views
+from keystone.ui.convergence_screen import CONVERGENCE_HEIGHT_PX, convergence_html
 from keystone.ui.jurisdiction_screen import JURISDICTION_HEIGHT_PX, jurisdiction_html
 from keystone.ui.matrix_screen import MATRIX_CAVEATS, MATRIX_HEIGHT_PX, matrix_html
 from keystone.ui.seam_screen import SEAM_HEIGHT_PX, seam_html
@@ -34,7 +35,7 @@ from keystone.ui.seam_screen import SEAM_HEIGHT_PX, seam_html
 # as reachable detail (off the hero, so it stays clean).
 _MATRIX_VIEW = "③ The seam matrix — five attacks, one law"
 
-# label -> (html builder from a RunResult, iframe height). The first three HOST the
+# label -> (html builder from a RunResult, iframe height). The first four HOST the
 # heroes verbatim; the rest are the supporting views.
 _VIEWS: dict[str, tuple[Callable[[RunResult | None], str], int]] = {
     "① Seam — one event, two failures": (seam_html, SEAM_HEIGHT_PX),
@@ -43,15 +44,19 @@ _VIEWS: dict[str, tuple[Callable[[RunResult | None], str], int]] = {
         JURISDICTION_HEIGHT_PX,
     ),
     _MATRIX_VIEW: (matrix_html, MATRIX_HEIGHT_PX),
-    "④ Evidence ledger": (
+    "④ Convergence — violated, then satisfied": (
+        convergence_html,
+        CONVERGENCE_HEIGHT_PX,
+    ),
+    "⑤ Evidence ledger": (
         lambda r: views.view_html(views.ledger_svg(r)),
         views.LEDGER_HEIGHT_PX,
     ),
-    "⑤ Cross-layer posture": (
+    "⑥ Cross-layer posture": (
         lambda r: views.view_html(views.posture_svg(r)),
         views.POSTURE_HEIGHT_PX,
     ),
-    "⑥ Assurance before / after": (
+    "⑦ Assurance before / after": (
         lambda r: views.view_html(views.before_after_svg(r)),
         views.BEFORE_AFTER_HEIGHT_PX,
     ),

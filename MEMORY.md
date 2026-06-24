@@ -781,6 +781,28 @@
   invented as standalone obligations (which would violate "real L3 ref only"). No model
   change, no L3/M1 change. Each evidenced mapping inherits the DERIVED state (VIOLATE→
   SATISFY from 10→0). The rigor of each reason is reviewed by READING it (the gate can't).
+- **M2-0n (KS-0609) = the convergence hero — MOVEMENT 2 COMPLETE.** RunResult is **schema
+  v5**: a `convergence` block (`keystone.demo.convergence.build_convergence_view`, models
+  `ConvergenceView`/`ConvergenceMappingView`) DERIVED from `REGISTERED_MAPPINGS` — per
+  mapping the obligation (id + plain label, jurisdiction, modality), requirement, reason,
+  kind, and for EVIDENCED the VIOLATE→SATISFY states + the before/after numbers; plus the
+  `EVIDENCE_DISCLAIMER` + summary (evidenced/boundary/hard-law/advisory counts,
+  jurisdictions). **Schema bump v4→v5 migrated the only fixture** (`recorded_run.json`,
+  regenerated) and kept ALL FOUR replay paths green (seam/jurisdiction/matrix/shell). **The
+  hero** `keystone.ui.convergence_screen` (`convergence_html`/`convergence_svg`,
+  `CONVERGENCE_HEIGHT_PX`) + `convergence_app`: a TEMPORAL STATE-FLIP (sequel to the seam —
+  same TXN-000016 throughline). CENTER = the strongest hard-law obligation (derived: first
+  EVIDENCED HARD_LAW = Art.15) shown VIOLATED (berry 10/12) → SATISFIED (green 0/12), with
+  the assurance before/after AS the visible cause (reusing `shell_screens.before_after_svg`
+  language — the 10→0 IS the flip); reason + citation + modality shown. STRIP =
+  one-deep-rest-compact: the other evidenced (Art.9, RBI) as compact violated→satisfied
+  cards + the DPDP boundary as a DASHED "NOT EVIDENCED" deliberate result (the principled
+  reason shown, clamped). DISCLAIMER on screen (`_DISCLAIMER_LEAD` "a qualified auditor
+  makes the determination" + the EVIDENCE_DISCLAIMER). Hosted in `shell_app` as the 4th
+  hero (view ④; views renumbered to ⑦). AppTest gates `convergence_app` (live + replay +
+  forced-break). Screenshot: `docs/assets/m2-0n-convergence-hero.png`. **Note on the
+  task's "schema #7":** the version is a monotonic counter checked by exact equality — it
+  was at v4, so the correct bump is v5 (not 7).
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

@@ -871,20 +871,31 @@
     },
     {
       "id": "KS-0609",
-      "title": "The convergence result + UI (M2-0n)",
-      "description": "Movement 2's result made visible: the convergence loop as a figure/hero — this seam event -> these named obligations, violated->satisfied, across EU hard law + India advisory, with the DPDP boundary shown as a deliberate non-mapping. Derived from REGISTERED_MAPPINGS (the single source, nothing hardcoded); the satisfy/violate transition + the EVIDENCE_DISCLAIMER surfaced honestly. Likely a RunResult schema bump (a convergence block) + a screen hosted in the shell, with an AppTest gate (the M1-06 schema+UI lessons apply). The paper's convergence figure.",
+      "title": "The convergence result + the convergence hero (M2-0n)",
+      "description": "Movement 2's payoff, made visible: a `convergence` block on the RunResult (schema v5, DERIVED from keystone.convergence.REGISTERED_MAPPINGS — nothing hardcoded) carrying per mapping the obligation (id + plain label, jurisdiction, modality), requirement, reason, EvidenceKind, and for EVIDENCED the VIOLATE->SATISFY states + the before/after numbers; plus the EVIDENCE_DISCLAIMER and the result summary. And the fourth hero (keystone.ui.convergence_screen / convergence_app), the SEQUEL to the seam (same TXN-000016): a TEMPORAL STATE-FLIP — the strongest hard-law obligation shown VIOLATED (10/12) -> SATISFIED (0/12) with the assurance before/after AS the visible cause (one motion), the other evidenced mappings as a compact cross-jurisdiction strip (one-deep-rest-compact), the DPDP boundary as a deliberate dashed NOT_EVIDENCED result, and the honest disclaimer on the screen. Schema bump v4->v5 migrated recorded_run.json and kept all four replay paths (seam/jurisdiction/matrix/shell) green; the hero plugs into the shell as the 4th hero with an AppTest gate. The paper's convergence figure.",
       "phase": "6 — Movement 2: Regulatory Convergence",
       "layer": "Movement 2 — Convergence",
-      "area": "convergence",
-      "status": "planned",
+      "area": "demo",
+      "status": "done",
       "depends_on": [
         "KS-0608",
         "KS-0606"
       ],
       "done_criteria": [
-        "the convergence loop is surfaced as a result/figure derived from REGISTERED_MAPPINGS (the seam event -> named obligations, violated->satisfied, EU + India + the DPDP boundary), honestly framed (EVIDENCE_DISCLAIMER), with every replay path green and an AppTest gate if a screen ships"
+        "the convergence loop is surfaced as a typed `convergence` block on the RunResult, DERIVED from REGISTERED_MAPPINGS (add a mapping -> it appears; nothing hardcoded), at schema v5 with every replay path migrated and green",
+        "the fourth hero renders the temporal state-flip (the same event violated->satisfied) with the assurance before/after as the visible cause, the cross-jurisdiction modality spread legible, the DPDP boundary as a deliberate NOT_EVIDENCED result (not an empty slot), and the EVIDENCE_DISCLAIMER on the screen; the rendered state matches the model's DERIVED state",
+        "the convergence app is gated by an AppTest (live + replay, catches a forced break) and hosted in the shell as the fourth hero; make check / make verify green with mypy strict / Ruff / import-linter clean"
       ],
-      "tests": []
+      "tests": [
+        "tests/test_demo_run_result.py::test_convergence_block_is_derived_from_registered_mappings",
+        "tests/test_convergence_screen.py::test_convergence_renders_the_real_values",
+        "tests/test_convergence_screen.py::test_state_flip_shown_matches_the_derived_state",
+        "tests/test_convergence_screen.py::test_boundary_renders_as_a_deliberate_result_not_empty",
+        "tests/test_convergence_screen.py::test_disclaimer_is_on_the_screen",
+        "tests/test_convergence_app.py::test_app_loads_and_runs_without_exception",
+        "tests/test_convergence_app.py::test_replay_of_an_incompatible_run_degrades_without_crashing",
+        "tests/test_shell_app.py::test_shell_loads_and_runs_live_across_all_views"
+      ]
     }
   ]
 }

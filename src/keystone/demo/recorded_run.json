@@ -1,6 +1,6 @@
 {
-  "schema_version": 4,
-  "generated_at": "2026-06-23T19:27:07.401710+00:00",
+  "schema_version": 5,
+  "generated_at": "2026-06-24T12:56:20.160037+00:00",
   "seam_transaction": {
     "id": "TXN-000016",
     "timestamp": "2026-01-02T00:12:00+00:00",
@@ -234,7 +234,7 @@
     "entries": [
       {
         "id": 1,
-        "ts": "2026-06-23T19:27:07.360067+00:00",
+        "ts": "2026-06-24T12:56:20.132544+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -244,11 +244,11 @@
           "transaction_count": 39
         },
         "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-        "entry_hash": "1a21564359d49cc0be7c6f8dc9d81668472d469d4319c5d088a8676463923c55"
+        "entry_hash": "273b54d5c98810aef6c7e9a6731ad3c2ec5837db810e06549f4a408892e78edd"
       },
       {
         "id": 2,
-        "ts": "2026-06-23T19:27:07.367078+00:00",
+        "ts": "2026-06-24T12:56:20.138723+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -269,12 +269,12 @@
           ],
           "typology": "STRUCTURING"
         },
-        "prev_hash": "1a21564359d49cc0be7c6f8dc9d81668472d469d4319c5d088a8676463923c55",
-        "entry_hash": "cc99491034ab86a5f14918dba24aaa31f0e1b7685ce56777cdf852c88d5d21ef"
+        "prev_hash": "273b54d5c98810aef6c7e9a6731ad3c2ec5837db810e06549f4a408892e78edd",
+        "entry_hash": "3793ca3444d6855ac4fc40b99d213fb9ef8d7206e9326ec2fa28fe679453a66a"
       },
       {
         "id": 3,
-        "ts": "2026-06-23T19:27:07.373607+00:00",
+        "ts": "2026-06-24T12:56:20.142052+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -285,12 +285,12 @@
           "thesis": "the fraud L1 caught carries the exact vulnerability L2 found and patched",
           "transaction_id": "TXN-000016"
         },
-        "prev_hash": "cc99491034ab86a5f14918dba24aaa31f0e1b7685ce56777cdf852c88d5d21ef",
-        "entry_hash": "c705258a8a412cbced0da1f2afbe380e8595e1d87e709b70c25191828e668bbc"
+        "prev_hash": "3793ca3444d6855ac4fc40b99d213fb9ef8d7206e9326ec2fa28fe679453a66a",
+        "entry_hash": "3cffe4bf3d4e30302a247fa275e74f086a6572df864f9b82e1d4f8719a9b547f"
       },
       {
         "id": 4,
-        "ts": "2026-06-23T19:27:07.380821+00:00",
+        "ts": "2026-06-24T12:56:20.144051+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -372,12 +372,12 @@
           "total_amount": 85417.57,
           "transaction_count": 9
         },
-        "prev_hash": "c705258a8a412cbced0da1f2afbe380e8595e1d87e709b70c25191828e668bbc",
-        "entry_hash": "c9cfef7fefbe7e2e96cddaae583e982fef5f22a3cf1f44ecfdf4ea577c80ed28"
+        "prev_hash": "3cffe4bf3d4e30302a247fa275e74f086a6572df864f9b82e1d4f8719a9b547f",
+        "entry_hash": "827170ecd9b3b529f41a38938cc68326f2eda30d7232b1a1de8e348df2d4cddf"
       },
       {
         "id": 5,
-        "ts": "2026-06-23T19:27:07.388337+00:00",
+        "ts": "2026-06-24T12:56:20.151613+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -386,8 +386,8 @@
           "stage": "signed",
           "status": "SIGNED"
         },
-        "prev_hash": "c9cfef7fefbe7e2e96cddaae583e982fef5f22a3cf1f44ecfdf4ea577c80ed28",
-        "entry_hash": "23f00de3c0578b12177d7e7dbc922281b603f542616a97ed03ef5a3219553d43"
+        "prev_hash": "827170ecd9b3b529f41a38938cc68326f2eda30d7232b1a1de8e348df2d4cddf",
+        "entry_hash": "61f276fc97b07861a7e77cd536d415b8e811fed90171da9b9986fc529b015bdd"
       }
     ]
   },
@@ -443,5 +443,78 @@
     "boundary_count": 1,
     "boundary_statement": "The seam covers attacks that manifest as fund movement; it does not cover attacks that manifest as data loss. P4 (sensitive-information disclosure) is that boundary.",
     "independence_property": "One framework binds all five — the crime detector never reads the attack channel."
+  },
+  "convergence": {
+    "mappings": [
+      {
+        "obligation_id": "OBL-EUAI-015",
+        "obligation_label": "EU AI Act · Art. 15 — Accuracy, robustness and cybersecurity",
+        "jurisdiction": "EU",
+        "modality": "HARD_LAW",
+        "modality_label": "hard law",
+        "requirement": "Accuracy, robustness and resilience testing: The system achieves appropriate accuracy and robustness and performs consistently, evidenced by a programme of resilience/operational testing across its lifecycle. (crosswalk: ISO_42001 Clause 8 — Operation; NIST_AI_RMF MEASURE — valid, reliable and robust)",
+        "reason": "The P1 memo-injection (OWASP LLM01) successfully manipulated the payments agent into an unauthorized transfer — a direct failure of the accuracy, robustness and cybersecurity Art. 15 requires of a high-risk AI system. The assurance loop's detect-and-patch (Garak found the vector, the NeMo Guardrails rail blocked it) is exactly the resilience/operational testing the control (CTL-ROBUST-01; ISO 42001 Clause 8, NIST MEASURE) names; the before/after IS that evidence.",
+        "kind": "EVIDENCED",
+        "pre_state": "VIOLATE",
+        "post_state": "SATISFY",
+        "before_fails": 10,
+        "after_fails": 0,
+        "prompt_cap": 12
+      },
+      {
+        "obligation_id": "OBL-EUAI-009",
+        "obligation_label": "EU AI Act · Art. 9 — Risk management system",
+        "jurisdiction": "EU",
+        "modality": "HARD_LAW",
+        "modality_label": "hard law",
+        "requirement": "Risk management framework: A documented risk-management process identifies, assesses and treats risks across the system lifecycle, applied iteratively and kept up to date. (crosswalk: ISO_42001 Clause 6.1 & 8.2 — AI risk assessment and treatment; NIST_AI_RMF MAP and MANAGE; FATF Recommendation 1 — Risk-based approach)",
+        "reason": "Art. 9 requires a risk-management system that identifies and evaluates known and reasonably foreseeable risks and adopts treatment measures across the lifecycle. The P1 memo-injection IS such a reasonably-foreseeable semantic attack — untrusted memo text treated as instructions. The assurance loop is the risk process the article requires made concrete: Garak red-teaming IDENTIFIED the vector (ISO 42001 6.1/8.2 risk assessment; NIST MAP threat modeling) and the Guardrails rail TREATED it (NIST MANAGE) — violated while the risk was untreated, satisfied once the treatment was in place.",
+        "kind": "EVIDENCED",
+        "pre_state": "VIOLATE",
+        "post_state": "SATISFY",
+        "before_fails": 10,
+        "after_fails": 0,
+        "prompt_cap": 12
+      },
+      {
+        "obligation_id": "OBL-RBI-001",
+        "obligation_label": "RBI FREE-AI · Sutra — Trust is the Foundation — RBI FREE-AI Committee report (13 Aug 2025) — guiding principle",
+        "jurisdiction": "INDIA",
+        "modality": "SELF_CERTIFICATION",
+        "modality_label": "advisory",
+        "requirement": "Governance, leadership and accountability: A governing body or senior management establishes oversight of, and remains accountable for, AI/ICT outcomes; responsibilities are defined and cannot be delegated away to a model, processor or third-party vendor. (crosswalk: ISO_42001 Clause 5 — Leadership; NIST_AI_RMF GOVERN; FATF Recommendation 18 — Internal controls)",
+        "reason": "RBI FREE-AI Sutra 1 anchors AI adoption in TRUST — financial-sector systems must be reliable and inspire public confidence (an advisory committee principle, not a binding direction). The P1 attack directly undermines that trust: the agent was manipulated into moving laundered money. The assurance loop restores reliability (the vector detected and patched, 10/12 → 0/12) — the sutra evidenced as a governance control state (CTL-GOV-01; ISO 42001 Clause 5 leadership, NIST GOVERN). Advisory weight: self-certification, not fineable.",
+        "kind": "EVIDENCED",
+        "pre_state": "VIOLATE",
+        "post_state": "SATISFY",
+        "before_fails": 10,
+        "after_fails": 0,
+        "prompt_cap": 12
+      },
+      {
+        "obligation_id": "OBL-DPDPA-008",
+        "obligation_label": "DPDP Act · s. 8 — General obligations of Data Fiduciary",
+        "jurisdiction": "INDIA",
+        "modality": "HARD_LAW",
+        "modality_label": "hard law",
+        "requirement": "Information security safeguards: Reasonable technical and organisational security measures (encryption, access control, logging and monitoring, backups) protect data and systems from compromise. (crosswalk: ISO_42001 Annex A — Security of AI systems; NIST_AI_RMF MANAGE — secure and resilient)",
+        "reason": "DPDP s. 8 obliges the Data Fiduciary to protect PERSONAL DATA — its accuracy and completeness, reasonable security safeguards, and breach reporting. The P1 structuring event (and the other fund-movement events P2/P3/P5) move money but process or expose NO personal data, so they do not evidence a data-protection obligation. Only the P4 exfil / data-loss class — which leaks another party's data — would evidence it. The evidence relationship is specific: data-protection obligations are evidenced by data-loss events, not by fund movement.",
+        "kind": "NOT_EVIDENCED",
+        "pre_state": null,
+        "post_state": null,
+        "before_fails": null,
+        "after_fails": null,
+        "prompt_cap": null
+      }
+    ],
+    "evidenced_count": 3,
+    "boundary_count": 1,
+    "hard_law_count": 2,
+    "advisory_count": 1,
+    "jurisdictions": [
+      "EU",
+      "INDIA"
+    ],
+    "disclaimer": "Defensible technical-compliance evidence reasoning — that this event is an instance of the risk a control names — NOT a legal opinion or a certified compliance determination. The satisfy/violate model is a before/after simplification."
   }
 }

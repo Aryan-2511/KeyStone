@@ -184,8 +184,18 @@ the dashboard content survives as the KS-0503 supporting shell.)
       fund-movement). Each clears the four-part bar; modality spread real per-obligation;
       all refs resolve to real L3. — M2-02 / KS-0608 (`keystone.convergence.mappings`;
       `tests/test_obligation_mappings.py`)
-- [ ] The convergence result + UI (the loop made visible: seam event → obligations,
-      violated→satisfied, EU + India) — M2-0n / KS-0609 (**next**)
+- [x] **The convergence result + UI** — a `convergence` block on the RunResult (schema
+      v5, derived from `REGISTERED_MAPPINGS`) + the fourth hero (a temporal state-flip:
+      the same event VIOLATED→SATISFIED, the 10→0 as the cause, the cross-jurisdiction
+      spread, the DPDP boundary, the disclaimer on screen). Hosted in the shell;
+      AppTest-gated. — M2-0n / KS-0609 (`keystone.demo.convergence`,
+      `keystone.ui.convergence_screen` / `convergence_app`; `tests/test_convergence_*`;
+      screenshot `docs/assets/m2-0n-convergence-hero.png`)
+
+> **MOVEMENT 2 IS COMPLETE.** The convergence loop is a feature: a seam event IS the
+> audit evidence that takes named obligations from violated to satisfied (EU Art.15 +
+> Art.9 hard law, RBI Sutra 1 advisory; ISO 42001 + NIST via the control spine) — with
+> the honest DPDP data-protection boundary — surfaced as the M2-0n hero/figure.
 
 > Step-0 L3 recon (locked in `M2-00` §7a): L3 obligations (`OBL-EUAI-015`, `OBL-RBI-001`,
 > DPDP `OBL-DPDPA-*`) carry id/citation/modality/jurisdiction/control_ids — the evidence

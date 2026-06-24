@@ -116,6 +116,12 @@ before/after data, across EU hard law + India advisory.
 - The rigorous obligation mappings (`REGISTERED_MAPPINGS`): EU Art.15 + Art.9 (hard law),
   RBI Sutra 1 (advisory) — ISO 42001 + NIST surfaced via the control spine — and the DPDP
   data-protection boundary (NOT_EVIDENCED by fund movement). (`KS-0608` / M2-02)
-- The convergence result + UI — the loop made visible. (`KS-0609` / M2-0n)
+- The convergence result + UI — the loop made visible: the same event violated→satisfied
+  across EU + India, with the DPDP boundary and the honest disclaimer. (`KS-0609` / M2-0n)
+
+> **Movement 2 is COMPLETE** (`KS-0607`–`KS-0609`). Regulatory convergence as a feature:
+> a seam event IS the audit evidence that takes named obligations from violated to
+> satisfied, across EU hard law + India advisory, with an honest data-protection boundary.
+> See the figure at [`docs/assets/m2-0n-convergence-hero.png`](docs/assets/m2-0n-convergence-hero.png).
 
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._
