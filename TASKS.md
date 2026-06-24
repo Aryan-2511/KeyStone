@@ -178,10 +178,14 @@ the dashboard content survives as the KS-0503 supporting shell.)
       Subsumes L3 (not parallel); boundary first-class; "not lawyers" encoded. Proven by
       ONE reference mapping (P1 × EU Art. 15). — M2-01 / KS-0607
       (`keystone.convergence`; `tests/test_evidence_model.py`)
-- [ ] The rigorous obligation mappings (§4: ISO 42001 / NIST AI RMF / RBI + the DPDP
-      boundary), each clearing the four-part bar — M2-02 / KS-0608 (**next**)
+- [x] **The rigorous obligation mappings** — `REGISTERED_MAPPINGS` through the M2-01
+      model: 3 EVIDENCED (EU Art.15 + Art.9 hard law, RBI Sutra 1 advisory; ISO 42001 +
+      NIST surfaced via the control spine) + the DPDP s.8 BOUNDARY (NOT_EVIDENCED by
+      fund-movement). Each clears the four-part bar; modality spread real per-obligation;
+      all refs resolve to real L3. — M2-02 / KS-0608 (`keystone.convergence.mappings`;
+      `tests/test_obligation_mappings.py`)
 - [ ] The convergence result + UI (the loop made visible: seam event → obligations,
-      violated→satisfied, EU + India) — M2-0n
+      violated→satisfied, EU + India) — M2-0n / KS-0609 (**next**)
 
 > Step-0 L3 recon (locked in `M2-00` §7a): L3 obligations (`OBL-EUAI-015`, `OBL-RBI-001`,
 > DPDP `OBL-DPDPA-*`) carry id/citation/modality/jurisdiction/control_ids — the evidence

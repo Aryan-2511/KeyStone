@@ -761,6 +761,26 @@
   shape (id/instrument/citation/modality/jurisdiction/control_ids), before/after reachable
   via REFERENCED_ASSURANCE, DPDP boundary obligations already exist (`OBL-DPDPA-008` etc.).
   L3 untouched (28 obligations + controls green).
+- **M2-02 (KS-0608) = the rigorous obligation mappings — the convergence claim POPULATED.**
+  `keystone.convergence.REGISTERED_MAPPINGS` (mirrors REGISTERED_PAIRS) — the single source
+  the M2-0n UI/figure derives from. 4 mappings through the M2-01 model (no new
+  architecture): 3 EVIDENCED + 1 BOUNDARY, all built from REAL L3 (`from_obligation`):
+  **OBL-EUAI-015** (Art.15, HARD_LAW, EU — CTL-ROBUST-01 / ISO 42001 Cl.8 + NIST MEASURE;
+  the M2-01 reference mapping, kept in the set not duplicated), **OBL-EUAI-009** (Art.9,
+  HARD_LAW, EU — CTL-RISK-01 / ISO 42001 6.1&8.2 + NIST MAP/MANAGE; the ISO-input-
+  manipulation + NIST-semantic-threat angle), **OBL-RBI-001** (Sutra 1 Trust,
+  SELF_CERTIFICATION, INDIA — CTL-GOV-01 / ISO 42001 Cl.5 + NIST GOVERN; the advisory
+  half), + the **BOUNDARY OBL-DPDPA-008** (DPDP s.8 data-protection — NOT_EVIDENCED by
+  fund-movement events; reason: data-protection ↔ data-loss/P4, not fund movement — as
+  principled as P4). **Modality spread (real per-obligation, not country-inferred):**
+  EVIDENCED = 2 hard-law (EU) + 1 advisory (India); cross-jurisdiction EU + India; each
+  reason grounded in the obligation's REAL summary + control text. **KEY DESIGN DECISION
+  (surfaced):** ISO 42001 + NIST AI RMF are the control-library SPINE (the `Framework`
+  enum every CTL-* maps to), NOT L3 obligations — so they're evidenced VIA the control
+  spine of real obligations (their clauses appear in each mapping's `requirement`), never
+  invented as standalone obligations (which would violate "real L3 ref only"). No model
+  change, no L3/M1 change. Each evidenced mapping inherits the DERIVED state (VIOLATE→
+  SATISFY from 10→0). The rigor of each reason is reviewed by READING it (the gate can't).
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

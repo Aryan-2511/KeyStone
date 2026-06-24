@@ -26,7 +26,11 @@ from .mappings import (
     REFERENCE_CONTROL_ID,
     REFERENCE_MAPPING,
     REFERENCE_OBLIGATION_ID,
+    REGISTERED_MAPPINGS,
+    build_dpdp_boundary,
+    build_rbi_trust_mapping,
     build_reference_mapping,
+    build_risk_management_mapping,
 )
 
 __all__ = [
@@ -34,12 +38,16 @@ __all__ = [
     "REFERENCE_CONTROL_ID",
     "REFERENCE_MAPPING",
     "REFERENCE_OBLIGATION_ID",
+    "REGISTERED_MAPPINGS",
     "BeforeAfter",
     "EvidenceKind",
     "EvidenceRelationship",
     "EvidenceState",
     "ObligationRef",
     "SeamEventRef",
+    "build_dpdp_boundary",
+    "build_rbi_trust_mapping",
     "build_reference_mapping",
+    "build_risk_management_mapping",
     "derive_state",
 ]
