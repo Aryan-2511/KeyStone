@@ -845,6 +845,24 @@
   looks, no new controls. AppTests gate `run_app` + the shell (reveal + forced-break).
   Screenshot (revealed state): `docs/assets/ui-02-run-view.png`. The progressive REVEAL is
   live-only — headless can't show it; eyeball it live.
+- **HONEST SELF-DESCRIPTION (Path A reframing): Keystone is an ORCHESTRATED compliance &
+  assurance workflow, DETERMINISTIC BY DESIGN where auditability demands it, BECOMING a
+  multi-agent system — NOT multi-agent today.** The two probes (`agentic_audit.md`,
+  `multi_agent_feasibility.md`) established the truth: NAT sequences fixed deterministic
+  stages (the chassis fan-out, the assurance loop, the Layer-1 arc) and the LLM calls are
+  GUARDED SINGLE-SHOT (the report narrative + its faithfulness check, the deontic phrasing
+  guard) — nothing reasons and chooses its next action, so **nothing today is an agent in
+  the reasoning sense**. Determinism (FATF detection, the seam binding, the hash-chained
+  ledger) is a FEATURE — a regulator needs identical firing; the independence guarantee and
+  chain reproducibility depend on it. The word **"agent" is RESERVED** for the genuine
+  agents arriving next: the Red-Team agent (`MA-01`, observe→reason→adapt over the Garak
+  probe library) and the Triage agent (`MB`); two genuine agents = a multi-agent system,
+  claimed only once both land (`MA-00_REDTEAM_AGENT_DESIGN.md`). Path A fixed the
+  overclaims in **README.md, ARCHITECTURE.md, CLAUDE.md, ROADMAP.md, TASKS.md, and
+  `keystone.agents/__init__.py`** (the package KEPT its name — Option (b) — as a
+  forward-looking promise MA-01 keeps, not a present-tense false claim; a rename was
+  avoided as churn MA-01 would reverse). Language/naming only — **no behaviour change**;
+  the deterministic components are CORRECT, just described honestly.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a
