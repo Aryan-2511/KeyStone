@@ -132,19 +132,23 @@ check). It is **deterministic by design** where auditability demands it — and 
 multi-agent: nothing in it reasons and chooses its next action. The honest path to genuine
 agency (probe: `multi_agent_feasibility.md`; design: `MA-00_REDTEAM_AGENT_DESIGN.md`):
 
-- **Movement A — the Red-Team Agent** (`MA-01`): the first genuine agent — observe → reason
-  → adapt over the live Garak prompt-injection probe library (23 probes), its attack
-  sequence a function of observed defenses, with record/replay preserving the offline
-  default and the deterministic demo. "Agent" is earned only when its honesty test passes
-  (flip the observations → the probe sequence flips).
-- **Movement B — the Triage Agent** (`MB`): the second agent — routes a finding (remediate
-  / accept-as-boundary / escalate) over already-observable state. **Two genuine agents = a
-  multi-agent system**, claimed only once both land.
+- **Movement A — the Red-Team Agent** (`MA-01`, `KS-0612`) — **DONE.** The first genuine
+  agent: `keystone.agents.red_team` observes each probe's outcome and adapts its next
+  choice over the 23-probe Garak prompt-injection space, its attack sequence a function of
+  observed defenses. Shipped as **Option B — an adaptive offensive policy**, framed honestly
+  (an agent by the §2 bar — the next action depends on observation — but it reasons via an
+  explicit policy, NOT an LLM; Option A is a later upgrade). The §2 honesty test passes
+  (flip the observations → the probe sequence flips). Record/replay (schema v6) preserves
+  the offline default + deterministic demo; the memo-blind boundary holds with the agent in
+  the loop. **Keystone now has one genuine agent — still not yet multi-agent (that needs MB).**
+- **Movement B — the Triage Agent** (`MB`, **next**): the second agent — routes a finding
+  (remediate / accept-as-boundary / escalate) over already-observable state. **Two genuine
+  agents = a multi-agent system**, claimed only once both land.
 - **(Later) Movement C**: a defense agent — gated on a real ≥2-remediation menu (a single
   rail is one choice, not an agent).
 
-> Until MA-01's honesty test passes, Keystone is described as *orchestrated and
-> deterministic-by-design, becoming multi-agent* — never as multi-agent in the present
-> tense.
+> MA-01's honesty test passes, so the Red-Team Agent is honestly called an agent. But until
+> MB lands, Keystone is still described as *orchestrated and deterministic-by-design, with
+> one genuine agent, becoming multi-agent* — never as multi-agent in the present tense.
 
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._

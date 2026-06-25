@@ -227,11 +227,15 @@ path (probe `multi_agent_feasibility.md`, design `MA-00_REDTEAM_AGENT_DESIGN.md`
 - [x] **Path A — honest reframing** — language/naming now match reality (orchestrated,
       deterministic-by-design, becoming multi-agent); nothing today is claimed as a
       reasoning agent. Docs only, no behaviour change.
-- [ ] **Movement A — the Red-Team Agent** (`MA-01`, **next**) — the first genuine agent:
-      observe → reason → adapt over the live Garak probe library; honesty test (choices flip
-      when observations flip); record/replay preserves the deterministic demo.
-- [ ] **Movement B — the Triage Agent** (`MB`) — the second agent (route remediate / accept
-      / escalate). **A + B = a multi-agent system**, claimed only once both land.
+- [x] **Movement A — the Red-Team Agent** (`MA-01`) — the first genuine agent:
+      observe → reason(policy) → adapt over the 23-probe Garak prompt-injection space; the
+      §2 honesty test passes (the probe sequence flips when observations flip); shipped as
+      **Option B — an adaptive offensive policy**, framed honestly (not claimed as an LLM).
+      Record/replay (schema v6) preserves the deterministic demo; the memo-blind boundary
+      holds with the agent present. — `KS-0612` (`keystone.agents.red_team`;
+      `tests/test_red_team_agent.py` (the honesty test), `test_red_team_boundary.py`).
+- [ ] **Movement B — the Triage Agent** (`MB`, **next**) — the second agent (route remediate
+      / accept / escalate). **A + B = a multi-agent system**, claimed only once both land.
 - [ ] **(Later) Movement C** — a defense agent, gated on a real ≥2-remediation menu.
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)

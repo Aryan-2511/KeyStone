@@ -863,6 +863,41 @@
   forward-looking promise MA-01 keeps, not a present-tense false claim; a rename was
   avoided as churn MA-01 would reverse). Language/naming only — **no behaviour change**;
   the deterministic components are CORRECT, just described honestly.
+- **MA-01 (KS-0612) = the RED-TEAM AGENT — Keystone's FIRST genuine agent; makes
+  `keystone.agents`' forward-promise TRUE.** `keystone.agents.red_team`: an **adaptive
+  offensive POLICY** (MA-00 §3 **Option B**) — observe → reason(policy) → choose next probe
+  → observe → adapt. The decision space is REAL: the **23 in-family prompt-injection probes**
+  Garak v0.15.1 ships across the two recognized families (`latentinjection` ×17,
+  `promptinject` ×6 — `PROBE_CATALOG`, enumerated live from `garak --list_probes`, ordered by
+  escalation depth: base probes then `*Full` variants), each selectable via
+  `ScanConfig.probes`/`--probes`. The policy (`choose_next`, a PURE fn of observations):
+  scout each family's lead probe → exploit the family getting through hardest (highest
+  `failure_rate`), escalating to its deeper probes → abandon families fully blocked → stop
+  if nothing gets through. **THE §2 HONESTY TEST (the proof of agency, `tests/
+  test_red_team_agent.py`):** flip the observed outcomes and the probe SEQUENCE flips —
+  latentinjection-through ⇒ escalate latentinjection, drop promptinject; the INVERSE ⇒ the
+  choices flip; SAME observations ⇒ SAME sequence. A loop would be identical regardless; it
+  isn't. **HONEST FRAMING (load-bearing):** this is named an *adaptive offensive policy*,
+  NOT an LLM agent (`MECHANISM` = "…not an LLM"); it clears the §2 bar (next action depends
+  on observation) but reasons via an explicit policy — Option A (LLM-reasoned) is a LATER
+  upgrade; **never claim A while shipping B.** **Record/replay (MA-00 §4):** `observe` is
+  INJECTED — `garak_observe` runs a real Garak scan per probe (LIVE, the `-m slow` path,
+  skips cleanly offline); `profile_observe(RECORDED_DEFENSE_PROFILE)` reads a deterministic
+  defense profile (OFFLINE) so the genuine adaptive run replays identically with no
+  network/GPU. The recorded LI-lead number (10/12) is the REAL captured Garak fixture; the
+  rest is a documented characterization. **Schema v5→v6** (own commit, BEFORE dependents —
+  the v2 lesson): `RunResult.red_team` (`RedTeamView`/`RedTeamProbeView`), DERIVED by
+  ACTUALLY RUNNING the agent (`keystone.demo.red_team.build_red_team_view`, mirroring
+  matrix/convergence); `recorded_run.json` regenerated as a genuine v6 run; **recorded==fresh
+  holds** (`test_recorded_red_team_block_equals_a_fresh_build`); every replay path green;
+  hash chain re-verifies; offline-default intact. **THE MEMO-BLIND BOUNDARY (MA-00 §5,
+  SACRED) HOLDS:** the agent is OFFENSE-side and imports NOTHING on the detection path (no
+  `keystone.core`, no framework `detect`/`project_financial`) — asserted by `tests/
+  test_red_team_boundary.py` (AST import scan + the four independence locks hold with the
+  agent in the loop). An agent "reading the attack to be smarter" CANNOT reach the detector.
+  The deterministic core (FATF detect, seam-bind, ledger) and the Movement-1 matrix are
+  UNTOUCHED. **Still NOT multi-agent — that needs MB (the Triage Agent); two agents = a
+  multi-agent system, claimed only once both land.** (`MA-00_REDTEAM_AGENT_DESIGN.md`.)
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a
