@@ -14,6 +14,13 @@ from pathlib import Path
 
 import pytest
 
+from keystone.agents.red_team import (
+    MECHANISM,
+    PROBE_CATALOG,
+    RECORDED_DEFENSE_PROFILE,
+    profile_observe,
+    run_red_team,
+)
 from keystone.assurance import (
     BOUNDARY_STATEMENT,
     FAMILY_MAPPINGS,
@@ -30,6 +37,7 @@ from keystone.demo import (
     RunResult,
     RunResultError,
     build_run_result,
+    load_recorded_run,
     load_run_result,
     save_run_result,
 )
@@ -182,6 +190,36 @@ def test_convergence_block_is_derived_from_registered_mappings(tmp_path: Path) -
     assert conv.hard_law_count >= 1 and conv.advisory_count >= 1
     assert set(conv.jurisdictions) >= {"EU", "INDIA"}
     assert conv.disclaimer == EVIDENCE_DISCLAIMER
+
+
+# --- the Red-Team Agent block (MA-01) -----------------------------------------
+
+
+def test_red_team_block_is_a_genuine_agent_run(tmp_path: Path) -> None:
+    rt = _run(tmp_path).red_team
+
+    # The block is DERIVED by actually running the agent — it equals a direct run of
+    # the agent over the same recorded defense profile (never hand-authored).
+    trace = run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
+    assert rt.probe_sequence == trace.probe_sequence
+    assert rt.probes_run == len(trace.decisions)
+
+    # The decision space is the real Garak surface; the run adapted within it.
+    assert rt.families_available == tuple(PROBE_CATALOG)
+    assert rt.exploited_family == "latentinjection"
+    assert rt.abandoned_families == ("promptinject",)
+    # Honestly named: an adaptive policy, NOT claimed as an LLM.
+    assert rt.mechanism == MECHANISM
+    assert "not an LLM" in rt.mechanism
+    # The lead step is anchored to the REAL captured Garak fixture (10/12).
+    assert rt.decisions[0].fails == 10
+    assert rt.decisions[0].total_evaluated == 12
+
+
+def test_recorded_red_team_block_equals_a_fresh_build() -> None:
+    # recorded == fresh at v6: the recorded agentic trace is a faithful replay, byte
+    # for byte identical to a fresh genuine run (the offline profile is deterministic).
+    assert load_recorded_run().red_team == build_run_result().red_team
 
 
 def test_arc_is_whole_ordered_and_chain_valid(tmp_path: Path) -> None:

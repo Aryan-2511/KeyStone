@@ -34,7 +34,8 @@ from keystone.core.ledger import LedgerEntry
 # a saved run that no longer matches fails loudly rather than rendering wrong.
 # v4 (M1-06): added the `matrix` block (the characterized seam-matrix result).
 # v5 (M2-0n): added the `convergence` block (the regulatory-convergence result).
-RUN_RESULT_SCHEMA_VERSION = 5
+# v6 (MA-01): added the `red_team` block (the Red-Team Agent's recorded decision trace).
+RUN_RESULT_SCHEMA_VERSION = 6
 
 
 class SeamTransactionView(BaseModel):
@@ -271,6 +272,52 @@ class ConvergenceView(BaseModel):
     disclaimer: str
 
 
+class RedTeamProbeView(BaseModel):
+    """One step of the Red-Team Agent's decision trace (MA-01), for the UI.
+
+    The (observed-outcomes → chosen-probe) step the agent actually took: the probe it
+    chose, the phase (scout / exploit), why (the observation-driven rationale), and
+    the outcome it then observed. Derived from a genuine `keystone.agents.red_team`
+    run — never hand-authored.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    step: int
+    phase: str  # "scout" | "exploit"
+    family: str
+    probe: str
+    rationale: str
+    fails: int
+    total_evaluated: int
+    failure_rate: float
+    got_through: bool
+
+
+class RedTeamView(BaseModel):
+    """The Red-Team Agent's recorded decision trace (MA-01) — the agentic offense.
+
+    DERIVED from a genuine `keystone.agents.red_team` run: the ordered
+    (observed-outcomes → chosen-probe) steps, replayed deterministically offline
+    (MA-00 §4). The agent is honest by MA-00 §2 — its sequence is a function of what
+    it observed, not a fixed list — and honestly named by MA-00 §3: `mechanism`
+    states it is an adaptive policy, NOT an LLM. `families_available` is the real
+    Garak decision space; `exploited_family` / `abandoned_families` are what the
+    agent did with it on this run's observed defense.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    decisions: tuple[RedTeamProbeView, ...]
+    probe_sequence: tuple[str, ...]
+    families_available: tuple[str, ...]
+    scouted_families: tuple[str, ...]
+    exploited_family: str | None
+    abandoned_families: tuple[str, ...]
+    probes_run: int
+    mechanism: str
+
+
 class RunResult(BaseModel):
     """One end-to-end Layer-1 run, as the typed object the front-end renders."""
 
@@ -288,3 +335,5 @@ class RunResult(BaseModel):
     matrix: MatrixView
     # The regulatory-convergence result (M2-0n) — derived from REGISTERED_MAPPINGS.
     convergence: ConvergenceView
+    # The Red-Team Agent's recorded decision trace (MA-01) — a genuine agentic run.
+    red_team: RedTeamView

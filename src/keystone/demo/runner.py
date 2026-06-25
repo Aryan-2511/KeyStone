@@ -53,6 +53,7 @@ from keystone.llm.report_narrative import GuardedNarrative
 
 from .convergence import build_convergence_view
 from .matrix import build_matrix_view
+from .red_team import build_red_team_view
 from .run_result import (
     RUN_RESULT_SCHEMA_VERSION,
     AiSecurityView,
@@ -227,6 +228,7 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
         ),
         matrix=build_matrix_view(),
         convergence=build_convergence_view(),
+        red_team=build_red_team_view(),
     )
 
 

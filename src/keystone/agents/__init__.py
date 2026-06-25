@@ -10,4 +10,41 @@ agent — will sit, within this orchestration. Until those land, nothing here is
 in the reasoning sense.
 
 May depend inward on the deterministic core; the core must not depend on it.
+
+MA-01 makes this package's forward-promise TRUE: ``red_team`` is the first genuine
+agent — an adaptive offensive policy that observes probe outcomes and adapts its
+next probe choice (the MA-00 §2 honesty test). It is an agent, framed honestly as a
+policy (not an LLM).
 """
+
+from __future__ import annotations
+
+from .red_team import (
+    DEFAULT_BUDGET,
+    MECHANISM,
+    PROBE_CATALOG,
+    RECORDED_DEFENSE_PROFILE,
+    Observe,
+    ProbeOutcome,
+    RedTeamDecision,
+    RedTeamTrace,
+    choose_next,
+    garak_observe,
+    profile_observe,
+    run_red_team,
+)
+
+__all__ = [
+    "DEFAULT_BUDGET",
+    "MECHANISM",
+    "PROBE_CATALOG",
+    "RECORDED_DEFENSE_PROFILE",
+    "Observe",
+    "ProbeOutcome",
+    "RedTeamDecision",
+    "RedTeamTrace",
+    "choose_next",
+    "garak_observe",
+    "profile_observe",
+    "run_red_team",
+]
