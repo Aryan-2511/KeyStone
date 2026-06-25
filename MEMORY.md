@@ -819,6 +819,32 @@
   Before/after proof: `docs/assets/ui-01-before-seam.png` (the rectangle) vs
   `docs/assets/ui-01-after-seamless.png` (flush). "Seamless" is a LOOKS judgment — eyeball
   it live (`uv run streamlit run src/keystone/ui/shell_app.py`); the gate can't see it.
+- **UI-02 (KS-0611) = the live-execution view — the system VISIBLY RUNS; the shell's ENTRY
+  POINT.** `keystone.ui.run_view`: press "▶ Run the arc" and the FIVE REAL Layer-1 steps
+  reveal progressively (ingest → detect → seam-bind → report → sign), the hash-chained
+  ledger growing 1→5, arriving at the four heroes as DESTINATIONS. **No schema change** —
+  the 5 steps + ledger already exist in `RunResult.arc` (stages + entries); the view
+  SURFACES them. `arc_steps(result) -> tuple[ArcStep,...]` is the PURE, testable
+  derivation (each step's real artifact from the ledger payload + the typed views — e.g.
+  DETECT shows the real `STRUCTURING flagged on TXN-000016`); `render_run(build,
+  mode_label, *, on_open)` is the Streamlit reveal (`st.markdown` step blocks + a short
+  `time.sleep` pace, paced ONLY on the triggering run via a session flag). **The live/
+  recorded honesty rule (load-bearing):** the reveal is IDENTICAL; live `build` =
+  `build_run_result()` (computes now), recorded `build` = `load_run_result()` (a GENUINE
+  saved run) — both reveal the SAME 5 paced steps, NOT instant, NOT faked (test asserts
+  recorded steps == a fresh build's). The result is stored in `RUN_RESULT_KEY` (session)
+  so the heroes are the destinations of the SAME run; the shell defaults it to the
+  recorded run (heroes work before any run). **Note on the "live LLM at step 4":** kept
+  the offline-template default (no Ollama dependency → AppTest + offline-live stay green);
+  the runner's `narrate=` supports a live narrator if the demo machine wants it — did NOT
+  force Ollama. Shell integration: `_RUN_VIEW` is the first View option; destination
+  buttons navigate via a `_pending_view` session key applied before the radio (avoids
+  Streamlit's set-after-instantiation error). **Sidebar polish** (`keystone.ui.sidebar`,
+  `style_sidebar()`): token-driven CSS (mono labels, the sidebar as a designed PANEL) +
+  the `▶ Run the arc` PRIMARY button restyled amber→green (not stock green) — bounded to
+  looks, no new controls. AppTests gate `run_app` + the shell (reveal + forced-break).
+  Screenshot (revealed state): `docs/assets/ui-02-run-view.png`. The progressive REVEAL is
+  live-only — headless can't show it; eyeball it live.
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

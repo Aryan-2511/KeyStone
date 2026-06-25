@@ -8,6 +8,7 @@ import, or a replay that can't load fails the build.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
@@ -56,8 +57,40 @@ def test_shell_renders_from_the_v2_saved_run_replay() -> None:
     at.sidebar.text_input[0].set_value(str(_FIXTURE))
     at.run()
     assert not at.exception, at.exception
-    # cycle every view (hosted heroes + supporting) in replay
+    # cycle every view (the run entry + hosted heroes + supporting) in replay
     for label in _radio(at, "View").options:
         _radio(at, "View").set_value(label)
         at.run()
         assert not at.exception, (label, at.exception)
+
+
+def test_run_view_is_the_entry_and_reveals_the_five_steps() -> None:
+    # The shell opens on the live-execution view; pressing Run the arc reveals the five
+    # real steps and arrives at the destinations.
+    at = _app().run()
+    assert _radio(at, "View").value == "▶ Run the arc"  # the entry point
+    next(b for b in at.button if "Run the arc" in b.label).click()
+    at.run()
+    assert not at.exception, at.exception
+    md = " ".join(m.value for m in at.markdown)
+    for step in ("INGEST", "DETECT", "SEAM-BIND", "REPORT", "SIGN"):
+        assert step in md, step
+    assert "STRUCTURING" in md  # the real artifact, not fabricated
+    assert any("Open Seam" in b.label for b in at.button)  # the destinations
+
+
+def test_run_view_degrades_on_an_incompatible_run(tmp_path: Path) -> None:
+    # Forced break: a schema-mismatched saved run must NOT crash the run view — pressing
+    # Run the arc degrades to the honest error (then the real fixture, above, reveals).
+    data = json.loads(_FIXTURE.read_text(encoding="utf-8"))
+    data["schema_version"] = 1
+    bad = tmp_path / "stale_v1_run.json"
+    bad.write_text(json.dumps(data), encoding="utf-8")
+
+    at = _app().run()
+    at.sidebar.text_input[0].set_value(str(bad))
+    at.run()
+    next(b for b in at.button if "Run the arc" in b.label).click()
+    at.run()
+    assert not at.exception, at.exception  # degraded, not crashed
+    assert at.error or at.sidebar.error

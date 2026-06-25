@@ -921,6 +921,34 @@
         "tests/test_convergence_app.py::test_app_loads_and_runs_without_exception",
         "tests/test_shell_app.py::test_shell_loads_and_runs_live_across_all_views"
       ]
+    },
+    {
+      "id": "KS-0611",
+      "title": "The live-execution view (entry point) + sidebar polish (UI-02)",
+      "description": "Make the system VISIBLY RUN: a new entry-point view (keystone.ui.run_view, the shell's first view) where pressing 'Run the arc' reveals the FIVE REAL Layer-1 steps progressively (ingest -> detect -> seam-bind -> report -> sign), the hash-chained ledger growing entry by entry (1->5), arriving at the four result heroes as the run's DESTINATIONS (hosted via embed_hero, not reimplemented). No schema change — the steps + ledger already exist in RunResult.arc; arc_steps() is the pure derivation (each step's real artifact from the ledger payload + the typed views), render_run() the Streamlit progressive reveal (st.markdown blocks + a short pace, paced only on the triggering run). The live/recorded honesty rule (load-bearing): the reveal is IDENTICAL; live computes now (build_run_result), recorded replays a genuine saved run (load_run_result) paced — NOT instant, NOT faked (a test asserts recorded steps == a fresh build's). PLUS sidebar polish (keystone.ui.sidebar): token-driven CSS (mono labels, the sidebar as a designed panel) + 'Run the arc' restyled as the primary action — bounded to looks, no new controls. AppTests gate run_app + the shell (reveal + forced-break). The progressive reveal is live-only (headless shows the skeleton).",
+      "phase": "6 — UI polish",
+      "layer": "UI / front-end",
+      "area": "ui",
+      "status": "done",
+      "depends_on": [
+        "KS-0610",
+        "KS-0609",
+        "KS-0500"
+      ],
+      "done_criteria": [
+        "the entry-point view reveals the five REAL arc steps progressively (the ledger growing 1->5) from RunResult.arc — surfaced, not recomputed or faked — arriving at the four heroes as destinations; arc_steps is pure + tested against the real ledger entries",
+        "the live/recorded honesty rule holds: the reveal is identical in both modes; recorded is a paced REAL replay of the genuine saved run (not instant, not a fabricated simulation) — a test asserts recorded reveals the same steps a fresh build does",
+        "the sidebar is restyled to the shared design system with 'Run the arc' as the primary action (bounded to looks, no new controls); AppTests gate the view (live + replay + forced-break); no schema/RunResult change; UI-01 seamless embedding + the recorded fallback are not regressed; make check / make verify green"
+      ],
+      "tests": [
+        "tests/test_run_view.py::test_arc_steps_are_the_five_real_milestone_stages",
+        "tests/test_run_view.py::test_steps_reveal_real_artifacts_not_fabricated",
+        "tests/test_run_view.py::test_recorded_reveals_the_same_steps_as_a_fresh_build",
+        "tests/test_run_app.py::test_run_the_arc_reveals_the_five_real_steps_recorded",
+        "tests/test_run_app.py::test_run_the_arc_reveals_live",
+        "tests/test_shell_app.py::test_run_view_is_the_entry_and_reveals_the_five_steps",
+        "tests/test_shell_app.py::test_run_view_degrades_on_an_incompatible_run"
+      ]
     }
   ]
 }
