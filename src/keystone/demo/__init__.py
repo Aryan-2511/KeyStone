@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from .convergence import build_convergence_view
 from .matrix import build_matrix_view
+from .red_team import build_red_team_view
 from .run_result import (
     RUN_RESULT_SCHEMA_VERSION,
     AiSecurityView,
@@ -19,6 +20,8 @@ from .run_result import (
     FinancialCrimeView,
     MatrixPairView,
     MatrixView,
+    RedTeamProbeView,
+    RedTeamView,
     RegulatoryMappingView,
     ReportView,
     RunResult,
@@ -48,6 +51,8 @@ __all__ = [
     "FinancialCrimeView",
     "MatrixPairView",
     "MatrixView",
+    "RedTeamProbeView",
+    "RedTeamView",
     "RegulatoryMappingView",
     "ReportView",
     "RunResult",
@@ -56,6 +61,7 @@ __all__ = [
     "SeamTransactionView",
     "build_convergence_view",
     "build_matrix_view",
+    "build_red_team_view",
     "build_run_result",
     "load_recorded_run",
     "load_run_result",
