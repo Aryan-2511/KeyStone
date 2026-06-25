@@ -218,6 +218,22 @@ the dashboard content survives as the KS-0503 supporting shell.)
       UI-02 / KS-0611 (`keystone.ui.run_view` / `run_app` / `sidebar`, `shell_app`;
       `tests/test_run_view.py`, `test_run_app.py`; screenshot `docs/assets/ui-02-run-view.png`)
 
+## Becoming a multi-agent system (Movements A/B — next)
+
+Keystone today is **orchestrated + deterministic-by-design**, with guarded single-shot LLM
+calls — **not yet multi-agent** (nothing reasons and chooses its next action). The honest
+path (probe `multi_agent_feasibility.md`, design `MA-00_REDTEAM_AGENT_DESIGN.md`):
+
+- [x] **Path A — honest reframing** — language/naming now match reality (orchestrated,
+      deterministic-by-design, becoming multi-agent); nothing today is claimed as a
+      reasoning agent. Docs only, no behaviour change.
+- [ ] **Movement A — the Red-Team Agent** (`MA-01`, **next**) — the first genuine agent:
+      observe → reason → adapt over the live Garak probe library; honesty test (choices flip
+      when observations flip); record/replay preserves the deterministic demo.
+- [ ] **Movement B — the Triage Agent** (`MB`) — the second agent (route remediate / accept
+      / escalate). **A + B = a multi-agent system**, claimed only once both land.
+- [ ] **(Later) Movement C** — a defense agent, gated on a real ≥2-remediation menu.
+
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
 
 > Tracked so they aren't lost. Revisit on the noted trigger; none block KS-0202.

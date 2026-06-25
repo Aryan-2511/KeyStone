@@ -124,4 +124,27 @@ before/after data, across EU hard law + India advisory.
 > satisfied, across EU hard law + India advisory, with an honest data-protection boundary.
 > See the figure at [`docs/assets/m2-0n-convergence-hero.png`](docs/assets/m2-0n-convergence-hero.png).
 
+## Movements A/B — becoming a multi-agent system
+
+Keystone today is an **orchestrated** assurance workflow: NAT sequences deterministic
+stages, with guarded single-shot LLM calls (the report narrative + its faithfulness
+check). It is **deterministic by design** where auditability demands it — and **not yet**
+multi-agent: nothing in it reasons and chooses its next action. The honest path to genuine
+agency (probe: `multi_agent_feasibility.md`; design: `MA-00_REDTEAM_AGENT_DESIGN.md`):
+
+- **Movement A — the Red-Team Agent** (`MA-01`): the first genuine agent — observe → reason
+  → adapt over the live Garak prompt-injection probe library (23 probes), its attack
+  sequence a function of observed defenses, with record/replay preserving the offline
+  default and the deterministic demo. "Agent" is earned only when its honesty test passes
+  (flip the observations → the probe sequence flips).
+- **Movement B — the Triage Agent** (`MB`): the second agent — routes a finding (remediate
+  / accept-as-boundary / escalate) over already-observable state. **Two genuine agents = a
+  multi-agent system**, claimed only once both land.
+- **(Later) Movement C**: a defense agent — gated on a real ≥2-remediation menu (a single
+  rail is one choice, not an agent).
+
+> Until MA-01's honesty test passes, Keystone is described as *orchestrated and
+> deterministic-by-design, becoming multi-agent* — never as multi-agent in the present
+> tense.
+
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._

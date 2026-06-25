@@ -9,9 +9,13 @@
 
 ## One-line
 
-Multi-agent compliance & assurance system: agents ingest synthetic artifacts,
-apply policy via guardrails, and append verifiable findings to a hash-chained
-evidence ledger.
+An orchestrated compliance & assurance system: a NeMo Agent Toolkit workflow
+sequences deterministic stages that ingest synthetic artifacts, apply policy via
+guardrails, and append verifiable findings to a hash-chained evidence ledger.
+Deterministic by design where auditability demands it (FATF detection, the seam,
+the ledger) — a feature, not a gap. **Becoming a multi-agent system** as genuine
+Red-Team and Triage agents are added where real reasoning lives (Movements A/B);
+nothing today is a reasoning agent.
 
 ## Layers
 

@@ -1,9 +1,14 @@
 # Keystone
 
-Unified multi-agent **compliance & assurance** demo built on the NVIDIA agentic
+An **orchestrated compliance & assurance** demo built on the NVIDIA agentic
 stack — [NeMo Agent Toolkit](https://github.com/NVIDIA/NeMo-Agent-Toolkit)
 (`nvidia-nat`) for orchestration, [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails)
 for policy, and [Garak](https://github.com/NVIDIA/garak) for red-teaming.
+**Deterministic by design** where auditability demands it (FATF detection, the seam
+binding, the hash-chained ledger) — that determinism is a feature, not a gap — and
+**becoming a multi-agent system**: genuine offensive (Red-Team) and supervisory
+(Triage) agents are being added where real reasoning and decisions live (Movements
+A/B). Nothing today is claimed as a reasoning agent.
 
 > **Status:** Phase 0 — tooling harness only. No application logic yet.
 

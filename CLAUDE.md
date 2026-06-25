@@ -1,9 +1,11 @@
 # CLAUDE.md — entry map for Keystone
 
-> **Keystone** is a single-developer demo of a multi-agent **compliance &
-> assurance** system on the NVIDIA agentic stack (NeMo Agent Toolkit +
-> Guardrails, Garak for red-teaming). Deterministic core, LLM edge, synthetic
-> data, hash-chained evidence ledger.
+> **Keystone** is a single-developer demo of an **orchestrated compliance &
+> assurance** workflow on the NVIDIA agentic stack (NeMo Agent Toolkit +
+> Guardrails, Garak for red-teaming) — deterministic by design where auditability
+> demands it, **becoming a multi-agent system** (genuine Red-Team + Triage agents
+> next — Movements A/B). Deterministic core, LLM edge, synthetic data,
+> hash-chained evidence ledger.
 
 This file is a **map, not an encyclopedia**. Read the pointer for your task —
 don't load the whole tree. Depth lives in [`docs/`](docs/index.md).
