@@ -27,7 +27,7 @@ from keystone.ui.shell_screens import before_after_svg, ledger_svg, posture_svg
 def test_recorded_run_exists_is_current_version_and_chain_valid() -> None:
     assert recorded_run_path().is_file()
     rr = load_recorded_run()
-    assert rr.schema_version == RUN_RESULT_SCHEMA_VERSION == 6
+    assert rr.schema_version == RUN_RESULT_SCHEMA_VERSION == 7
     # The recording re-verifies its own hash chain offline — tamper-evident evidence.
     assert rr.arc.chain_verified is True
     assert rr.arc.arc_complete is True

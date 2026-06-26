@@ -27,6 +27,7 @@ from .run_result import (
     RunResult,
     SeamBindingView,
     SeamTransactionView,
+    TriageView,
 )
 from .runner import (
     DEFAULT_RUN_PATH,
@@ -39,6 +40,7 @@ from .runner import (
     run_json_path,
     save_run_result,
 )
+from .triage import build_triage_view
 
 __all__ = [
     "DEFAULT_RUN_PATH",
@@ -59,10 +61,12 @@ __all__ = [
     "RunResultError",
     "SeamBindingView",
     "SeamTransactionView",
+    "TriageView",
     "build_convergence_view",
     "build_matrix_view",
     "build_red_team_view",
     "build_run_result",
+    "build_triage_view",
     "load_recorded_run",
     "load_run_result",
     "recorded_run_path",

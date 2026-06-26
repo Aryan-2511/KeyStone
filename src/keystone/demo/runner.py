@@ -29,7 +29,9 @@ from keystone.assurance import (
     FAMILY_MAPPINGS,
     MEMO_INJECTION_SIGNATURE,
     REFERENCED_ASSURANCE,
+    REGISTERED_PAIRS,
 )
+from keystone.assurance.framework import SeamResult
 from keystone.assurance.layer1_milestone import (
     DEFAULT_SIGNER,
     MILESTONE_ACTION,
@@ -66,6 +68,7 @@ from .run_result import (
     SeamBindingView,
     SeamTransactionView,
 )
+from .triage import build_triage_view
 
 # The probe family whose curated OWASP/regulatory mapping describes the seam's
 # Layer-2 vulnerability (memo prompt-injection) — see keystone.assurance.garak_probe.
@@ -140,6 +143,23 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
     sig = MEMO_INJECTION_SIGNATURE
     mapping = FAMILY_MAPPINGS[_INJECTION_FAMILY]
     modalities = _obligation_modalities()
+
+    # The Triage Agent (MB-01) supervises THIS seam finding over three already-computed
+    # signals — it reads them, never recomputes them (the memo-blind boundary, MB-00 §4):
+    #   - failure_rate: the offense worker's (MA-01 Red-Team) STRONGEST landed exploit;
+    #   - seam_result : how the seam classifies (the registered pair for this typology);
+    #   - severity    : the L1 FATF finding's mapped severity.
+    # The supervisor-over-worker topology made literal: the rate it reads IS the
+    # Red-Team Agent's headline result on this run's recorded defense.
+    red_team_view = build_red_team_view()
+    headline_rate = max(
+        (d.failure_rate for d in red_team_view.decisions if d.got_through),
+        default=0.0,
+    )
+    seam_result = next(
+        (p.result for p in REGISTERED_PAIRS if p.crime.typology == finding.typology),
+        SeamResult.OPEN,  # unresolved by default if no registered pair classifies it
+    )
 
     # Rebuild the signed report and render BOTH regulator formats from one fact model
     # (the "one fact model, many connectors" claim, made literal for KS-0502).
@@ -228,7 +248,12 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
         ),
         matrix=build_matrix_view(),
         convergence=build_convergence_view(),
-        red_team=build_red_team_view(),
+        red_team=red_team_view,
+        triage=build_triage_view(
+            failure_rate=headline_rate,
+            seam_result=seam_result,
+            severity=finding.severity,
+        ),
     )
 
 

@@ -35,7 +35,8 @@ from keystone.core.ledger import LedgerEntry
 # v4 (M1-06): added the `matrix` block (the characterized seam-matrix result).
 # v5 (M2-0n): added the `convergence` block (the regulatory-convergence result).
 # v6 (MA-01): added the `red_team` block (the Red-Team Agent's recorded decision trace).
-RUN_RESULT_SCHEMA_VERSION = 6
+# v7 (MB-01): added the `triage` block (the Triage Agent's recorded routing decision).
+RUN_RESULT_SCHEMA_VERSION = 7
 
 
 class SeamTransactionView(BaseModel):
@@ -318,6 +319,35 @@ class RedTeamView(BaseModel):
     mechanism: str
 
 
+class TriageView(BaseModel):
+    """The Triage Agent's recorded routing decision (MB-01) — the supervisor's call.
+
+    DERIVED by actually RUNNING the Triage Agent (`keystone.agents.triage.triage`)
+    over the finding's already-computed signals — never hand-authored. The supervisor
+    reads the offense worker's strongest landed exploit (`failure_rate`), the seam's
+    classification (`seam_result`), and the mapped `severity`, and routes the finding
+    to one of `routes_available` (the genuine 3-option space). The route depends on the
+    INTERPLAY of the three signals, not a single threshold (the MB-00 §2 honesty test):
+    `rationale` states which signals were decisive. Honestly named by MB-00 §3:
+    `mechanism` says it is an adaptive policy, NOT an LLM. "remediate" is a ROUTE (this
+    finding warrants remediation), not a choice among fixes (gated Movement C, §6).
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    route: str  # "remediate" | "accept" | "escalate"
+    # The already-computed signals the agent saw (read-only; it never recomputed them).
+    failure_rate: float
+    seam_result: str  # "clean" | "boundary" | "open"
+    severity: str  # "LOW" | "MEDIUM" | "HIGH"
+    rationale: str
+    # The policy's noise floor (transparency — below this, nothing is actionable).
+    action_floor: float
+    # The genuine 3-option action space — each route reachable (no agency-theater).
+    routes_available: tuple[str, ...]
+    mechanism: str
+
+
 class RunResult(BaseModel):
     """One end-to-end Layer-1 run, as the typed object the front-end renders."""
 
@@ -337,3 +367,6 @@ class RunResult(BaseModel):
     convergence: ConvergenceView
     # The Red-Team Agent's recorded decision trace (MA-01) — a genuine agentic run.
     red_team: RedTeamView
+    # The Triage Agent's recorded routing decision (MB-01) — the supervisor over the
+    # offense worker's finding; the route depends on the signal interplay (not a rule).
+    triage: TriageView
