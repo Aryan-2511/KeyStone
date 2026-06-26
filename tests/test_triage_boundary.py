@@ -18,6 +18,7 @@ from __future__ import annotations
 import ast
 import importlib
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
@@ -51,9 +52,10 @@ _FORBIDDEN_IMPORTS = (
 )
 
 
-def _imported_modules(source: Path) -> set[str]:
-    """Every module name the source file imports (absolute form)."""
-    tree = ast.parse(source.read_text(encoding="utf-8"))
+def _imported_modules(module: ModuleType) -> set[str]:
+    """Every module name the module's source file imports (absolute form)."""
+    assert module.__file__ is not None  # every agent module is a real .py file
+    tree = ast.parse(Path(module.__file__).read_text(encoding="utf-8"))
     names: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -66,7 +68,7 @@ def _imported_modules(source: Path) -> set[str]:
 def test_triage_agent_module_has_no_path_to_the_detector() -> None:
     # The supervisor imports nothing on the detection path: it routes over signals
     # others computed, and structurally cannot recompute or reach into them (MB-00 §4).
-    imports = _imported_modules(Path(triage_module.__file__))
+    imports = _imported_modules(triage_module)
     for forbidden in _FORBIDDEN_IMPORTS:
         assert forbidden not in imports, (
             f"the Triage Agent must not import {forbidden!r} — it is a SUPERVISOR that "
@@ -83,7 +85,7 @@ def test_neither_agent_reaches_the_detector() -> None:
     # The boundary holds for BOTH agents present — the offense worker AND the
     # supervisor are each forbidden the detection path (the multi-agent boundary).
     for agent_module in (red_team, triage_module):
-        imports = _imported_modules(Path(agent_module.__file__))
+        imports = _imported_modules(agent_module)
         assert "keystone.assurance.framework" not in imports
         assert not any(m.startswith("keystone.core.fatf") for m in imports)
 
