@@ -979,6 +979,35 @@
         "tests/test_demo_run_result.py::test_red_team_block_is_a_genuine_agent_run",
         "tests/test_demo_run_result.py::test_recorded_red_team_block_equals_a_fresh_build"
       ]
+    },
+    {
+      "id": "KS-0613",
+      "title": "The Triage Agent — supervisory triage policy (MB-01); Keystone's second genuine agent → MULTI-AGENT",
+      "description": "The second component that meets the strict agent bar (MB-00 §2): keystone.agents.triage routes a security finding three ways — remediate / accept / escalate — by reasoning over the INTERPLAY of its already-computed signals (failure_rate, seam_result ∈ CLEAN/BOUNDARY/OPEN, mapped severity), NOT a single threshold. THE honesty test (the proof of agency): the SAME failure_rate routes DIFFERENTLY by seam context — at a moderate above-floor rate (MEDIUM severity), CLEAN → remediate, BOUNDARY → accept, OPEN → escalate; the route is a function of the COMBINATION, not an `if rate > X`. The 3-option action space is genuine (a realistic finding routes to each — no 2-of-3-dead). HONEST framing (MB-00 §3): this is Option B — an adaptive triage POLICY, named as such (MECHANISM = 'adaptive triage policy … not an LLM'), NOT claimed as an LLM agent (Option A is a later upgrade). SCOPE honesty (§1/§6): 'remediate' is a ROUTE (this finding warrants remediation), NOT a Defense Agent choosing among fixes — fix-selection / the adversarial loop is gated Movement C. Record/replay (MB-00 §4): schema v6→v7 — the routing decision lands on RunResult.triage (TriageView), DERIVED by actually running the agent (demo.triage.build_triage_view) over signals the runner hands it; the supervisor-over-worker topology is literal (the failure_rate it reads IS the MA-01 Red-Team Agent's strongest landed exploit); recorded_run.json regenerated as a genuine v7 run; recorded==fresh holds; all replay paths green; the hash chain re-verifies. The memo-blind boundary (MB-00 §4, sacred): the supervisor reads ONLY already-computed signals as plain values and imports NOTHING on the detection path or the attack channel (it carries its OWN value enums, parity-locked to the originals); an AST import-scan asserts it; the four independence locks hold with BOTH agents present. With MA-01 this makes Keystone honestly MULTI-AGENT: an offensive worker (Red-Team) + a supervisor (Triage), a supervisor-worker topology, verifiable in code. Does NOT make the defense agentic and does NOT re-derive the matrix.",
+      "phase": "7 — becoming multi-agent (Movement B)",
+      "layer": "agents / orchestration edge",
+      "area": "agents",
+      "status": "done",
+      "depends_on": [
+        "KS-0612"
+      ],
+      "done_criteria": [
+        "THE interplay honesty test passes: hold failure_rate FIXED and vary the seam result → the route CHANGES (same rate, CLEAN → remediate / BOUNDARY → accept / OPEN → escalate) — the literal 'not a single threshold' proof; if the route never changed when non-target signals varied it would be a threshold and the build would fail",
+        "all three routes (remediate / accept / escalate) are reachable on realistic findings (no dead route); the same (rate, seam, severity) always routes the same way (determinism, so it replays); the policy is framed HONESTLY as an adaptive triage policy, never claimed as an LLM, and 'remediate' is a ROUTE not a fix-selection",
+        "record/replay holds at schema v7: the routing decision is on RunResult.triage, DERIVED from a genuine agent run; recorded_run.json regenerated as a real run; recorded==fresh; every replay path (seam, jurisdiction, matrix, convergence, run-view, red_team) green; hash chain re-verifies; offline-default intact",
+        "the memo-blind boundary holds WITH BOTH agents present: the triage agent imports nothing on the detection path / attack channel (AST import-scan) and the four independence lock points are asserted to hold with the offense worker AND the supervisor in the loop; the deterministic core is untouched; make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores"
+      ],
+      "tests": [
+        "tests/test_triage_agent.py::test_same_rate_routes_differently_by_seam_context",
+        "tests/test_triage_agent.py::test_route_is_not_a_pure_function_of_any_single_signal",
+        "tests/test_triage_agent.py::test_all_three_routes_are_reachable_on_realistic_findings",
+        "tests/test_triage_agent.py::test_same_combination_gives_the_same_route",
+        "tests/test_triage_agent.py::test_seam_classification_has_value_parity_with_seam_result",
+        "tests/test_triage_boundary.py::test_triage_agent_module_has_no_path_to_the_detector",
+        "tests/test_triage_boundary.py::test_independence_holds_with_both_agents_present",
+        "tests/test_demo_run_result.py::test_triage_block_is_a_genuine_agent_run",
+        "tests/test_demo_run_result.py::test_recorded_triage_block_equals_a_fresh_build"
+      ]
     }
   ]
 }

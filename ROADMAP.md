@@ -126,11 +126,12 @@ before/after data, across EU hard law + India advisory.
 
 ## Movements A/B — becoming a multi-agent system
 
-Keystone today is an **orchestrated** assurance workflow: NAT sequences deterministic
-stages, with guarded single-shot LLM calls (the report narrative + its faithfulness
-check). It is **deterministic by design** where auditability demands it — and **not yet**
-multi-agent: nothing in it reasons and chooses its next action. The honest path to genuine
-agency (probe: `multi_agent_feasibility.md`; design: `MA-00_REDTEAM_AGENT_DESIGN.md`):
+Keystone is an **orchestrated** assurance workflow with a **deterministic-by-design** core
+(NAT sequences fixed stages; the FATF detection, the seam binding, and the hash-chained
+ledger are deterministic where auditability demands it) — and, as of MB-01, a genuine
+**multi-agent** edge: two agents that reason and choose, in a supervisor–worker topology.
+The honest path that got here (probes: `agentic_audit.md`, `multi_agent_feasibility.md`;
+designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
 
 - **Movement A — the Red-Team Agent** (`MA-01`, `KS-0612`) — **DONE.** The first genuine
   agent: `keystone.agents.red_team` observes each probe's outcome and adapts its next
@@ -141,14 +142,23 @@ agency (probe: `multi_agent_feasibility.md`; design: `MA-00_REDTEAM_AGENT_DESIGN
   (flip the observations → the probe sequence flips). Record/replay (schema v6) preserves
   the offline default + deterministic demo; the memo-blind boundary holds with the agent in
   the loop. **Keystone now has one genuine agent — still not yet multi-agent (that needs MB).**
-- **Movement B — the Triage Agent** (`MB`, **next**): the second agent — routes a finding
-  (remediate / accept-as-boundary / escalate) over already-observable state. **Two genuine
-  agents = a multi-agent system**, claimed only once both land.
+- **Movement B — the Triage Agent** (`MB-01`, `KS-0613`) — **DONE.** The second genuine
+  agent: `keystone.agents.triage` routes a finding (remediate / accept / escalate) over the
+  INTERPLAY of its already-computed signals (failure_rate, seam_result, severity), its route
+  a function of how they COMBINE — the same failure_rate routes differently by seam context
+  (CLEAN → remediate, BOUNDARY → accept, OPEN → escalate). Shipped as **Option B — an
+  adaptive triage policy**, framed honestly (an agent by the §2 bar — the route depends on
+  the observed combination, ≥2 genuine options — but it reasons via an explicit policy, NOT
+  an LLM; Option A is a later upgrade). The §2 interplay honesty test passes; all three
+  routes are reachable. "remediate" is a ROUTE, not a fix-selection (that is gated Movement
+  C). Record/replay (schema v7) preserves the deterministic demo; the memo-blind boundary
+  holds with BOTH agents in the loop. **A + B = a multi-agent system — now TRUE.**
 - **(Later) Movement C**: a defense agent — gated on a real ≥2-remediation menu (a single
   rail is one choice, not an agent).
 
-> MA-01's honesty test passes, so the Red-Team Agent is honestly called an agent. But until
-> MB lands, Keystone is still described as *orchestrated and deterministic-by-design, with
-> one genuine agent, becoming multi-agent* — never as multi-agent in the present tense.
+> **Keystone is now honestly MULTI-AGENT** (as of MB-01): two genuine agents in a
+> supervisor–worker topology — the Red-Team Agent (offensive worker) produces findings; the
+> Triage Agent (supervisor) routes them — each passing the strict §2 agency bar, verifiable
+> by reading the code. The present-tense "multi-agent system" claim is now defensible.
 
 _Out of scope throughout: Docker, tox, Sphinx, multi-version CI._
