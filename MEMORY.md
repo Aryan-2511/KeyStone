@@ -898,6 +898,45 @@
   The deterministic core (FATF detect, seam-bind, ledger) and the Movement-1 matrix are
   UNTOUCHED. **Still NOT multi-agent — that needs MB (the Triage Agent); two agents = a
   multi-agent system, claimed only once both land.** (`MA-00_REDTEAM_AGENT_DESIGN.md`.)
+- **MB-01 (KS-0613) = the TRIAGE AGENT — Keystone's SECOND genuine agent; with MA-01,
+  Keystone is now honestly MULTI-AGENT.** `keystone.agents.triage`: a **supervisory triage
+  POLICY** (MB-00 §3 **Option B**) — observe the finding's already-computed signals → reason
+  (policy over their COMBINATION) → route to one of three actions (**remediate / accept /
+  escalate**). The three signals: `failure_rate` (the offense worker's exploit strength),
+  `seam_result` ∈ CLEAN/BOUNDARY/OPEN (how the seam classifies), `severity` ∈ LOW/MEDIUM/HIGH
+  (the mapped FATF severity). The policy (`route_for`, a PURE fn of the signals): HIGH
+  severity → escalate (a human must see a severe finding regardless of rate); else below the
+  `ACTION_FLOOR`=0.10 → accept (contained on rate grounds); else the SEAM CONTEXT decides —
+  OPEN → escalate (unresolved), BOUNDARY → accept (provably non-binding), CLEAN → remediate
+  (a real, resolvable vuln). **THE §2 INTERPLAY HONESTY TEST (the proof of agency, `tests/
+  test_triage_agent.py`):** hold `failure_rate` FIXED (a moderate above-floor rate, MEDIUM
+  severity) and vary the seam → the route CHANGES: CLEAN ⇒ remediate, BOUNDARY ⇒ accept,
+  OPEN ⇒ escalate. The SAME rate means three different things by seam context — the literal
+  "not a single threshold" proof; the route depends on the COMBINATION, not any one signal.
+  All three routes are reachable (no 2-of-3-dead); same combination ⇒ same route. **HONEST
+  FRAMING (load-bearing):** named an *adaptive triage policy*, NOT an LLM (`MECHANISM` =
+  "…not an LLM"); clears the §2 bar but reasons via an explicit policy — Option A
+  (LLM-reasoned) is LATER; **never claim A while shipping B. SCOPE honesty (§1/§6):**
+  "remediate" is a ROUTE (this finding warrants remediation), NOT a Defense Agent choosing
+  among fixes — fix-selection / the adversarial offense↔defense loop is gated **Movement C**.
+  **Record/replay (MB-00 §4): schema v6→v7** (own commit, BEFORE dependents): `RunResult.triage`
+  (`TriageView`), DERIVED by ACTUALLY RUNNING the agent (`keystone.demo.triage.build_triage_view`
+  over signals the runner hands it). **The supervisor-over-worker topology is LITERAL:** the
+  `failure_rate` the Triage Agent reads IS the MA-01 Red-Team Agent's strongest landed exploit
+  on the run (0.833 = the 10/12 latentinjection lead). On this run the hero finding (0.833,
+  CLEAN, HIGH) routes to **ESCALATE**. `recorded_run.json` regenerated as a genuine v7 run;
+  **recorded==fresh holds**; every replay path green (seam, jurisdiction, matrix, convergence,
+  run-view, red_team); hash chain re-verifies; offline intact. **THE MEMO-BLIND BOUNDARY
+  (MB-00 §4, SACRED) HOLDS WITH BOTH AGENTS:** the supervisor reads ONLY already-computed
+  signals as plain VALUES and imports NOTHING on the detection path / attack channel — to keep
+  that structural it carries its OWN value enums (`SeamClassification`, `FindingSeverity`),
+  **pinned to the framework `SeamResult` / FATF `Severity` by a parity test** so they can't
+  drift; the demo/triage.py translation layer (allowed to import both) maps real→agent. An AST
+  import-scan asserts the boundary; the four independence locks hold with the offense worker
+  AND the supervisor present (`tests/test_triage_boundary.py`). **KEYSTONE IS NOW HONESTLY
+  MULTI-AGENT** — two genuine agents (Red-Team worker + Triage supervisor) in a supervisor–
+  worker topology, each passing the strict §2 bar; the present-tense claim is now TRUE.
+  (`MB-00_TRIAGE_AGENT_DESIGN.md`.)
 - **`load_run_result` is VERSION-AWARE; `RunResultError` subclasses `ValueError`.**
   A saved run from a different `schema_version` raises a clear "regenerate it"
   `RunResultError` (not a cryptic pydantic extra/missing wall), and because it's a

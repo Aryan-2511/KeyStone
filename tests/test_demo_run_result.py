@@ -14,12 +14,20 @@ from pathlib import Path
 
 import pytest
 
+from keystone.agents import TRIAGE_MECHANISM
 from keystone.agents.red_team import (
     MECHANISM,
     PROBE_CATALOG,
     RECORDED_DEFENSE_PROFILE,
     profile_observe,
     run_red_team,
+)
+from keystone.agents.triage import (
+    FindingSeverity,
+    Route,
+    SeamClassification,
+    TriageSignals,
+    triage,
 )
 from keystone.assurance import (
     BOUNDARY_STATEMENT,
@@ -217,9 +225,62 @@ def test_red_team_block_is_a_genuine_agent_run(tmp_path: Path) -> None:
 
 
 def test_recorded_red_team_block_equals_a_fresh_build() -> None:
-    # recorded == fresh at v6: the recorded agentic trace is a faithful replay, byte
+    # recorded == fresh at v7: the recorded agentic trace is a faithful replay, byte
     # for byte identical to a fresh genuine run (the offline profile is deterministic).
     assert load_recorded_run().red_team == build_run_result().red_team
+
+
+# --- the Triage Agent block (MB-01) -------------------------------------------
+
+
+def test_triage_block_is_a_genuine_agent_run(tmp_path: Path) -> None:
+    rr = _run(tmp_path)
+    tri = rr.triage
+
+    # The block is DERIVED by actually running the agent over the finding's already-
+    # computed signals — it equals a direct run of the agent on the same signals.
+    decision = triage(
+        TriageSignals(
+            failure_rate=tri.failure_rate,
+            seam_result=SeamClassification(tri.seam_result),
+            severity=FindingSeverity(tri.severity),
+        )
+    )
+    assert tri.route == decision.route.value
+    assert tri.rationale == decision.rationale
+
+    # The genuine 3-option action space (no dead route).
+    assert tri.routes_available == tuple(r.value for r in Route)
+    assert set(tri.routes_available) == {"remediate", "accept", "escalate"}
+
+    # Honestly named: an adaptive policy, NOT claimed as an LLM.
+    assert tri.mechanism == TRIAGE_MECHANISM
+    assert "not an LLM" in tri.mechanism
+
+
+def test_triage_reads_the_offense_workers_strongest_exploit(tmp_path: Path) -> None:
+    # The supervisor-over-worker topology made literal (MB-00 §1): the failure_rate the
+    # Triage Agent saw IS the Red-Team Agent's strongest landed exploit on this run.
+    rr = _run(tmp_path)
+    strongest = max(d.failure_rate for d in rr.red_team.decisions if d.got_through)
+    assert rr.triage.failure_rate == strongest
+
+
+def test_triage_routes_the_hero_finding_to_escalate(tmp_path: Path) -> None:
+    # The hero seam finding's GENUINE signals: a strong exploit (the red-team headline,
+    # 10/12) on a CLEAN-binding, HIGH-severity finding → a human must see it → escalate.
+    # (The interplay / all-routes are proven in tests/test_triage_agent.py.)
+    rr = _run(tmp_path)
+    assert rr.triage.severity == rr.financial_crime.severity == "HIGH"
+    assert rr.triage.seam_result == "clean"
+    assert rr.triage.route == "escalate"
+    assert rr.triage.failure_rate > rr.triage.action_floor
+
+
+def test_recorded_triage_block_equals_a_fresh_build() -> None:
+    # recorded == fresh at v7: the recorded triage decision is a faithful replay,
+    # identical to a fresh genuine run (the policy is a pure function of the signals).
+    assert load_recorded_run().triage == build_run_result().triage
 
 
 def test_arc_is_whole_ordered_and_chain_valid(tmp_path: Path) -> None:

@@ -1,6 +1,6 @@
 {
-  "schema_version": 6,
-  "generated_at": "2026-06-25T20:33:17.017632+00:00",
+  "schema_version": 7,
+  "generated_at": "2026-06-26T18:23:08.568008+00:00",
   "seam_transaction": {
     "id": "TXN-000016",
     "timestamp": "2026-01-02T00:12:00+00:00",
@@ -234,7 +234,7 @@
     "entries": [
       {
         "id": 1,
-        "ts": "2026-06-25T20:33:16.976187+00:00",
+        "ts": "2026-06-26T18:23:08.536122+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -244,11 +244,11 @@
           "transaction_count": 39
         },
         "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-        "entry_hash": "f9fd48ef789299780d62dcd94537b1813cc97de7e7aa47d71462f55c7e3e2a08"
+        "entry_hash": "67bb9caf53ba4517234ddb889121a69993b350b01ed9624f75dde38b576c0c49"
       },
       {
         "id": 2,
-        "ts": "2026-06-25T20:33:16.983104+00:00",
+        "ts": "2026-06-26T18:23:08.536122+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -269,12 +269,12 @@
           ],
           "typology": "STRUCTURING"
         },
-        "prev_hash": "f9fd48ef789299780d62dcd94537b1813cc97de7e7aa47d71462f55c7e3e2a08",
-        "entry_hash": "f8445a63459acbec796682bcefdd6d0c67ccdf232a88bda44f97f9fb85e44e9b"
+        "prev_hash": "67bb9caf53ba4517234ddb889121a69993b350b01ed9624f75dde38b576c0c49",
+        "entry_hash": "b73400e3365cd6e47236b3677c77853cfd1c8c5182a6333e182471a395904369"
       },
       {
         "id": 3,
-        "ts": "2026-06-25T20:33:16.990234+00:00",
+        "ts": "2026-06-26T18:23:08.536122+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -285,12 +285,12 @@
           "thesis": "the fraud L1 caught carries the exact vulnerability L2 found and patched",
           "transaction_id": "TXN-000016"
         },
-        "prev_hash": "f8445a63459acbec796682bcefdd6d0c67ccdf232a88bda44f97f9fb85e44e9b",
-        "entry_hash": "42b2b26383f0be1c52398a89363a359efe62267c43b33fe9bb5bf449ea88bf49"
+        "prev_hash": "b73400e3365cd6e47236b3677c77853cfd1c8c5182a6333e182471a395904369",
+        "entry_hash": "909c20d8194eebb60c7be4bce448199c8751cd810fc171fbdf0246d769165eb6"
       },
       {
         "id": 4,
-        "ts": "2026-06-25T20:33:16.997988+00:00",
+        "ts": "2026-06-26T18:23:08.552230+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -372,12 +372,12 @@
           "total_amount": 85417.57,
           "transaction_count": 9
         },
-        "prev_hash": "42b2b26383f0be1c52398a89363a359efe62267c43b33fe9bb5bf449ea88bf49",
-        "entry_hash": "35936626a7944afab66740934e467677d29efea6b216fb9eb7ec24f19a097031"
+        "prev_hash": "909c20d8194eebb60c7be4bce448199c8751cd810fc171fbdf0246d769165eb6",
+        "entry_hash": "26c5885ced7754494a4c907943b3a15e6a1ff7f2dfae0c9e5f3467174a426aa0"
       },
       {
         "id": 5,
-        "ts": "2026-06-25T20:33:17.004790+00:00",
+        "ts": "2026-06-26T18:23:08.552230+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -386,8 +386,8 @@
           "stage": "signed",
           "status": "SIGNED"
         },
-        "prev_hash": "35936626a7944afab66740934e467677d29efea6b216fb9eb7ec24f19a097031",
-        "entry_hash": "11da1601fb0e05cf51956bc9fa422f7981539a30e28c6ed96e8c789edba1d6df"
+        "prev_hash": "26c5885ced7754494a4c907943b3a15e6a1ff7f2dfae0c9e5f3467174a426aa0",
+        "entry_hash": "51e31e33798489255ef0f9b0be5d6f53086dc791ed436755730771462e16d3b9"
       }
     ]
   },
@@ -608,5 +608,19 @@
     ],
     "probes_run": 6,
     "mechanism": "adaptive offensive policy (observation-driven probe selection; not an LLM)"
+  },
+  "triage": {
+    "route": "escalate",
+    "failure_rate": 0.8333333333333334,
+    "seam_result": "clean",
+    "severity": "HIGH",
+    "rationale": "HIGH-severity finding (83% exploit on a clean seam) — a human must see a severe finding regardless of rate; escalating.",
+    "action_floor": 0.1,
+    "routes_available": [
+      "remediate",
+      "accept",
+      "escalate"
+    ],
+    "mechanism": "adaptive triage policy (routes over signal interplay; not an LLM)"
   }
 }

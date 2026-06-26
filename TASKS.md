@@ -218,15 +218,17 @@ the dashboard content survives as the KS-0503 supporting shell.)
       UI-02 / KS-0611 (`keystone.ui.run_view` / `run_app` / `sidebar`, `shell_app`;
       `tests/test_run_view.py`, `test_run_app.py`; screenshot `docs/assets/ui-02-run-view.png`)
 
-## Becoming a multi-agent system (Movements A/B — next)
+## A multi-agent system (Movements A/B — COMPLETE)
 
-Keystone today is **orchestrated + deterministic-by-design**, with guarded single-shot LLM
-calls — **not yet multi-agent** (nothing reasons and chooses its next action). The honest
-path (probe `multi_agent_feasibility.md`, design `MA-00_REDTEAM_AGENT_DESIGN.md`):
+Keystone has a **deterministic-by-design** core (FATF detection, the seam binding, the
+hash-chained ledger — deterministic where auditability demands it) and, as of MB-01, a
+genuine **multi-agent** edge: two agents that reason and choose, in a supervisor–worker
+topology. The honest path (probes `agentic_audit.md` / `multi_agent_feasibility.md`,
+designs `MA-00_REDTEAM_AGENT_DESIGN.md` / `MB-00_TRIAGE_AGENT_DESIGN.md`):
 
-- [x] **Path A — honest reframing** — language/naming now match reality (orchestrated,
-      deterministic-by-design, becoming multi-agent); nothing today is claimed as a
-      reasoning agent. Docs only, no behaviour change.
+- [x] **Path A — honest reframing** — language/naming match reality (orchestrated,
+      deterministic-by-design); nothing was claimed as a reasoning agent before MA-01.
+      Docs only, no behaviour change.
 - [x] **Movement A — the Red-Team Agent** (`MA-01`) — the first genuine agent:
       observe → reason(policy) → adapt over the 23-probe Garak prompt-injection space; the
       §2 honesty test passes (the probe sequence flips when observations flip); shipped as
@@ -234,9 +236,22 @@ path (probe `multi_agent_feasibility.md`, design `MA-00_REDTEAM_AGENT_DESIGN.md`
       Record/replay (schema v6) preserves the deterministic demo; the memo-blind boundary
       holds with the agent present. — `KS-0612` (`keystone.agents.red_team`;
       `tests/test_red_team_agent.py` (the honesty test), `test_red_team_boundary.py`).
-- [ ] **Movement B — the Triage Agent** (`MB`, **next**) — the second agent (route remediate
-      / accept / escalate). **A + B = a multi-agent system**, claimed only once both land.
+- [x] **Movement B — the Triage Agent** (`MB-01`) — the second genuine agent: a SUPERVISOR
+      that routes a finding (remediate / accept / escalate) over the INTERPLAY of its signals
+      (failure_rate, seam_result, severity) — the SAME rate routes differently by seam
+      context (CLEAN → remediate, BOUNDARY → accept, OPEN → escalate), the §2 interplay test
+      (the proof it is not a threshold). Shipped as **Option B — an adaptive triage policy**,
+      framed honestly (not an LLM); "remediate" is a ROUTE, not fix-selection (gated Movement
+      C). Record/replay (schema v7); the boundary holds with BOTH agents present. — `KS-0613`
+      (`keystone.agents.triage`; `tests/test_triage_agent.py` (the interplay test),
+      `test_triage_boundary.py`). **A + B = a multi-agent system — now TRUE.**
 - [ ] **(Later) Movement C** — a defense agent, gated on a real ≥2-remediation menu.
+
+> **Keystone is now honestly MULTI-AGENT.** Two genuine agents in a supervisor–worker
+> topology (Red-Team worker + Triage supervisor), each passing the strict §2 agency bar —
+> the present-tense "multi-agent system" claim is defensible. Next, optionally: Movement C
+> (a defense agent), Option A upgrades (LLM-reasoned red-team / triage), or an
+> agentic-framing pass on the deck + demo now that the claim is true.
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)
 
