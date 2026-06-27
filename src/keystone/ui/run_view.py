@@ -296,7 +296,9 @@ def _agent_block(
         f'font-weight:600;margin:2px 0;">{title}</div>'
         f'<div style="font-family:{T.STACK_BODY};font-size:13px;color:{T.TEXT_DIM};">'
         f"{detail}</div>"
-        f'<div style="font-family:{T.STACK_MONO};font-size:11px;color:{T.MUTED};'
+        # The honesty line ("…not an LLM") — legible (TEXT_DIM, not the dim MUTED) so it
+        # reads on the capture, distinguished by the italic mono face, not by being buried.
+        f'<div style="font-family:{T.STACK_MONO};font-size:11px;color:{T.TEXT_DIM};'
         f'margin-top:6px;font-style:italic;">{mechanism}</div></div>'
         f'<div style="font-family:{T.STACK_MONO};font-size:10px;letter-spacing:1.4px;'
         f"color:{accent};text-align:right;white-space:nowrap;margin-top:2px;"
@@ -338,12 +340,20 @@ def _header() -> str:
     )
 
 
+# Reveal pacing (UI-04): a deterministic stage is one line — a short dwell is enough; the
+# two AGENT cards carry 3-4 lines (the most text, the moments being sold) so they get a
+# LONGER dwell, comfortably readable on first reveal. Still a real-paced replay (the same
+# real steps), just slower — never instant, never faked.
+STEP_PACE = 0.6  # per deterministic stage card
+AGENT_DWELL = 1.6  # per agent card — extra time to read the 3-4 lines
+
+
 def render_run(
     build: Callable[[], RunResult | None],
     mode_label: str,
     *,
     on_open: Callable[[int], None] | None = None,
-    pace: float = 0.35,
+    pace: float = STEP_PACE,
 ) -> None:
     """Render the entry view: the primary Run-the-arc action + the progressive reveal.
 
@@ -387,11 +397,11 @@ def render_run(
         if step.stage == "detected":
             st.markdown(_red_team_card(rt_moment), unsafe_allow_html=True)
             if pace_now:
-                time.sleep(pace)
+                time.sleep(AGENT_DWELL)  # the agent cards dwell longer (more to read)
         elif step.stage == "seam_bound":
             st.markdown(_triage_card(tr_moment), unsafe_allow_html=True)
             if pace_now:
-                time.sleep(pace)
+                time.sleep(AGENT_DWELL)
 
     _render_destinations(on_open)
 

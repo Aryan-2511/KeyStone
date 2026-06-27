@@ -10,7 +10,9 @@ from __future__ import annotations
 
 from keystone.demo import build_run_result, load_recorded_run
 from keystone.ui.run_view import (
+    AGENT_DWELL,
     HERO_DESTINATIONS,
+    STEP_PACE,
     arc_steps,
     red_team_moment,
     triage_moment,
@@ -122,3 +124,10 @@ def test_agent_moments_are_derived_not_hardcoded() -> None:
     rec, fresh = load_recorded_run(), build_run_result()
     assert red_team_moment(rec).title == red_team_moment(fresh).title
     assert triage_moment(rec).route == triage_moment(fresh).route == fresh.triage.route
+
+
+def test_agent_cards_dwell_longer_than_the_deterministic_stages() -> None:
+    # Pacing intent (UI-04): the agent cards carry the most text (3-4 lines) and are the
+    # moments being sold, so they get a LONGER dwell than the one-line deterministic stages
+    # — readable on first reveal. Mechanical, so the intent can't silently regress.
+    assert AGENT_DWELL > STEP_PACE > 0

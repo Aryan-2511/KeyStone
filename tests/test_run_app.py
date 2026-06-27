@@ -59,6 +59,11 @@ def test_run_the_arc_reveals_live() -> None:
     at = _app().run()
     next(r for r in at.sidebar.radio if r.label == "Data source").set_value("Live run")
     at.run()
+    # Live mode is HONEST (UI-04): it recomputes the arc offline and says so — the agents
+    # replay the recorded defense profile (no fake-live, no implied live Garak/Ollama).
+    captions = " ".join(c.value for c in at.caption).lower()
+    assert "offline" in captions
+    assert "recorded defense profile" in captions
     _run_button(at).click()
     at.run()
     assert not at.exception, at.exception

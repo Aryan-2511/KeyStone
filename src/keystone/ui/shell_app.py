@@ -85,7 +85,7 @@ def _navigate(index: int) -> None:
 
 
 def render() -> None:
-    st.set_page_config(page_title="Keystone — demo", page_icon="🔗", layout="wide")
+    st.set_page_config(page_title="Keystone", page_icon="🔗", layout="wide")
     style_sidebar()
 
     # A destination button set a pending view last run — apply it before the radio.
@@ -95,13 +95,21 @@ def render() -> None:
     mode = st.sidebar.radio(
         "Data source",
         ("Replay saved run", "Live run"),
-        help="Recorded replays a genuine saved run (offline); live builds the arc now.",
+        help=(
+            "Both run offline. Recorded replays the saved run; live recomputes the "
+            "Layer-1 arc now. The agents replay the recorded defense profile either "
+            "way (no live Garak/Ollama wired) — so the two render the same decisions."
+        ),
     )
     view = st.sidebar.radio("View", _OPTIONS, key=_VIEW_KEY)
 
     if mode == "Live run":
         path = ""
-        mode_label = "Live run — the real Layer-1 arc, computed now."
+        mode_label = (
+            "Live run — recomputes the Layer-1 arc now, offline. The agents replay the "
+            "recorded defense profile (no live Garak/Ollama), so the decisions match the "
+            "recorded run — honest, not fake-live."
+        )
 
         def build() -> RunResult | None:
             result = build_run_result()
