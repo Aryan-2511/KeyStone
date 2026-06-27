@@ -1008,6 +1008,31 @@
         "tests/test_demo_run_result.py::test_triage_block_is_a_genuine_agent_run",
         "tests/test_demo_run_result.py::test_recorded_triage_block_equals_a_fresh_build"
       ]
+    },
+    {
+      "id": "KS-0614",
+      "title": "Agentic framing pass — foreground the two real agents in the run-view (UI-03)",
+      "description": "The system is now genuinely multi-agent (Red-Team MA-01 + Triage MB-01, both passing their §2 honesty tests), but the run-view (UI-02) labelled everything as neutral workflow stages — it UNDER-claimed. This FOREGROUNDS the two agents at the two moments they genuinely act, while keeping the deterministic stages honest as stages. FRAMING of existing behavior — NO new agent capability, NO new logic, NO schema change: it READS the existing RunResult.red_team (v6) and RunResult.triage (v7) blocks. The Red-Team Agent moment (interleaved after DETECT) surfaces its real adaptive trace — scouted both families, escalated the one getting through (latentinjection, 83% landed), abandoned the blocked one (promptinject) — framed honestly as an adaptive offensive policy, not an LLM. The Triage Agent moment (after the finding binds) surfaces its real routing decision — saw failure_rate 83% / seam clean / severity HIGH → routed ESCALATE, with the rationale — framed as routing over signal interplay, not an LLM. The supervisor-worker link is made visible: the failure_rate the Triage Agent routes on IS the Red-Team Agent's landed exploit (reads_red_team_exploit). The deterministic stages (ingest / seam-bind / report / sign) stay honest stages — the agent cards are styled DISTINCTLY (tinted boxed card, ◆ glyph, AGENT tag, no ledger count) so the contrast — reasoning where it helps, determinism where auditability demands — is VISIBLE (the Path A lesson: do not relabel deterministic stages as agents). Pure derivations (red_team_moment / triage_moment) are testable and read the real blocks; a test asserts the displayed decisions equal the blocks (not hardcoded). Serves the deck demo capture. Does NOT add a new hero/screen (the larger version is deferred) and does NOT regress UI-01 / UI-02 / the recorded fallback.",
+      "phase": "6 — UI polish",
+      "layer": "UI / front-end",
+      "area": "ui",
+      "status": "done",
+      "depends_on": [
+        "KS-0611",
+        "KS-0613"
+      ],
+      "done_criteria": [
+        "the run-view foregrounds the TWO real agents at the moments they genuinely act (Red-Team after detect, Triage after the finding binds), reading the existing red_team/triage blocks — a test asserts the displayed agent decisions equal the blocks' real data (not hardcoded, not a dramatization); no schema change",
+        "the agents are framed HONESTLY as adaptive policies, never as LLMs; the supervisor-worker link is visible (the failure_rate Triage routes on IS the Red-Team Agent's landed exploit); the deterministic stages stay honest stages, visibly distinct from the agent moments (the reasoning-vs-determinism contrast)",
+        "run_view AppTest (live + replay) green and renders the two agent moments with no exception; a forced break is caught; all replay paths + the recorded fallback green; offline intact; UI-01/UI-02 not regressed; make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores"
+      ],
+      "tests": [
+        "tests/test_run_view.py::test_red_team_moment_reads_the_real_red_team_block",
+        "tests/test_run_view.py::test_triage_moment_reads_the_real_triage_block",
+        "tests/test_run_view.py::test_triage_moment_links_route_to_the_red_team_landed_exploit",
+        "tests/test_run_view.py::test_agent_moments_are_derived_not_hardcoded",
+        "tests/test_run_app.py::test_run_the_arc_reveals_the_five_real_steps_recorded"
+      ]
     }
   ]
 }
