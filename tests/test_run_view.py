@@ -9,7 +9,12 @@ steps a fresh build does — proving recorded is a paced REAL replay, not a fabr
 from __future__ import annotations
 
 from keystone.demo import build_run_result, load_recorded_run
-from keystone.ui.run_view import HERO_DESTINATIONS, arc_steps
+from keystone.ui.run_view import (
+    HERO_DESTINATIONS,
+    arc_steps,
+    red_team_moment,
+    triage_moment,
+)
 
 
 def test_arc_steps_are_the_five_real_milestone_stages() -> None:
@@ -59,3 +64,61 @@ def test_the_run_arrives_at_the_four_heroes() -> None:
     assert len(HERO_DESTINATIONS) == 4
     names = {name for name, _ in HERO_DESTINATIONS}
     assert names == {"Seam", "Jurisdictions", "Seam matrix", "Convergence"}
+
+
+# --- the two AGENT moments (UI-03): framing reads the REAL blocks, not hardcoded ----
+
+
+def test_red_team_moment_reads_the_real_red_team_block() -> None:
+    # The Red-Team Agent beat is DERIVED from the real red_team block — its fields equal
+    # the block's (no recompute, no fabrication, no hardcoded dramatization).
+    r = load_recorded_run()
+    m = red_team_moment(r)
+    rt = r.red_team
+    assert m.exploited_family == rt.exploited_family
+    assert m.abandoned_families == rt.abandoned_families
+    assert m.probes_run == rt.probes_run
+    assert m.mechanism == rt.mechanism and "not an LLM" in m.mechanism
+    # The landed exploit it surfaces is the strongest got-through failure_rate in the trace.
+    expected = max(d.failure_rate for d in rt.decisions if d.got_through)
+    assert m.landed_rate == expected
+    # The real exploited family + its landed rate read into the displayed text.
+    assert rt.exploited_family is not None
+    assert rt.exploited_family in m.title and rt.exploited_family in m.detail
+
+
+def test_triage_moment_reads_the_real_triage_block() -> None:
+    # The Triage Agent beat is DERIVED from the real triage block — route/signals/rationale
+    # equal the block's; the displayed route + rationale are the agent's genuine decision.
+    r = load_recorded_run()
+    m = triage_moment(r)
+    tr = r.triage
+    assert (m.route, m.failure_rate, m.seam_result, m.severity) == (
+        tr.route,
+        tr.failure_rate,
+        tr.seam_result,
+        tr.severity,
+    )
+    assert m.rationale == tr.rationale
+    assert m.mechanism == tr.mechanism and "not an LLM" in m.mechanism
+    assert tr.route.upper() in m.title  # e.g. "Routed → ESCALATE"
+
+
+def test_triage_moment_links_route_to_the_red_team_landed_exploit() -> None:
+    # The literal supervisor–worker topology: the failure_rate the Triage Agent routes on
+    # IS the Red-Team Agent's strongest landed exploit (the worker's output, the supervisor's
+    # input). The framing surfaces that link.
+    r = load_recorded_run()
+    m = triage_moment(r)
+    assert m.reads_red_team_exploit is True
+    assert m.failure_rate == red_team_moment(r).landed_rate
+    assert "Red-Team Agent" in m.detail
+
+
+def test_agent_moments_are_derived_not_hardcoded() -> None:
+    # Recorded and a fresh build yield the SAME moments (the offline path is deterministic),
+    # and each equals its block — proving the framing is a function of the run, not a
+    # hardcoded script. (A different run's blocks would yield different moments.)
+    rec, fresh = load_recorded_run(), build_run_result()
+    assert red_team_moment(rec).title == red_team_moment(fresh).title
+    assert triage_moment(rec).route == triage_moment(fresh).route == fresh.triage.route

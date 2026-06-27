@@ -217,6 +217,16 @@ the dashboard content survives as the KS-0503 supporting shell.)
       design system with "▶ Run the arc" as the primary action. No schema change. —
       UI-02 / KS-0611 (`keystone.ui.run_view` / `run_app` / `sidebar`, `shell_app`;
       `tests/test_run_view.py`, `test_run_app.py`; screenshot `docs/assets/ui-02-run-view.png`)
+- [x] **Agentic framing pass** — the run-view now FOREGROUNDS the two real agents at the two
+      moments they genuinely act: the **Red-Team Agent** after DETECT (its real adaptive trace —
+      escalated latentinjection 83% landed, abandoned promptinject) and the **Triage Agent**
+      after the finding binds (routed → ESCALATE over signal interplay), with the
+      supervisor-worker link visible (the rate Triage routes on IS the red-teamer's landed
+      exploit). The deterministic stages stay honest stages, styled distinctly — the
+      reasoning-vs-determinism contrast made visible (the Path A lesson). FRAMING only — reads
+      the existing red_team/triage blocks, no new logic, no schema change. Honest: adaptive
+      policies, not LLMs. — UI-03 / KS-0614 (`keystone.ui.run_view`; `tests/test_run_view.py`
+      (the moments read the real blocks), `test_run_app.py`). Next → demo capture + the deck.
 
 ## A multi-agent system (Movements A/B — COMPLETE)
 

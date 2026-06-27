@@ -845,6 +845,27 @@
   looks, no new controls. AppTests gate `run_app` + the shell (reveal + forced-break).
   Screenshot (revealed state): `docs/assets/ui-02-run-view.png`. The progressive REVEAL is
   live-only — headless can't show it; eyeball it live.
+- **UI-03 (KS-0614) = the AGENTIC FRAMING PASS — the run-view foregrounds the TWO REAL
+  agents at the moments they genuinely act.** Once Keystone became genuinely multi-agent
+  (MA-01 + MB-01), the UI-02 run-view UNDER-claimed (everything read as neutral stages). UI-03
+  is FRAMING ONLY — NO new agent capability/logic, NO schema change: it READS the existing
+  `RunResult.red_team` (v6) + `RunResult.triage` (v7) blocks. Two AGENT moments are
+  interleaved into the progressive reveal: the **Red-Team Agent** after DETECT (its real
+  adaptive trace — scouted both families, escalated `latentinjection` 83% landed, abandoned
+  `promptinject` blocked) and the **Triage Agent** after the finding binds (routed → ESCALATE
+  over the signals 83%/clean/HIGH, with the real rationale). The **supervisor-worker link is
+  made visible** (`reads_red_team_exploit`): the `failure_rate` the Triage Agent routes on IS
+  the Red-Team Agent's strongest landed exploit. The deterministic stages (ingest/seam-bind/
+  report/sign) STAY honest stages — agent cards are styled DISTINCTLY (tinted boxed card, ◆
+  glyph, `AGENT` tag, NO ledger count) so the **reasoning-vs-determinism contrast IS visible**
+  (the Path A lesson: NEVER relabel deterministic stages as agents — the contrast is the
+  story). HONEST framing throughout: "adaptive policies, NOT LLMs" (the `mechanism` strings,
+  surfaced); recorded mode replays the agents' REAL decisions (not live-on-stage computation).
+  Pure, testable derivations `red_team_moment` / `triage_moment` (`keystone.ui.run_view`)
+  read the blocks; tests assert the displayed decisions EQUAL the blocks (not hardcoded) +
+  recorded==fresh moments; the AppTest asserts both moments render. Like UI-02 the reveal is
+  live-only (headless shows the skeleton) — eyeball it live; a standalone-HTML preview proves
+  the design. Does NOT add a new hero/screen (deferred); UI-01/UI-02/recorded fallback intact.
 - **HONEST SELF-DESCRIPTION (Path A reframing): Keystone is an ORCHESTRATED compliance &
   assurance workflow, DETERMINISTIC BY DESIGN where auditability demands it, BECOMING a
   multi-agent system — NOT multi-agent today.** The two probes (`agentic_audit.md`,

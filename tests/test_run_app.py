@@ -45,6 +45,12 @@ def test_run_the_arc_reveals_the_five_real_steps_recorded() -> None:
         assert label in md, label
     # The reveal carries the REAL artifact (the FATF finding), not a fabrication.
     assert "STRUCTURING" in md
+    # The TWO agent moments are foregrounded (UI-03), distinct from the stages, and
+    # honestly framed (adaptive policies, not LLMs).
+    assert "RED-TEAM AGENT" in md and "TRIAGE AGENT" in md
+    assert "not an LLM" in md
+    # The Triage Agent surfaces its real route (escalate) over the recorded signals.
+    assert "ESCALATE" in md
     # The run arrived at the destinations (the four heroes).
     assert any("Open Seam" in b.label for b in at.button)
 
