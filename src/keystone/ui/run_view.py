@@ -63,6 +63,106 @@ class ArcStep:
     ledger_entries: int  # hash-chained entries committed after this step (1..5)
 
 
+@dataclass(frozen=True)
+class RedTeamMoment:
+    """The Red-Team Agent's real decision, framed for the reveal (UI-03).
+
+    DERIVED from `RunResult.red_team` (the MA-01 agent's recorded trace) — NOT recomputed,
+    NOT fabricated. The agentic beat at the offense side: it adaptively chose probes,
+    escalated the family the defense let through, and abandoned the families it blocked.
+    """
+
+    exploited_family: str | None
+    abandoned_families: tuple[str, ...]
+    scouted_count: int
+    probes_run: int
+    landed_rate: float  # the strongest landed exploit — the failure_rate it surfaced
+    mechanism: str  # honest: "adaptive offensive policy … not an LLM"
+    title: str
+    detail: str
+
+
+@dataclass(frozen=True)
+class TriageMoment:
+    """The Triage Agent's real routing decision, framed for the reveal (UI-03).
+
+    DERIVED from `RunResult.triage` (the MB-01 agent's recorded decision) — NOT recomputed.
+    The agentic beat at the supervisor: it routed the finding over the INTERPLAY of its
+    signals. `reads_red_team_exploit` marks the literal supervisor–worker link — the
+    `failure_rate` it routed on IS the Red-Team Agent's strongest landed exploit.
+    """
+
+    route: str
+    failure_rate: float
+    seam_result: str
+    severity: str
+    rationale: str
+    mechanism: str  # honest: "adaptive triage policy … not an LLM"
+    reads_red_team_exploit: bool
+    title: str
+    detail: str
+
+
+def _landed_exploit(result: RunResult) -> float:
+    """The Red-Team Agent's strongest landed exploit (max got-through failure_rate)."""
+    return max(
+        (d.failure_rate for d in result.red_team.decisions if d.got_through),
+        default=0.0,
+    )
+
+
+def red_team_moment(result: RunResult) -> RedTeamMoment:
+    """Derive the Red-Team Agent beat from the real `red_team` block (no recompute)."""
+    rt = result.red_team
+    landed = _landed_exploit(result)
+    family = rt.exploited_family or "—"
+    abandoned = ", ".join(rt.abandoned_families) or "none"
+    title = (
+        f"Escalated '{family}' — {landed:.0%} of its probes landed"
+        if rt.exploited_family
+        else "Scouted every family; the defense held (nothing to escalate)"
+    )
+    detail = (
+        f"Scouted {len(rt.scouted_families)} families, then chose where to push: "
+        f"escalated '{family}' (the one getting through) and abandoned {abandoned} "
+        f"(blocked). {rt.probes_run} probes, picked by what landed — not a fixed list."
+    )
+    return RedTeamMoment(
+        exploited_family=rt.exploited_family,
+        abandoned_families=rt.abandoned_families,
+        scouted_count=len(rt.scouted_families),
+        probes_run=rt.probes_run,
+        landed_rate=landed,
+        mechanism=rt.mechanism,
+        title=title,
+        detail=detail,
+    )
+
+
+def triage_moment(result: RunResult) -> TriageMoment:
+    """Derive the Triage Agent beat from the real `triage` block (no recompute)."""
+    tr = result.triage
+    reads_worker = tr.failure_rate == _landed_exploit(result)
+    rate_src = " (the Red-Team Agent's landed exploit)" if reads_worker else ""
+    title = f"Routed → {tr.route.upper()}"
+    detail = (
+        f"Saw failure_rate {tr.failure_rate:.0%}{rate_src} · seam '{tr.seam_result}' · "
+        f"severity {tr.severity}, and routed over how they COMBINE — same rate routes "
+        f"differently by seam context. {tr.rationale}"
+    )
+    return TriageMoment(
+        route=tr.route,
+        failure_rate=tr.failure_rate,
+        seam_result=tr.seam_result,
+        severity=tr.severity,
+        rationale=tr.rationale,
+        mechanism=tr.mechanism,
+        reads_red_team_exploit=reads_worker,
+        title=title,
+        detail=detail,
+    )
+
+
 def _payload(result: RunResult, stage: str) -> dict[str, object]:
     for entry in result.arc.entries:
         if entry.payload.get("stage") == stage:
@@ -171,6 +271,61 @@ def _step_block(step: ArcStep) -> str:
     )
 
 
+def _agent_block(
+    *, kicker: str, title: str, detail: str, mechanism: str, colors: tuple[str, str]
+) -> str:
+    """One AGENT moment — visually DISTINCT from a deterministic stage card (UI-03).
+
+    Stage cards are flat panels with a green ✓ and a ledger count; an agent card is a
+    tinted, fully-boxed card with an accent ◆, an `AGENT` tag (no ledger count — these
+    reason, they don't commit a deterministic ledger stage), and the honest mechanism
+    line (an adaptive policy, NOT an LLM). The contrast IS the story: agents where
+    reasoning helps, determinism where auditability demands it. `colors` = (accent, wash).
+    """
+    accent, wash = colors
+    return (
+        f'<div style="display:flex;gap:14px;align-items:flex-start;margin:10px 0;'
+        f"padding:14px 18px;background:{wash};border:1px solid {accent};"
+        f'border-left:3px solid {accent};border-radius:{T.RADIUS}px;">'
+        f'<div style="font-family:{T.STACK_MONO};font-size:18px;color:{accent};'
+        f'font-weight:600;margin-top:2px;">◆</div>'
+        f'<div style="flex:1;">'
+        f'<div style="font-family:{T.STACK_MONO};font-size:11px;letter-spacing:1.6px;'
+        f'color:{accent};font-weight:600;">{kicker}</div>'
+        f'<div style="font-family:{T.STACK_DISPLAY};font-size:18px;color:{T.TEXT};'
+        f'font-weight:600;margin:2px 0;">{title}</div>'
+        f'<div style="font-family:{T.STACK_BODY};font-size:13px;color:{T.TEXT_DIM};">'
+        f"{detail}</div>"
+        f'<div style="font-family:{T.STACK_MONO};font-size:11px;color:{T.MUTED};'
+        f'margin-top:6px;font-style:italic;">{mechanism}</div></div>'
+        f'<div style="font-family:{T.STACK_MONO};font-size:10px;letter-spacing:1.4px;'
+        f"color:{accent};text-align:right;white-space:nowrap;margin-top:2px;"
+        f'border:1px solid {accent};border-radius:20px;padding:2px 9px;">AGENT</div></div>'
+    )
+
+
+def _red_team_card(moment: RedTeamMoment) -> str:
+    """The Red-Team Agent (offense, L2/purple) moment card."""
+    return _agent_block(
+        kicker="RED-TEAM AGENT · ADAPTIVE OFFENSIVE POLICY",
+        title=moment.title,
+        detail=moment.detail,
+        mechanism=moment.mechanism,
+        colors=(T.PURPLE, T.PURPLE_WASH),
+    )
+
+
+def _triage_card(moment: TriageMoment) -> str:
+    """The Triage Agent (supervisor, seam/amber) moment card."""
+    return _agent_block(
+        kicker="TRIAGE AGENT · ROUTES OVER SIGNAL INTERPLAY",
+        title=moment.title,
+        detail=moment.detail,
+        mechanism=moment.mechanism,
+        colors=(T.AMBER, T.AMBER_WASH),
+    )
+
+
 def _header() -> str:
     return (
         f'<div style="font-family:{T.STACK_MONO};font-size:11px;letter-spacing:1.6px;'
@@ -178,8 +333,8 @@ def _header() -> str:
         f'<div style="font-family:{T.STACK_DISPLAY};font-size:34px;color:{T.TEXT};'
         f'font-weight:700;letter-spacing:-0.5px;margin:6px 0 2px;">Watch it run.</div>'
         f'<div style="font-family:{T.STACK_BODY};font-size:15px;color:{T.TEXT_DIM};">'
-        "Five real steps — ingest, detect, seam-bind, report, sign — committed to a "
-        "hash-chained ledger, arriving at the result heroes.</div>"
+        "Five deterministic steps committed to a hash-chained ledger — and, where "
+        "reasoning helps, two genuine agents choosing (adaptive policies, not LLMs).</div>"
     )
 
 
@@ -218,11 +373,25 @@ def render_run(
         return
 
     steps = arc_steps(result)
+    rt_moment = red_team_moment(result)
+    tr_moment = triage_moment(result)
     pace_now = bool(st.session_state.pop(_PACE_KEY, False))
     for step in steps:
         st.markdown(_step_block(step), unsafe_allow_html=True)
         if pace_now:
             time.sleep(pace)
+        # Interleave the two AGENT moments at the beats they genuinely act: the Red-Team
+        # Agent (offense) right after DETECT; the Triage Agent (supervisor) right after the
+        # finding is bound. They read the real red_team/triage blocks — no recompute — and
+        # are styled DISTINCTLY from the deterministic stages (the contrast is the story).
+        if step.stage == "detected":
+            st.markdown(_red_team_card(rt_moment), unsafe_allow_html=True)
+            if pace_now:
+                time.sleep(pace)
+        elif step.stage == "seam_bound":
+            st.markdown(_triage_card(tr_moment), unsafe_allow_html=True)
+            if pace_now:
+                time.sleep(pace)
 
     _render_destinations(on_open)
 
