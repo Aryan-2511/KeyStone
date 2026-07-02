@@ -20,6 +20,6 @@ def test_version_is_set() -> None:
 
 
 def test_main_prints_version(capsys: pytest.CaptureFixture[str]) -> None:
-    main()
+    assert main(["version"]) == 0
     out = capsys.readouterr().out
     assert keystone.__version__ in out

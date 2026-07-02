@@ -37,6 +37,18 @@ trustworthy rather than circular.
 Live Garak, Movement C (a defense agent, gated on a real ≥2-remedy menu), and
 Movement 3 (adversarial self-testing) are deferred — see [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md).
 
+**Run it (from a clean clone).** After [Setup](#setup) below:
+
+```sh
+uv run keystone demo   # runs the real arc end to end, offline — no Ollama/Garak/network
+```
+
+This runs one genuine Layer-1 assurance arc and narrates the actual result it
+produced: the FATF finding, the Red-Team Agent's landed exploit, the seam bind,
+the Triage Agent's route, and the sealed hash-chained ledger. It is deterministic
+and needs no GPU or network. `make demo` is the same command; `make ui` opens the
+visual Streamlit version.
+
 **Where to look:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (layers & boundaries) ·
 [`DECISIONS.md`](DECISIONS.md) (the load-bearing *why*) ·
 [`ARTIFACT_INDEX.md`](ARTIFACT_INDEX.md) (deck, demo video, design docs, probes) ·
@@ -45,8 +57,9 @@ demo video: <https://youtu.be/cxYiSkkMOgA>.
 
 > **Status:** the three compliance layers, the seam matrix (Movement 1), the
 > convergence result (Movement 2), and both agents (Movements A/B) are built and
-> tested. `470` tests collected; the offline suite is green. The `keystone` console
-> script remains a version-only stub; `make demo` launches the real Streamlit app.
+> tested. `470` tests collected; the offline suite is green. `uv run keystone demo`
+> is the console front door (runs the real arc offline); `make ui` is the Streamlit
+> visual.
 
 ## Prerequisites
 
@@ -73,7 +86,8 @@ uv tool install garak   # isolated CLI, NOT a project dependency
 ```sh
 make check   # lint + typecheck + fast tests + audit (the gate; mirrors CI)
 make test    # fast tests only
-make demo    # launch the Streamlit demo app (streamlit run src/keystone/ui/app.py)
+make demo    # the console front door: run the real arc offline (= uv run keystone demo)
+make ui      # launch the Streamlit visual app (streamlit run src/keystone/ui/app.py)
 ```
 
 See `CLAUDE.md` for the full directory map and standing rules.
