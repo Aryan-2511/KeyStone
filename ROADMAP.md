@@ -21,10 +21,11 @@ No application logic.
 > the phase number; each phase names the layer it delivers. Layer numbering (L1/L2/L3)
 > is product meaning, not build order. See [`ADR-0011`](DECISIONS.md#adr-0011--realign-phases-25-to-the-three-compliance-layers).
 
-## Phase 2 — Layer 3: Obligation Mapper (current)
+## Phase 2 — Layer 3: Obligation Mapper — DONE
 
 The first real layer; deterministic-heavy. (`KS-0201`–`KS-0206`)
-KS-0201/0202/0204/0205/0206 are done; KS-0203 is next.
+All of `KS-0201`–`KS-0206` are done (see `docs/feature_list.json`, the source of
+truth). Work has since moved through Layers 2/1 and Movements 1, 2, A and B.
 
 - Curated obligation graph, ~25–30 nodes spanning EU AI Act Art. 9–15, DORA,
   India DPDP Act + DPDP Rules 2025, RBI responsible-AI guidance, PMLA/FIU-IND —
@@ -124,7 +125,7 @@ before/after data, across EU hard law + India advisory.
 > satisfied, across EU hard law + India advisory, with an honest data-protection boundary.
 > See the figure at [`docs/assets/m2-0n-convergence-hero.png`](docs/assets/m2-0n-convergence-hero.png).
 
-## Movements A/B — becoming a multi-agent system
+## Movements A/B — a multi-agent system (DONE)
 
 Keystone is an **orchestrated** assurance workflow with a **deterministic-by-design** core
 (NAT sequences fixed stages; the FATF detection, the seam binding, and the hash-chained

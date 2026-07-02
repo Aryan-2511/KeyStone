@@ -13,8 +13,9 @@
 - **garak is intentionally absent from `pyproject.toml`** — it lives as an
   isolated `uv tool` and is called as a subprocess. Don't "fix" its missing-dep
   by adding it. (ADR-0003)
-- The `keystone` console script and `make demo` are **Phase 0 placeholders** —
-  no real CLI/demo wiring exists yet.
+- The `keystone` **console script** (`src/keystone/__main__.py`) is still a
+  version-only stub — no real CLI wiring yet. **`make demo` is NOT a placeholder:**
+  it launches the real Streamlit app (`streamlit run src/keystone/ui/app.py`).
 - Resolution fact (2026-06-14): `nvidia-nat` + `nemoguardrails` resolve together
   cleanly under 3.12 with `uv`; no hand-edited pins were needed.
 - `annoy` (a Guardrails dependency) builds a native extension — a C/C++ compiler
