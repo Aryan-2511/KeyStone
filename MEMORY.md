@@ -866,6 +866,31 @@
   recorded==fresh moments; the AppTest asserts both moments render. Like UI-02 the reveal is
   live-only (headless shows the skeleton) — eyeball it live; a standalone-HTML preview proves
   the design. Does NOT add a new hero/screen (deferred); UI-01/UI-02/recorded fallback intact.
+- **UI-04 (KS-0615) = pre-capture polish + the HONEST "Live run" resolution.** Three demo-
+  capture polish items + a diagnosis. **Part A — the "Live run" button diagnosis (load-bearing
+  finding):** the reported "doesn't work" + the "needs local Ollama/Garak" hypothesis is
+  **REFUTED**. Live mode calls `build_run_result()`, which is **fully OFFLINE** — the
+  deterministic template narrative + the **recorded defense profile** for the agents
+  (`build_red_team_view`/`build_triage_view` use `profile_observe(RECORDED_DEFENSE_PROFILE)`,
+  never live Garak) — so it runs in ~0.04s with **zero network** and needs NO Ollama/Garak; the
+  AppTest live path renders the full reveal with no exception. The real issue was **honesty**:
+  the old label "the real Layer-1 arc, computed now" over-implied a live AGENT run, while the
+  red_team/triage agents replay the recorded profile **identically in both modes** (proven by
+  `test_recorded_*_block_equals_a_fresh_build`). **Resolution (honest, not fake-live):** the
+  Live label now says it recomputes the arc now *offline* and the agents replay the recorded
+  defense profile (no live Garak/Ollama) — kept ENABLED (it genuinely works), never pretends.
+  The rule for any future "Live" control: it must EITHER genuinely run live OR clearly say what
+  is/isn't — never show recorded while claiming live. **Part B — pacing:** `STEP_PACE` 0.35→0.6
+  per deterministic stage; the two AGENT cards get a longer `AGENT_DWELL`=1.6s (they carry 3-4
+  lines, the moments being sold) — readable on first reveal, still a real-paced replay (a test
+  pins `AGENT_DWELL > STEP_PACE`). **Part C — cosmetics for a clean captured frame:** page title
+  `"Keystone — demo"`/`"Keystone — run the arc"` → **`"Keystone"`** (shell_app + run_app); the
+  agent-card mechanism/honesty line ("…not an LLM") bumped from the dim `MUTED` to the legible
+  `TEXT_DIM` (token-driven) so it reads on the recording (still set apart by the italic mono
+  face). NOTE: if a `keyboard_double_arrow…` Material-icon ligature still shows in the live
+  capture, that is the Streamlit sidebar-collapse icon (a separate font-load artifact), NOT the
+  page title — left out of UI-04's bounded scope. No new agent logic, no schema change;
+  UI-01/02/03 + the recorded fallback intact. The reveal/pacing is live-only — eyeball it live.
 - **HONEST SELF-DESCRIPTION (Path A reframing): Keystone is an ORCHESTRATED compliance &
   assurance workflow, DETERMINISTIC BY DESIGN where auditability demands it, BECOMING a
   multi-agent system — NOT multi-agent today.** The two probes (`agentic_audit.md`,

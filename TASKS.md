@@ -227,6 +227,17 @@ the dashboard content survives as the KS-0503 supporting shell.)
       the existing red_team/triage blocks, no new logic, no schema change. Honest: adaptive
       policies, not LLMs. — UI-03 / KS-0614 (`keystone.ui.run_view`; `tests/test_run_view.py`
       (the moments read the real blocks), `test_run_app.py`). Next → demo capture + the deck.
+- [x] **Pre-capture polish + honest Live-run framing** — made the run-view a clean, honest
+      capture surface. (A) DIAGNOSED the "Live run" button: hypothesis (needs Ollama/Garak)
+      REFUTED — live calls `build_run_result()`, fully OFFLINE (~0.04s, no network); the real
+      issue was the label over-implying a live agent run while the agents replay the recorded
+      defense profile identically in both modes. Resolved by making the label HONEST (live
+      recomputes the arc offline; agents replay the recorded profile; not fake-live), kept
+      enabled. (B) PACING — `STEP_PACE` 0.35→0.6, agent cards a longer `AGENT_DWELL` (1.6s) so
+      the 3-4-line moments are readable. (C) clean page title "Keystone" + the agent-card
+      mechanism/honesty line bumped to legible `TEXT_DIM`. No new logic, no schema change. —
+      UI-04 / KS-0615 (`keystone.ui.run_view` / `shell_app` / `run_app`; `tests/test_run_app.py`,
+      `test_run_view.py`). Next → demo capture + the deck.
 
 ## A multi-agent system (Movements A/B — COMPLETE)
 

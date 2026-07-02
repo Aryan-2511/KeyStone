@@ -18,18 +18,24 @@ from keystone.ui.sidebar import style_sidebar
 
 
 def render() -> None:
-    st.set_page_config(
-        page_title="Keystone — run the arc", page_icon="🔗", layout="wide"
-    )
+    st.set_page_config(page_title="Keystone", page_icon="🔗", layout="wide")
     style_sidebar()
     mode = st.sidebar.radio(
         "Data source",
         ("Replay saved run", "Live run"),
-        help="Recorded replays a genuine saved run (offline); live builds the arc now.",
+        help=(
+            "Both run offline. Recorded replays the saved run; live recomputes the "
+            "Layer-1 arc now. The agents replay the recorded defense profile either "
+            "way (no live Garak/Ollama wired) — so the two render the same decisions."
+        ),
     )
 
     if mode == "Live run":
-        mode_label = "Live run — the real Layer-1 arc, computed now."
+        mode_label = (
+            "Live run — recomputes the Layer-1 arc now, offline. The agents replay the "
+            "recorded defense profile (no live Garak/Ollama), so the decisions match the "
+            "recorded run — honest, not fake-live."
+        )
 
         def build() -> RunResult | None:
             result = build_run_result()

@@ -1033,6 +1033,29 @@
         "tests/test_run_view.py::test_agent_moments_are_derived_not_hardcoded",
         "tests/test_run_app.py::test_run_the_arc_reveals_the_five_real_steps_recorded"
       ]
+    },
+    {
+      "id": "KS-0615",
+      "title": "Pre-capture polish + honest Live-run framing (UI-04)",
+      "description": "Polish making the run-view a clean, honest demo-capture surface, plus an honest resolution of the 'Live run' control. NO new agent logic, NO schema change. Part A (diagnosis): the 'Live run' data-source option was reported as not working; the hypothesis was it needs local Ollama/Garak. REFUTED — live mode calls build_run_result(), which is fully OFFLINE (the deterministic template narrative + the recorded defense profile for the agents), runs in ~0.04s with zero network, and needs no Ollama/Garak; the AppTest live path renders the complete reveal with no exception/error. The genuine issue was honesty: the label 'the real Layer-1 arc, computed now' over-implied a live agent run, while the red_team/triage agents replay the recorded defense profile IDENTICALLY in both modes (test_recorded_*_block_equals_a_fresh_build). Resolved by making the label HONEST — live recomputes the Layer-1 arc now, offline; the agents replay the recorded defense profile (no live Garak/Ollama); the decisions match the recorded run — honest, not fake-live. Kept enabled (it genuinely works); it never pretends. Part B (pacing): STEP_PACE 0.35->0.6 per deterministic stage, and the two AGENT cards get a longer AGENT_DWELL (1.6s) — they carry the most text (3-4 lines) and are the moments being sold, so they're readable on first reveal; still a real-paced replay, never instant/faked. Part C (cosmetics for a clean captured frame): the page title 'Keystone — demo' / 'Keystone — run the arc' -> 'Keystone' (shell_app + run_app); the agent-card mechanism line ('not an LLM') bumped from the dim MUTED to the legible TEXT_DIM (token-driven) so the honesty line reads on the recording, still distinguished by the italic mono face. No regression to UI-01/02/03 or the recorded fallback.",
+      "phase": "6 — UI polish",
+      "layer": "UI / front-end",
+      "area": "ui",
+      "status": "done",
+      "depends_on": [
+        "KS-0614"
+      ],
+      "done_criteria": [
+        "the 'Live run' control is HONEST: it genuinely recomputes the arc now (offline, no Ollama/Garak needed) and SAYS what is live vs recorded (the agents replay the recorded defense profile) — never fake-live (recorded shown while claiming live); a test asserts the honest framing renders with no exception",
+        "the reveal is paced for legibility — the two agent cards dwell LONGER than the one-line deterministic stages (mechanical: AGENT_DWELL > STEP_PACE), readable on first reveal; still a real-paced replay (not instant, not faked)",
+        "the captured frame is clean: page title is 'Keystone'; the agent-card mechanism/honesty line is legible (token-driven contrast bump); no regression to UI-01/02/03 or the recorded fallback; make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores"
+      ],
+      "tests": [
+        "tests/test_run_app.py::test_run_the_arc_reveals_live",
+        "tests/test_run_view.py::test_agent_cards_dwell_longer_than_the_deterministic_stages",
+        "tests/test_run_app.py::test_run_the_arc_reveals_the_five_real_steps_recorded",
+        "tests/test_shell_app.py::test_run_view_degrades_on_an_incompatible_run"
+      ]
     }
   ]
 }
