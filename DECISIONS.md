@@ -23,6 +23,12 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0012 | Obligation data model and storage (KS-0201) | Accepted |
 | 0013 | Override transitive cryptography<47 cap to clear GHSA-537c-gmf6-5ccf | Accepted |
 | 0014 | The Seam Framework: independence as a typed framework property | Accepted |
+| 0015 | Honestly multi-agent now — two probes, the §2 bar | Accepted |
+| 0016 | The memo-blind boundary is sacred (independence → convergence) | Accepted |
+| 0017 | Option B (policy) ships before Option A (LLM) | Accepted |
+| 0018 | Determinism-by-design is a feature, not a gap | Accepted |
+| 0019 | "remediate" is a route, not fix-selection (Movement C gate) | Accepted |
+| 0020 | Deck leads problem-first + the buyer-split | Accepted |
 
 ---
 
@@ -552,3 +558,132 @@ must be expressible over the financial projection (true for the existing FATF
 typologies). P5's recipient/sanctions typology does not yet exist in the engine
 (`M1-00` §7a) — that is a build question for M1-05, not a framework limitation; the
 framework already models its `TOOL_CALL` channel and `OPEN` result.
+
+---
+
+## ADR-0015 — Honestly multi-agent now: two genuine agents, gated by a strict bar
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** "Agentic" is the most abused word in this space. Keystone spent most
+of its life as an *orchestrated, deterministic-by-design* workflow and said so —
+it refused to call a `for`-loop an agent. Two honesty probes forced the question:
+`agentic_audit.md` (is anything here really an agent?) and
+`multi_agent_feasibility.md` (does a genuine second agent earn its place?).
+
+**Decision.** Ship two agents only once each clears a **§2 agency bar**: the next
+action must *demonstrably depend on what the agent observed*, over a genuine ≥2-option
+space — proven by a build-failing test, not asserted in prose. The **Red-Team Agent**
+(`keystone.agents.red_team`) observes each probe's outcome and adapts its next choice
+over the 23-probe Garak prompt-injection space (`test_red_team_agent.py`: flip the
+observations → the probe sequence flips). The **Triage Agent** (`keystone.agents.triage`)
+routes a finding on the *interplay* of its signals — the SAME failure_rate routes
+differently by seam context (`test_triage_agent.py`). The topology is supervisor
+(Triage) over worker (Red-Team): reason → act → observe → adapt.
+
+**Consequences.** The present-tense "multi-agent system" claim is defensible and
+verifiable by reading the code. Every doc was moved from "*becoming*" to present
+tense in this consolidation.
+
+**Honest caveat.** They are agents by the §2 bar, **not** LLMs — they reason through
+explicit, transparent policies. See ADR-0017.
+
+## ADR-0016 — The memo-blind boundary is sacred: independence is the whole thesis
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** The convergence result (Movement 2) claims a seam event turns named
+obligations from *violated* to *satisfied*. The paper-critical objection is
+circularity: what if detection and reporting secretly share the same signal? If
+they do, the convergence proves nothing.
+
+**Decision.** Keep detection and reporting **structurally independent** and enforce
+it mechanically, not by discipline. `bind` only ever hands the crime detector a
+memo-stripped `FinancialProjection` (ADR-0014), and an **AST import-scan test**
+proves the agent modules cannot even import the detector — `test_red_team_boundary.py`
+and `test_triage_boundary.py` assert the boundary holds with **both** agents present.
+
+**Consequences.** The convergence and seam-matrix claims rest on a property a refactor
+cannot silently break; adding an agent does not erode independence.
+
+**Honest caveat.** Independence is only as meaningful as the boundary test's reach; it
+is an *import/data-flow* guarantee, not a proof of semantic non-leakage beyond the
+projected fields — which is why the projection type (ADR-0014) is the real guardrail.
+
+## ADR-0017 — Option B (policy) ships before Option A (LLM)
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** An agent can reason via an explicit policy (Option B) or via model
+inference (Option A). It is tempting to claim "LLM agent" for the credibility while
+shipping a policy.
+
+**Decision.** Ship **Option B** — observation-driven policies (`choose_next`,
+`route_for`) — and say so, everywhere, plainly: "an adaptive policy, NOT an LLM
+agent." Option B still clears the §2 bar. Option A (LLM-reasoned selection/triage)
+is a named later upgrade, not a silent gap.
+
+**Consequences.** The demo stays deterministic and auditable (record/replay, schema
+v7); the honesty framing is consistent across README, ARCHITECTURE, ROADMAP, and the
+agent docstrings.
+
+**Honest caveat.** Option A would add genuine natural-language reasoning and
+generalization the policy cannot; until it lands, "reasoning" means *policy* reasoning.
+Tracked in `OPEN_QUESTIONS.md` §B.
+
+## ADR-0018 — Determinism-by-design is a feature, not a gap
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** In an "agentic" competition, deterministic stages can read as
+un-ambitious. Keystone deliberately keeps FATF detection, the seam binding, and the
+ledger deterministic.
+
+**Decision.** Frame determinism as a **feature** wherever auditability demands it:
+reproducibility, a tamper-evident hash-chained ledger, and record/replay demos.
+Reasoning lives at the edge (the two agents, the LLM phrasing); the auditable core
+stays deterministic on purpose.
+
+**Consequences.** A regulator/mentor can re-run and get the same evidence; the
+contrast between deterministic stages and reasoning agents is made visible in the
+run-view (UI-03).
+
+**Honest caveat.** Determinism-by-design is the right default *for the auditable
+core* — it is not a claim that everything should be deterministic; the agentic edge
+is exactly where non-determinism is allowed to earn its place.
+
+## ADR-0019 — "remediate" is a route, not fix-selection (Movement C gate)
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** The Triage Agent routes findings to remediate / accept / escalate. It
+would be an overclaim to present "remediate" as the system *choosing a fix*.
+
+**Decision.** "remediate" is a **ROUTE** — *this finding warrants remediation* — not
+a selection among concrete fixes. A defense agent that picks a fix (Movement C) is
+**gated on a real ≥2-remediation menu**: a single rail is one choice, not an agent.
+
+**Consequences.** The triage claim stays honest and testable (all three routes
+reachable) without implying a capability that is not built.
+
+**Honest caveat.** Until a genuine ≥2-remedy menu exists, there is no defense agent;
+Movement C is deferred (`OPEN_QUESTIONS.md` §B).
+
+## ADR-0020 — The deck leads problem-first, on the buyer-split
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** The technically interesting artifact is the seam; the *compelling* story
+is the problem. The market gap is that no single vendor spans the seam — detection
+vendors and reporting/compliance vendors are different buyers.
+
+**Decision.** Lead the deck **problem-first** and on the **buyer-split**: the seam
+exists because no vendor owns both sides, which is why the risk it addresses is
+un-owned today. The seam thesis follows from the problem, not the reverse.
+
+**Consequences.** The narrative lands for a non-technical judge; the technical depth
+(seam framework, convergence, agents) is the *evidence*, not the pitch.
+
+**Honest caveat.** The buyer-split is a positioning argument, not a repo-verifiable
+fact; market claims (breadth, adoption) belong to the deck and are tracked as
+unverifiable-from-repo in `OPEN_QUESTIONS.md` §A.

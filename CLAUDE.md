@@ -3,9 +3,9 @@
 > **Keystone** is a single-developer demo of an **orchestrated compliance &
 > assurance** workflow on the NVIDIA agentic stack (NeMo Agent Toolkit +
 > Guardrails, Garak for red-teaming) — deterministic by design where auditability
-> demands it, **becoming a multi-agent system** (genuine Red-Team + Triage agents
-> next — Movements A/B). Deterministic core, LLM edge, synthetic data,
-> hash-chained evidence ledger.
+> demands it, and now a **multi-agent system** (two genuine agents — a Red-Team
+> Agent + a Triage Agent, observation-driven policies, NOT LLMs; Movements A/B
+> done). Deterministic core, LLM edge, synthetic data, hash-chained evidence ledger.
 
 This file is a **map, not an encyclopedia**. Read the pointer for your task —
 don't load the whole tree. Depth lives in [`docs/`](docs/index.md).
@@ -67,7 +67,7 @@ _(Italic paths are added in later phases; see [`ROADMAP.md`](ROADMAP.md).)_
 | `make check` | Gate: lint + typecheck + fast tests + audit (mirrors CI `check` job) |
 | `make verify` | Skeptical, independent verification gate (see `docs/QUALITY.md`) |
 | `make test` / `make test-all` | Fast tests / full suite |
-| `make demo` | Run the demo (placeholder until a later phase) |
+| `make demo` | Launch the Streamlit demo app (`streamlit run src/keystone/ui/app.py`) |
 
 CI runs three gates on every push/PR: **`pre-commit`** (detect-secrets +
 hygiene), **`check`** (fast), and **`verify`** (full suite + scope validation).

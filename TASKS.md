@@ -17,10 +17,11 @@
   - [x] Streamlit shell (`keystone.ui.app`, `make demo`)
   - [x] Ledger unit tests + `@milestone` integration test (3 layers + chain)
 
-## Now — Phase 2 = Layer 3: Obligation Mapper (in progress; next → Layer 2 / KS-03xx)
+## Phase 2 = Layer 3: Obligation Mapper — DONE
 
 > Phases 2–5 are realigned to the three compliance layers (ADR-0011). Full
-> verifiable breakdown in `docs/feature_list.json`.
+> verifiable breakdown in `docs/feature_list.json`. All `KS-02xx` items below are
+> done; work has since moved through Layers 2/1 and Movements 1, 2, A and B (below).
 
 - [x] Curated obligation graph, 28 nodes (EU AI Act Art. 9–15, DORA, India
       DPDP Act + DPDP Rules 2025, RBI, PMLA/FIU-IND), each with a source citation — KS-0201
