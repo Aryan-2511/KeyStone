@@ -32,19 +32,25 @@
     },
     {
       "id": "KS-0002",
-      "title": "Console entry point reports version",
-      "description": "keystone.__main__:main prints the version (placeholder CLI).",
+      "title": "Console entry point (the front door)",
+      "description": "keystone.__main__:main is the real front door: `keystone demo` (the default) runs the genuine Layer-1 arc offline via keystone.demo.build_run_result and narrates the actual RunResult (keystone.demo.narrate); `keystone version` reports the version. Same real arc as `make demo` / `make ui`.",
       "phase": "0 — Harness",
       "layer": "Harness (infra)",
       "area": "packaging",
       "status": "done",
       "done_criteria": [
-        "main() prints a line containing __version__",
-        "the installed console script, run as a subprocess, prints the version"
+        "`keystone demo` (and bare `keystone`) runs the real arc offline and narrates real RunResult fields, exit 0",
+        "narration reads actual fields (never fabricated/hardcoded text)",
+        "`keystone version` prints a line containing __version__",
+        "the installed console script, run as a subprocess, runs the arc offline"
       ],
       "tests": [
+        "tests/test_cli_demo.py::test_narrate_reads_real_fields",
+        "tests/test_cli_demo.py::test_main_demo_default_runs_arc_offline",
+        "tests/test_cli_demo.py::test_main_version_returns_zero",
         "tests/test_smoke.py::test_main_prints_version",
-        "tests/e2e/test_cli.py::test_console_script_prints_version"
+        "tests/e2e/test_cli.py::test_console_version_subcommand",
+        "tests/e2e/test_cli.py::test_console_demo_runs_the_real_arc_offline"
       ]
     },
     {

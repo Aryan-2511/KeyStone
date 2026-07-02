@@ -14,7 +14,7 @@
   - [x] Inference switch nim/ollama (`keystone.llm.inference`) — KS-0104
   - [x] NAT workflow skeleton + orchestrator + run entrypoint
         (`keystone.agents.orchestrator`, `keystone.agents.run`) — KS-0101
-  - [x] Streamlit shell (`keystone.ui.app`, `make demo`)
+  - [x] Streamlit shell (`keystone.ui.app`, `make ui`)
   - [x] Ledger unit tests + `@milestone` integration test (3 layers + chain)
 
 ## Phase 2 = Layer 3: Obligation Mapper — DONE

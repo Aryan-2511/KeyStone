@@ -67,7 +67,8 @@ _(Italic paths are added in later phases; see [`ROADMAP.md`](ROADMAP.md).)_
 | `make check` | Gate: lint + typecheck + fast tests + audit (mirrors CI `check` job) |
 | `make verify` | Skeptical, independent verification gate (see `docs/QUALITY.md`) |
 | `make test` / `make test-all` | Fast tests / full suite |
-| `make demo` | Launch the Streamlit demo app (`streamlit run src/keystone/ui/app.py`) |
+| `make demo` | Console front door: run the real arc offline + narrate it (`uv run keystone demo`) |
+| `make ui` | Launch the Streamlit visual app (`streamlit run src/keystone/ui/app.py`) |
 
 CI runs three gates on every push/PR: **`pre-commit`** (detect-secrets +
 hygiene), **`check`** (fast), and **`verify`** (full suite + scope validation).

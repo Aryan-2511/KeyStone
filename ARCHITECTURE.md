@@ -62,5 +62,6 @@ Synthetic artifacts → deterministic detection (FATF) → the seam binds detect
 reporting across a memo-blind boundary → obligation/control mapping → the Red-Team
 Agent probes the guarded surface and the Triage Agent routes findings → every step
 appends to the hash-chained ledger. The convergence view shows a seam event taking
-named obligations from *violated* to *satisfied*. Rendered in the Streamlit app
-(`make demo`).
+named obligations from *violated* to *satisfied*. One run is reachable three ways
+over the same arc: `keystone demo` (console front door, `make demo`), the Streamlit
+app (`make ui`), and `python -m keystone.demo` (build + save a run-result).

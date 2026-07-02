@@ -13,9 +13,12 @@
 - **garak is intentionally absent from `pyproject.toml`** — it lives as an
   isolated `uv tool` and is called as a subprocess. Don't "fix" its missing-dep
   by adding it. (ADR-0003)
-- The `keystone` **console script** (`src/keystone/__main__.py`) is still a
-  version-only stub — no real CLI wiring yet. **`make demo` is NOT a placeholder:**
-  it launches the real Streamlit app (`streamlit run src/keystone/ui/app.py`).
+- The `keystone` **console script** (`src/keystone/__main__.py`) is the real front
+  door: `keystone demo` (the default) runs the genuine Layer-1 arc offline via
+  `keystone.demo.build_run_result` and narrates the actual `RunResult`
+  (`keystone.demo.narrate.narrate_run`) — deterministic, no network. `make demo`
+  calls it (DRY); `make ui` opens the Streamlit visual. `keystone version` prints
+  the version. ASCII-safe + UTF-8 stdout so it renders on any console.
 - Resolution fact (2026-06-14): `nvidia-nat` + `nemoguardrails` resolve together
   cleanly under 3.12 with `uv`; no hand-edited pins were needed.
 - `annoy` (a Guardrails dependency) builds a native extension — a C/C++ compiler

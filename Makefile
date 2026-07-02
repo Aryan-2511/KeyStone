@@ -53,7 +53,10 @@ milestone:  ## Run the live NAT-orchestrated Layer-2 assurance loop (KS-0304)
 layer1-milestone:  ## Run the live NAT-orchestrated Layer-1 milestone arc (KS-0405)
 	uv run python -c "from keystone.agents.run import main_layer1_milestone; main_layer1_milestone()"
 
-demo:  ## Run the Streamlit chassis shell
+demo:  ## Run the real assurance arc offline and narrate it (the console front door)
+	uv run keystone demo
+
+ui:  ## Launch the Streamlit demo app (the visual front door)
 	uv run streamlit run src/keystone/ui/app.py
 
 clean:  ## Remove caches and build artifacts
