@@ -21,23 +21,31 @@ def _rule(char: str = "=") -> str:
     return char * 60
 
 
-def _headline(triage_is_live: bool) -> str:
-    """The banner — honest about whether the triage reasoner ran live this run."""
-    if triage_is_live:
-        return (
-            "KEYSTONE - end-to-end assurance arc (LIVE triage reasoner; rest offline)"
-        )
+def _headline(redteam_is_live: bool, triage_is_live: bool) -> str:
+    """The banner — honest about which agents ran live this run (if any)."""
+    live = [
+        name
+        for name, on in (("red-team", redteam_is_live), ("triage", triage_is_live))
+        if on
+    ]
+    if live:
+        return f"KEYSTONE - end-to-end assurance arc (LIVE {' + '.join(live)}; rest offline)"
     return "KEYSTONE - end-to-end assurance arc (offline, deterministic)"
 
 
-def _closing(reasoner: str, triage_is_live: bool) -> str:
-    """The footer — states live-triage honestly, or the fully-offline guarantee."""
+def _closing(
+    reasoner: str, source: str, redteam_is_live: bool, triage_is_live: bool
+) -> str:
+    """The footer — states which agents ran live honestly, or the fully-offline guarantee."""
+    parts: list[str] = []
+    if redteam_is_live:
+        parts.append(f"Red-Team ran LIVE on real Garak scans ({source})")
     if triage_is_live:
-        model = reasoner[len("llm:") :]
+        parts.append(f"Triage ran LIVE on {reasoner[len('llm:') :]} (a real LLM call)")
+    if parts:
         return (
-            f"Triage ran LIVE on {model} (a real LLM call); the rest of the arc ran "
-            "offline & deterministic. Re-run without --live for the fully offline "
-            "front door."
+            f"{'; '.join(parts)}; the rest of the arc ran offline & deterministic. "
+            "Re-run without --live for the fully offline front door."
         )
     return (
         "Ran offline from a clean clone - no Ollama, no network, no Garak. "
@@ -59,11 +67,14 @@ def narrate_run(result: RunResult) -> str:
     lines: list[str] = []
     add = lines.append
 
-    # Whether the Triage Agent's reasoner ran LIVE on an LLM this run (OPT-A-01). The
-    # rest of the arc is always offline/deterministic; only this stage can go live.
-    triage_is_live = tr.reasoner.startswith("llm:")
+    # Which agents ran LIVE this run: the Red-Team over real Garak scans (OPT-A-02) and
+    # the Triage over an LLM (OPT-A-01). The rest of the arc is always offline.
+    redteam_is_live, triage_is_live = (
+        rt.source == "garak_live",
+        tr.reasoner.startswith("llm:"),
+    )
 
-    add(_headline(triage_is_live))
+    add(_headline(redteam_is_live, triage_is_live))
     add(_rule())
     add("")
     add("The seam transaction (the one object both findings bind to)")
@@ -84,6 +95,7 @@ def narrate_run(result: RunResult) -> str:
 
     add("2. Red-Team Agent - offensive worker")
     add(f"   {rt.mechanism}")
+    add(f"   source: {rt.source}")
     landed = "yes" if (rt.decisions and rt.decisions[-1].got_through) else "no"
     final_rate = rt.decisions[-1].failure_rate if rt.decisions else 0.0
     add(
@@ -130,5 +142,5 @@ def narrate_run(result: RunResult) -> str:
     )
     add("")
     add(_rule("-"))
-    add(_closing(tr.reasoner, triage_is_live))
+    add(_closing(tr.reasoner, rt.source, redteam_is_live, triage_is_live))
     return "\n".join(lines)

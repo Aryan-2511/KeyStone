@@ -166,11 +166,24 @@ designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
   triage-eval`): qwen2.5:3b collapsed toward `remediate` and misread the numeric
   `failure_rate` — genuine reasoning, but not yet trustworthy enough to be the default, which
   is why the policy stays the default and the fallback (ADR-0021).
-- **(Next) Option A (Red-Team) — `OPT-A-02`**: take the Red-Team Agent live (real Garak +
-  optional LLM probe selection) — the heavier build, informed by what OPT-A-01 taught us
-  about live reasoning on this hardware.
+- **Option A (Red-Team) — the live Red-Team Agent** (`OPT-A-02`, `KS-0617`) — **DONE.** Takes
+  the Red-Team Agent genuinely live: `live_red_team` runs the agent's **full policy-selected
+  sequence as REAL Garak scans** against the target (opt-in, the same `keystone demo --live`
+  flag), observing real outcomes and feeding them to the same adaptive policy. On any Garak
+  failure it falls back to a complete recorded-profile run; every trace is **source-tagged**
+  (`garak_live` / `recorded_profile`) — a fallback is never reported as a live scan. The
+  offline default is untouched (works with no Garak/Ollama), no schema bump, the memo-blind
+  boundary holds (live changes WHERE observations come from, never feeding scans to the
+  detector). Probe **selection stays the adaptive policy** — LLM-reasoned selection is
+  **compute-gated** (OPT-A-01 is the evidence: 3B can't do bounded selection; probe selection
+  is harder), the documented NVIDIA ask (ADR-0022).
 - **(Later) Movement C**: a defense agent — gated on a real ≥2-remediation menu (a single
   rail is one choice, not an agent).
+
+> **The live-agent frontier is honestly complete for current hardware:** Triage can LLM-reason
+> (opt-in, policy-default per OPT-A-01), Red-Team can real-scan (opt-in, recorded-default per
+> OPT-A-02). LLM-reasoned *selection* for both agents is the evidence-backed compute-gated
+> frontier — the NVIDIA ask.
 
 > **Keystone is now honestly MULTI-AGENT** (as of MB-01): two genuine agents in a
 > supervisor–worker topology — the Red-Team Agent (offensive worker) produces findings; the

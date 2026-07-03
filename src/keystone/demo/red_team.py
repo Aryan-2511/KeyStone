@@ -16,10 +16,12 @@ runs is OFFENSE-only and has no path to the memo-blind detector (MA-00 §5).
 from __future__ import annotations
 
 from keystone.agents.red_team import (
-    MECHANISM,
     PROBE_CATALOG,
     RECORDED_DEFENSE_PROFILE,
+    Observe,
     RedTeamTrace,
+    live_red_team,
+    mechanism_for,
     profile_observe,
     run_red_team,
 )
@@ -51,16 +53,28 @@ def _project(trace: RedTeamTrace) -> RedTeamView:
         exploited_family=trace.exploited_family,
         abandoned_families=trace.abandoned_families,
         probes_run=len(trace.decisions),
-        mechanism=MECHANISM,
+        mechanism=mechanism_for(trace.source),
+        source=trace.source,
     )
 
 
-def build_red_team_view() -> RedTeamView:
-    """Run the Red-Team Agent offline and project its trace into the typed view.
+def build_red_team_view(
+    *, live: bool = False, observe: Observe | None = None
+) -> RedTeamView:
+    """Run the Red-Team Agent and project its trace into the typed view.
 
-    A REAL agentic run: the agent observes the recorded defense profile, reasons via
-    its policy, and adapts — the recorded trace is a faithful capture of that run,
-    replayed deterministically (MA-00 §4).
+    Default (``live=False``): the agent observes the recorded defense profile, reasons
+    via its policy, and adapts — the trace replays deterministically (MA-00 §4), tagged
+    ``recorded_profile``. Opt-in (``live=True``, OPT-A-02): the SAME policy selects
+    probes but each is EXECUTED as a real Garak scan (the FULL selected sequence), with
+    the recorded profile as a proven fallback; the trace is tagged ``garak_live`` or —
+    on any Garak failure — ``recorded_profile``. The projected ``source``/``mechanism``
+    state which ran; a fallback is never reported as a live scan (OPT-A-02 §3).
+    ``observe`` is injectable (tests) for the live path.
     """
-    trace = run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
+    trace = (
+        live_red_team(observe=observe)
+        if live
+        else run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
+    )
     return _project(trace)

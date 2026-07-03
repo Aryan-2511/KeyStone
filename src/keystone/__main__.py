@@ -33,9 +33,11 @@ def _use_utf8_stdout() -> None:
 def _run_demo(*, live: bool = False) -> int:
     """Run the real arc and narrate the genuine RunResult it produced.
 
-    Offline by default (no Ollama, no network). With `live`, ONLY the Triage Agent's
-    reasoner goes live (a local LLM reasons the route, policy fallback); the rest of the
-    arc stays offline and deterministic. The narration states which reasoner actually ran.
+    Offline by default (no Ollama, no Garak, no network). With `live`, the two AGENTS go
+    live, each with its own fallback: the Red-Team Agent runs its full policy-selected
+    sequence as REAL Garak scans (OPT-A-02; slow — minutes), and the Triage Agent reasons
+    the route with a local LLM (OPT-A-01). The rest of the arc stays offline; the
+    narration states, per agent, what actually ran (real scan vs recorded, LLM vs policy).
     """
     result = build_run_result(live=live)
     print(narrate_run(result))
@@ -62,9 +64,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--live",
         action="store_true",
         help=(
-            "take the Triage Agent's reasoner live (a local LLM reasons the route; "
-            "falls back to the policy if Ollama is unavailable). Opt-in; the rest of "
-            "the arc stays offline. Without this flag the front door is fully offline."
+            "take the two agents live: the Red-Team Agent runs REAL Garak scans of its "
+            "full selected sequence (slow, minutes; falls back to the recorded profile) "
+            "and the Triage Agent LLM-reasons the route (falls back to the policy). "
+            "Opt-in; the rest of the arc stays offline. Without this flag the front door "
+            "is fully offline and needs no Garak/Ollama."
         ),
     )
     sub.add_parser("version", help="print the version and exit")

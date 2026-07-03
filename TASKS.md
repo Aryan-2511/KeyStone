@@ -278,7 +278,19 @@ designs `MA-00_REDTEAM_AGENT_DESIGN.md` / `MB-00_TRIAGE_AGENT_DESIGN.md`):
       (`make triage-eval`): qwen2.5:3b collapsed toward `remediate` and misread the numeric
       `failure_rate` — genuine but not trustworthy enough to be the default; policy stays the
       default + fallback. — `KS-0616` (`keystone.agents.triage`; `tests/test_triage_live.py`;
-      `OPTION-A-00_TRIAGE_LIVE_DESIGN.md`; ADR-0021). **Next: OPT-A-02 (live Red-Team).**
+      `OPTION-A-00_TRIAGE_LIVE_DESIGN.md`; ADR-0021).
+- [x] **Option A (Red-Team) — the live Red-Team Agent** (`OPT-A-02`) — real Garak scans as a
+      **strictly additive, opt-in** live mode (same `keystone demo --live` flag): the SAME
+      adaptive policy selects probes, but `live_red_team` EXECUTES the full selected sequence
+      as real Garak scans against the target and feeds the REAL outcomes back to the policy.
+      On any Garak failure it falls back to a complete recorded-profile run; every trace is
+      TAGGED with its observation SOURCE (`garak_live` / `recorded_profile`) — a fallback is
+      never reported as a live scan. Offline default untouched (no Garak/Ollama needed), NO
+      schema bump, the memo-blind boundary holds. Probe SELECTION stays the policy —
+      LLM-reasoned selection is compute-gated (OPT-A-01 is the evidence). — `KS-0617`
+      (`keystone.agents.red_team`; `tests/test_red_team_live.py`;
+      `OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`; ADR-0022). **The live-agent frontier is
+      honestly complete for current hardware; LLM-reasoned selection = the NVIDIA compute ask.**
 - [ ] **(Later) Movement C** — a defense agent, gated on a real ≥2-remediation menu.
 
 > **Keystone is now honestly MULTI-AGENT.** Two genuine agents in a supervisor–worker

@@ -1016,3 +1016,25 @@
   numeric `failure_rate` (called 0.83 "no failure rate") — genuine reasoning, but not
   trustworthy enough to be the default; the policy stays default + fallback (ADR-0021).
   Next: OPT-A-02 (live Red-Team). (`OPTION-A-00_TRIAGE_LIVE_DESIGN.md`, `ADR-0021`.)
+- **THE RED-TEAM AGENT NOW HAS A LIVE, REAL-GARAK MODE (OPT-A-02) — OPT-IN, RECORDED
+  PROFILE AS FALLBACK, HONEST BY SOURCE-TAG.** `keystone.agents.red_team.live_red_team`
+  runs the agent's FULL policy-selected probe sequence (`FULL_BUDGET` — the policy's own
+  stop, not a subset cap) as REAL Garak scans against the vulnerable mock-agent target
+  (via the existing `garak_observe`/`scan_mock_agent`; NO new wrapper, ADR-0003). On ANY
+  Garak failure (unavailable / target down / scan error → `GarakError`) it falls back to a
+  COMPLETE recorded-profile run — the trace is ALWAYS produced; only the observation
+  SOURCE degrades. **Source-tag is the honesty guarantee** (mirror of OPT-A-01's reasoner
+  tag): `RedTeamTrace.source` / `RedTeamView.source` ∈ {`garak_live`, `recorded_profile`};
+  `mechanism_for()` derives the matching label; a fallback is NEVER reported as a live scan
+  (`tests/test_red_team_live.py`). **Opt-in only:** the SAME `keystone demo --live` flag
+  now drives BOTH agents live (Red-Team real Garak + Triage LLM), each with its own
+  fallback; the DEFAULT front door stays fully offline and needs no Garak/Ollama. **NO
+  schema bump** — `RedTeamView.source` defaults to `"recorded_profile"` (a pre-live run
+  genuinely WAS recorded). The memo-blind boundary HOLDS (live changes WHERE observations
+  come from, never feeding scans to the detector; AST scan still passes). **Probe SELECTION
+  stays the policy** — LLM-reasoned selection is compute-gated (OPT-A-01 is the evidence:
+  3B can't do bounded selection; probe selection is harder). Operational reality: a live
+  scan needs Garak 0.15.1 + the target + Ollama; ~30-60s/probe at prompt_cap=12; the full
+  sequence is minutes — why it's opt-in. Next frontier: LLM-reasoned selection for BOTH
+  agents = the compute-gated NVIDIA ask. (`OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`,
+  `ADR-0022`.)

@@ -304,7 +304,9 @@ class RedTeamView(BaseModel):
     it observed, not a fixed list — and honestly named by MA-00 §3: `mechanism`
     states it is an adaptive policy, NOT an LLM. `families_available` is the real
     Garak decision space; `exploited_family` / `abandoned_families` are what the
-    agent did with it on this run's observed defense.
+    agent did with it on this run's observed defense. ``source`` records WHERE the
+    outcomes came from (OPT-A-02): the recorded profile by default, or ``garak_live``
+    for a real Garak scan run with ``--live``; a fallback is never reported as live.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -317,6 +319,11 @@ class RedTeamView(BaseModel):
     abandoned_families: tuple[str, ...]
     probes_run: int
     mechanism: str
+    # WHERE the outcomes came from (OPT-A-02, the honesty guarantee): "recorded_profile"
+    # (offline default / live fallback) or "garak_live" (real Garak scans). Defaults to
+    # the recorded profile so a run recorded before live mode existed — which genuinely
+    # WAS a recorded-profile run — stays truthfully labelled and still loads (no bump).
+    source: str = "recorded_profile"
 
 
 class TriageView(BaseModel):
