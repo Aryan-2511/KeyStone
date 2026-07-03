@@ -29,6 +29,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0018 | Determinism-by-design is a feature, not a gap | Accepted |
 | 0019 | "remediate" is a route, not fix-selection (Movement C gate) | Accepted |
 | 0020 | Deck leads problem-first + the buyer-split | Accepted |
+| 0021 | Live Triage Agent: LLM opt-in, fallback is the safety architecture, honest by tag | Accepted |
 
 ---
 
@@ -687,3 +688,40 @@ un-owned today. The seam thesis follows from the problem, not the reverse.
 **Honest caveat.** The buyer-split is a positioning argument, not a repo-verifiable
 fact; market claims (breadth, adoption) belong to the deck and are tracked as
 unverifiable-from-repo in `OPEN_QUESTIONS.md` §A.
+
+## ADR-0021 — The live Triage Agent: LLM reasoning is opt-in, fallback is the safety architecture, the record is honest by tag
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** ADR-0017 shipped the Triage Agent as Option B (a transparent policy) and
+named Option A (LLM-reasoned) as a later upgrade. OPT-A-01 builds it: a local LLM
+(qwen2.5:3b via Ollama) reasons the route. Three real risks a judge probes: (1)
+non-determinism vs. our reproducibility guarantees, (2) the deferred 3B-on-4GB
+reliability question, (3) the temptation to *claim* LLM reasoning while shipping a
+fallback.
+
+**Decision.** Live is **strictly additive and opt-in** (`--live`); the offline console
+arc stays the default and stays deterministic (policy or recorded trace), and works
+with **no Ollama**. The **fallback is the safety architecture, not a nicety**: an
+unavailable / timed-out / unparseable / out-of-space LLM answer falls back to the
+proven policy, so the route is *always* produced — live can never be worse than offline
+at producing a valid route. The **record is honest by construction**: every decision
+carries a `reasoner` tag (`policy` / `policy_fallback` / `llm:<model>`); a fallback is
+never reported as an LLM decision. The LLM sees the **signals only** — never the memo /
+attack channel (the memo-blind boundary, ADR-0016, stays sacred; the AST import-scan
+still passes). No new LLM client (reuse `keystone.llm.inference.complete`, ADR-0008).
+**No schema bump**: `TriageView.reasoner` defaults to `"policy"` — a run recorded before
+live existed genuinely *was* a policy run, so old v7 data still loads and stays truthful.
+
+**Consequences.** The first genuinely-live agent exists without weakening any guarantee:
+offline-default intact, record/replay preserved, boundary intact, gates green. The
+LLM-vs-policy question is answered *empirically*, not assumed (see the honest caveat).
+
+**Honest caveat (the 3B finding).** In the OPT-A-01 evaluation (`make triage-eval`),
+qwen2.5:3b **did not honor the signal interplay**: it collapsed toward `remediate` on
+nearly every scenario and repeatedly **misread the numeric `failure_rate`** (calling
+0.83 "no failure rate", 0.40 "very low"). Bounded selection held (it always returned a
+valid route, never invented one), but selection *quality* was poor. Conclusion: the LLM
+is genuine reasoning, but on this hardware it is **not yet trustworthy enough to be the
+default** — which is exactly why the policy remains the default and the fallback. This
+is the deferred 3B question answered, tracked in `OPEN_QUESTIONS.md` §B.

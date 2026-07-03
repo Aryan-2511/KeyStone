@@ -997,3 +997,22 @@
   override). On ANY schema bump: regenerate the fixture AND the AppTest replay tests
   must load it (they do, explicitly) — a green gate that doesn't replay the real
   saved run is the hole that let this through.
+- **THE TRIAGE AGENT NOW HAS A LIVE, LLM-REASONED MODE (OPT-A-01) — OPT-IN, POLICY AS
+  FALLBACK, HONEST BY TAG.** `keystone.agents.triage.live_triage` prompts qwen2.5:3b (via
+  Ollama, the one allowed seam `keystone.llm.inference.complete` — NO new client) with the
+  finding's SIGNALS ONLY and asks it to pick EXACTLY one of {remediate,accept,escalate} +
+  a one-line why (bounded selection; parsed & VALIDATED by `parse_llm_choice`). On
+  unavailable / timeout / unparseable / out-of-space it falls back to the policy
+  (`route_for`) — the route is ALWAYS produced; only the reasoner degrades. **Reasoner tag
+  is the honesty guarantee:** `TriageDecision.reasoner` / `TriageView.reasoner` ∈
+  {`policy`, `policy_fallback`, `llm:<model>`}; `mechanism_for()` derives the matching
+  human label; a fallback is NEVER reported as an LLM decision (`tests/test_triage_live.py`
+  is the three honesty tests). **Opt-in only:** `keystone demo --live`; the DEFAULT front
+  door stays fully offline/deterministic and works with NO Ollama. **NO schema bump** —
+  `TriageView.reasoner` defaults to `"policy"` (a pre-live run genuinely WAS a policy run,
+  so old v7 data still loads truthfully). The memo-blind boundary HOLDS (prompt = signals,
+  never the memo/attack; AST scan still passes). **Honest 3B finding** (`make triage-eval`,
+  `scripts/triage_llm_eval.py`): qwen2.5:3b collapsed toward `remediate` and MISREAD the
+  numeric `failure_rate` (called 0.83 "no failure rate") — genuine reasoning, but not
+  trustworthy enough to be the default; the policy stays default + fallback (ADR-0021).
+  Next: OPT-A-02 (live Red-Team). (`OPTION-A-00_TRIAGE_LIVE_DESIGN.md`, `ADR-0021`.)

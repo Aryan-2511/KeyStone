@@ -75,11 +75,15 @@ Each: **what it is · why it's open · what resolving it needs.**
 
 ## B · Deferred implementation (scoped, on purpose)
 
-- **Option A — live LLM agents.** Both agents ship as **Option B** (observation-
-  driven policies, `keystone.agents.red_team` / `triage`). Option A would replace
-  the explicit policy with model-reasoned selection/triage. Deferred; the honest
-  framing everywhere is "policy, NOT an LLM". Resolving needs an LLM-reasoning
-  layer that still clears the §2 agency bar and keeps the memo-blind boundary.
+- **Option A — live LLM agents.** The **Triage Agent is now live** (OPT-A-01,
+  `KS-0616`): `keystone.agents.triage.live_triage` reasons the route with qwen2.5:3b as
+  an opt-in mode (`keystone demo --live`), constrained to the 3-route space, with the
+  policy as fallback and an honest reasoner tag — the boundary and §2 bar hold (ADR-0021).
+  Empirically, 3B is NOT yet trustworthy enough to be the default (it collapsed toward
+  `remediate` and misread the numeric `failure_rate`), so the policy stays the default and
+  fallback — the deferred 3B-reliability question, answered. **The Red-Team Agent is still
+  Option B** (observation-driven policy); taking it live is OPT-A-02. NIM-hosted path
+  (more capable model) is a later reliability comparison.
 - **Live Garak.** The red-team path runs against a recorded/replayed probe space by
   default (deterministic demo). A live Garak subprocess run is gated behind the
   `-m slow` tests and backend availability.

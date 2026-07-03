@@ -154,6 +154,21 @@ designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
   routes are reachable. "remediate" is a ROUTE, not a fix-selection (that is gated Movement
   C). Record/replay (schema v7) preserves the deterministic demo; the memo-blind boundary
   holds with BOTH agents in the loop. **A + B = a multi-agent system — now TRUE.**
+- **Option A (Triage) — the live Triage Agent** (`OPT-A-01`, `KS-0616`) — **DONE.** Takes the
+  Triage Agent from a transparent policy to genuine **LLM reasoning** (qwen2.5:3b via Ollama)
+  as a **strictly additive, opt-in** live mode (`keystone demo --live`). The LLM is prompted
+  with the SIGNALS ONLY, picks EXACTLY one of the three routes (bounded selection, parse +
+  validate), and on any failure falls back to the proven policy — the route is *always*
+  produced; only the reasoner degrades. Every decision is **tagged** with which reasoner ran
+  (`policy` / `policy_fallback` / `llm:<model>`); a fallback is never reported as an LLM
+  decision. The offline default is untouched (works with no Ollama), no schema bump, the
+  memo-blind boundary holds with the live agent present. **Honest 3B finding** (`make
+  triage-eval`): qwen2.5:3b collapsed toward `remediate` and misread the numeric
+  `failure_rate` — genuine reasoning, but not yet trustworthy enough to be the default, which
+  is why the policy stays the default and the fallback (ADR-0021).
+- **(Next) Option A (Red-Team) — `OPT-A-02`**: take the Red-Team Agent live (real Garak +
+  optional LLM probe selection) — the heavier build, informed by what OPT-A-01 taught us
+  about live reasoning on this hardware.
 - **(Later) Movement C**: a defense agent — gated on a real ≥2-remediation menu (a single
   rail is one choice, not an agent).
 
