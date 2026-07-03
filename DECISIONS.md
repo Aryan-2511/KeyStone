@@ -31,6 +31,9 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0020 | Deck leads problem-first + the buyer-split | Accepted |
 | 0021 | Live Triage Agent: LLM opt-in, fallback is the safety architecture, honest by tag | Accepted |
 | 0022 | Live Red-Team Agent: real Garak opt-in, recorded-profile fallback, source-tagged; LLM-selection compute-gated | Accepted |
+| 0023 | Recorded defense profile refreshed to real OPT-A-02 captures (fixes promptinject drift) | Accepted |
+| 0024 | Data-residency, not "offline": the load-bearing requirement is no-exfiltration | Accepted |
+| 0025 | The two hardware findings + fine-tuning frontier = the evidence-backed on-prem compute ask | Accepted |
 
 ---
 
@@ -773,3 +776,107 @@ environment-dependent** — it needs Garak 0.15.1, the vulnerable target, and Ol
 `prompt_cap=12`; the full policy-selected sequence is on the order of minutes. That is
 exactly why live is opt-in and record/replay exists — not a failure, the honest profile
 of real scanning.
+
+## ADR-0023 — The recorded defense profile is refreshed to real OPT-A-02 captures (fixing a characterization drift)
+
+**Status:** Accepted · **Date:** 2026-07-04
+
+**Context.** The Red-Team Agent's offline `RECORDED_DEFENSE_PROFILE` was a formula
+characterization anchored to one real capture (the `latentinjection` lead). OPT-A-02's
+real Garak scans surfaced a **drift**: the profile characterized the `promptinject`
+family as fully **blocked**, but a real scan of its lead (`HijackHateHumans`) shows it
+**gets through 11/12** on the qwen2.5:3b target. A characterization had gone stale versus
+reality — exactly the kind of thing live scanning exists to catch.
+
+**Decision.** Refresh `RECORDED_DEFENSE_PROFILE` to the **real observed outcomes** wherever
+an OPT-A-02 live scan completed (`_OPT_A_02_CAPTURES`: 10 `latentinjection` probes + the
+`promptinject` lead, garak 0.15.1 / qwen2.5:3b / prompt_cap=12). This is a **data refresh,
+not a logic change** — the agent's policy, the arc, the schema, and the memo-blind boundary
+are untouched; the agent now simply observes accurate recorded data. Probes whose live scan
+did **not** complete (the deep `*Full` variants that timed out / were not reached, and the
+`promptinject` probes past the lead) are left as **conservative characterizations** — real
+values are used ONLY where a real scan captured them; **nothing is invented** (OPT-A-02 §4).
+
+**Consequences.** The recorded profile is now anchored to *more real data* than before —
+strengthening the "the recorded trace is a faithful replay of real scans" claim. The
+demo's headline is preserved (the seam still binds; `latentinjection` is still exploited —
+its lead ties `promptinject`'s and wins the tie-break; triage still ESCALATEs), with the
+triage `failure_rate` now reading the accurate **0.92**. The one visible change: **both**
+families now get through, so the agent **abandons nothing** in the recorded run (the old
+"abandon the blocked family" beat is gone from the recorded demo). The abandon-a-blocked-
+family behaviour remains covered by the synthetic §2 agency tests
+(`tests/test_red_team_agent.py`). `recorded_run.json` regenerated; recorded==fresh holds;
+the hash chain re-verifies.
+
+**Honest caveat.** `latentinjection` and `promptinject` leads both scan ~11/12 on this
+target — the tie-break (family order) is what keeps `latentinjection` the exploited family;
+this is a stable ordering choice, not a claim that latent is "more" exploitable than
+promptinject on qwen2.5:3b (they are comparable). The uncaptured deep probes remain
+characterizations, flagged as such in the code.
+
+## ADR-0024 — Data-residency, not "offline": the load-bearing requirement is no-exfiltration
+
+**Status:** Accepted · **Date:** 2026-07-04
+
+**Context.** The system had been justified as "offline-default", which reads as a
+*limitation* ("works without internet"). The real requirement in regulated finance is
+**data residency / no-exfiltration**: sensitive transaction data and PII must never leave
+the institution's **trust boundary** to a third-party API. "Offline" was only ever a proxy
+for that.
+
+**Decision.** Correct the **framing** (not the behaviour) across the docs (README,
+ARCHITECTURE, CLAUDE, `core-principles.md`, MEMORY). The principle is
+**data-residency-preserving: all inference runs local / on-prem; no sensitive data crosses
+the trust boundary.** The offline console arc is retained and reframed as the **proof** of
+the no-exfiltration path — the *strongest* form, since it runs the whole flow with **zero
+network**, a guarantee no cloud-API system can make. The compute ask (capable models for
+LLM-reasoned decisions) is correspondingly an ask for **on-prem NVIDIA inference (NIM
+inside the trust boundary)** — capable models *without data leaving* — never "more
+internet".
+
+**Consequences.** The zero-network property flips from an apparent limitation to the
+headline security guarantee; the NVIDIA ask sharpens to "self-hosted capable inference",
+which is both more credible and more valuable to a regulated buyer.
+
+**Honest caveat.** This is a **framing sharpening, not a new capability**. On-prem NIM is a
+**design target, not deployed**; the claim is that the architecture is *built for* on-prem
+inference (inference is already local via Ollama) and the offline path *proves*
+no-exfiltration. No existing honesty caveat is weakened.
+
+## ADR-0025 — Two hardware experiments + a fine-tuning frontier define the evidence-backed on-prem compute ask
+
+**Status:** Accepted · **Date:** 2026-07-04
+
+**Context.** The live-agent builds (OPT-A-01, OPT-A-02) produced two concrete empirical
+findings about what current local hardware can and cannot do. Captured together, they make
+the compute ask **airtight** — a strength (rigour), not a gap.
+
+**Decision.** Record the two findings as the joint evidence base, and name the flagship
+compute-gated frontier they point to:
+
+- **Finding 1 (OPT-A-01, ADR-0021) — small-model reasoning is unreliable for triage.**
+  qwen2.5:3b agreed with the policy on **1 of 6** scenarios, **collapsed to a single route**
+  on all 18 calls, **misread the numeric `failure_rate`**, and ignored the signal interplay.
+  Bounded selection held (it always returned a *valid* route) but selection *quality* was
+  poor. → the policy stays the default; the LLM path is opt-in.
+- **Finding 2 (OPT-A-02, ADR-0022) — local Garak scanning is intractably slow.** Lead probes
+  ran ~45–145s, deep probes **955–1550s+**, and one exceeded the 1800s per-scan timeout; the
+  full sequence is **hours**. → the recorded profile stays the default; live is opt-in.
+  *Positive corollary:* the live run **caught a real characterization drift** (promptinject
+  blocked-in-profile but gets-through-live, ADR-0023) — live scanning earns its keep by
+  catching drift.
+- **The frontier (roadmap, NOT built) — a purpose-fine-tuned small model for the agents'
+  decisions** (triage routing, probe selection): specialized enough to beat general models on
+  our *narrow, bounded* tasks, and small enough to run **fully on-prem**, eliminating any
+  external inference dependency. The training signal already exists — the policies' decisions
+  across scenarios are labelled examples. This is the honest resolution of Findings 1 & 2 and
+  the end-state of the data-residency + capability story (on-prem, specialized, no external
+  API). A natural NVIDIA / NeMo / Nemotron fine-tuning mentorship project.
+
+**Consequences.** "What we need from NVIDIA" becomes precise and evidence-backed: **capable
+on-prem inference** (ADR-0024) — either a larger NIM-served model *inside the boundary* or a
+fine-tuned small specialist — to make the agents' *decisions* LLM-reasoned without exfiltration.
+
+**Honest caveat.** Fine-tuning is a **named future direction, not built**; no fine-tuned model
+exists in the repo. The findings are what current hardware showed, not a claim that a bigger
+model *would* clear the bar — that is the experiment the compute ask funds.

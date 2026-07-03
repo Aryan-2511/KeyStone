@@ -25,7 +25,6 @@ import httpx
 import pytest
 
 from keystone.agents.red_team import (
-    FULL_BUDGET,
     GARAK_LIVE_SOURCE,
     PROBE_CATALOG,
     RECORDED_DEFENSE_PROFILE,
@@ -56,7 +55,7 @@ def _profile_observe(probe: str) -> ProbeOutcome:
 
 
 def _flipped_observe(probe: str) -> ProbeOutcome:
-    """The MIRROR of the recorded posture: promptinject gets through, latent blocked."""
+    """A posture where ONLY promptinject gets through (latent blocked) — to test the flip."""
     fam = family_of(probe)
     fails = 8 if fam == "promptinject" else 0
     return ProbeOutcome(probe=probe, family=fam, fails=fails, total_evaluated=12)
@@ -101,16 +100,22 @@ def test_fallback_produces_a_complete_valid_trace() -> None:
 
 
 def test_full_sequence_runs_the_policy_not_a_subset_cap() -> None:
-    # "Full selected sequence" (task): the policy's own stop (choose_next → None) ends the
-    # run, not the budget — so the trace is shorter than FULL_BUDGET, and it exhausted the
-    # winning family (all latent probes tried) while abandoning the blocked one.
-    trace = live_red_team(observe=_profile_observe)
-    assert len(trace.decisions) < FULL_BUDGET  # the policy stopped, not the cap
-    latent_tried = {
-        d.chosen_probe for d in trace.decisions if d.chosen_family == "latentinjection"
+    # "Full selected sequence" (task): the policy's own stop (choose_next → None, when
+    # every probe has been tried) ends the run, not the budget. Give it MORE budget than
+    # the whole decision space and it still stops at the space size — the cap never bites.
+    total_probes = sum(len(v) for v in PROBE_CATALOG.values())
+    trace = live_red_team(observe=_profile_observe, budget=total_probes + 5)
+    assert len(trace.decisions) == total_probes  # stopped by the policy, not the budget
+    # On the real recorded profile (ADR-0023) BOTH families' leads get through, so the
+    # agent exhausts the whole space (latent first by tie-break, then promptinject) and
+    # abandons nothing — the "promptinject blocked" characterization was drift the live
+    # run corrected. (The abandon-a-blocked-family behaviour is covered by the synthetic
+    # §2 agency tests in test_red_team_agent.py.)
+    assert set(trace.probe_sequence) == {
+        p for fam in PROBE_CATALOG.values() for p in fam
     }
-    assert latent_tried == set(PROBE_CATALOG["latentinjection"])  # winner exhausted
-    assert trace.abandoned_families == ("promptinject",)  # blocked family dropped
+    assert trace.exploited_family == "latentinjection"
+    assert trace.abandoned_families == ()
 
 
 # --- 3. §2 agency preserved (now over live-capable observations) --------------

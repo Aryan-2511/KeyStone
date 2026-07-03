@@ -212,15 +212,19 @@ def test_red_team_block_is_a_genuine_agent_run(tmp_path: Path) -> None:
     assert rt.probe_sequence == trace.probe_sequence
     assert rt.probes_run == len(trace.decisions)
 
-    # The decision space is the real Garak surface; the run adapted within it.
+    # The decision space is the real Garak surface; the run adapted within it. The
+    # profile is anchored to real OPT-A-02 captures (ADR-0023): both families' leads get
+    # through, so the agent exploits latentinjection (tie-break) and abandons nothing —
+    # the "promptinject blocked" characterization the old profile carried was drift the
+    # live run corrected.
     assert rt.families_available == tuple(PROBE_CATALOG)
     assert rt.exploited_family == "latentinjection"
-    assert rt.abandoned_families == ("promptinject",)
+    assert rt.abandoned_families == ()
     # Honestly named: an adaptive policy, NOT claimed as an LLM.
     assert rt.mechanism == MECHANISM
     assert "not an LLM" in rt.mechanism
-    # The lead step is anchored to the REAL captured Garak fixture (10/12).
-    assert rt.decisions[0].fails == 10
+    # The lead step is anchored to the REAL captured OPT-A-02 outcome (11/12).
+    assert rt.decisions[0].fails == 11
     assert rt.decisions[0].total_evaluated == 12
 
 

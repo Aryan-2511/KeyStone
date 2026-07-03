@@ -75,6 +75,27 @@ Each: **what it is · why it's open · what resolving it needs.**
 
 ## B · Deferred implementation (scoped, on purpose)
 
+- **THE on-prem compute ask (evidence-backed by two experiments) — the flagship frontier.**
+  Two live-agent builds defined exactly what capable **on-prem** inference (ADR-0024:
+  inside the trust boundary — no data leaves) would unlock. This is a **strength (rigour),
+  not a gap** — we know precisely what's needed and why (full detail: ADR-0025):
+  - **Finding 1 (OPT-A-01):** qwen2.5:3b can't reason reliably for triage routing — agreed
+    with the policy **1/6** scenarios, **collapsed to one route on all 18 calls**, misread
+    the numeric `failure_rate`, ignored the signal interplay. Bounded selection held
+    (always valid) but quality was poor. → the policy stays the default.
+  - **Finding 2 (OPT-A-02):** local Garak scans are intractably slow — lead probes 45–145s,
+    deep probes **955–1550s+**, one exceeded the 1800s timeout; the full sequence is
+    **hours**. → the recorded profile stays the default, live is opt-in. *Positive:* the
+    live run **caught a real profile-vs-reality drift** (promptinject blocked-in-profile but
+    gets-through-live, ADR-0023) — live scanning earns its keep by catching drift.
+  - **The frontier (roadmap, NOT built) — a purpose-fine-tuned small model** for the agents'
+    decisions (triage routing, probe selection): specialized enough to beat general models on
+    our *narrow, bounded* tasks, small enough to run **fully on-prem**, eliminating any
+    external inference dependency. The training signal already exists — the policies'
+    decisions across scenarios are labelled examples. This is the honest resolution of
+    Findings 1 & 2 and the end-state of the data-residency + capability story (on-prem,
+    specialized, no external API); a natural NVIDIA / NeMo / Nemotron fine-tuning
+    mentorship project. **Not built — a named future direction; no fine-tuned model exists.**
 - **Option A — live LLM agents.** The **Triage Agent is now live** (OPT-A-01,
   `KS-0616`): `keystone.agents.triage.live_triage` reasons the route with qwen2.5:3b as
   an opt-in mode (`keystone demo --live`), constrained to the 3-route space, with the

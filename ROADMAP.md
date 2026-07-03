@@ -182,8 +182,18 @@ designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
 
 > **The live-agent frontier is honestly complete for current hardware:** Triage can LLM-reason
 > (opt-in, policy-default per OPT-A-01), Red-Team can real-scan (opt-in, recorded-default per
-> OPT-A-02). LLM-reasoned *selection* for both agents is the evidence-backed compute-gated
-> frontier — the NVIDIA ask.
+> OPT-A-02). LLM-reasoned *decisions* for both agents are the evidence-backed compute-gated
+> frontier — the on-prem NVIDIA ask (ADR-0024/0025): capable inference **inside the trust
+> boundary**, so sensitive data never leaves (data-residency, not "internet").
+
+- **(Frontier, NOT built) A purpose-fine-tuned small model for the agents' decisions** —
+  triage routing + probe selection. Specialized enough to outperform general models on our
+  *narrow, bounded* tasks, and small enough to run **fully on-prem**, eliminating any external
+  inference dependency. The training signal already exists: the policies' decisions across
+  scenarios are labelled examples. This is the honest resolution of Findings 1 & 2 (ADR-0025)
+  and the end-state of the data-residency + capability story (on-prem, specialized, no external
+  API) — a natural NVIDIA / NeMo / Nemotron fine-tuning mentorship project. A named future
+  direction; nothing is built.
 
 > **Keystone is now honestly MULTI-AGENT** (as of MB-01): two genuine agents in a
 > supervisor–worker topology — the Red-Team Agent (offensive worker) produces findings; the

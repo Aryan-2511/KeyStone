@@ -5,7 +5,10 @@
 > Guardrails, Garak for red-teaming) — deterministic by design where auditability
 > demands it, and now a **multi-agent system** (two genuine agents — a Red-Team
 > Agent + a Triage Agent, observation-driven policies, NOT LLMs; Movements A/B
-> done). Deterministic core, LLM edge, synthetic data, hash-chained evidence ledger.
+> done, with opt-in live modes). Deterministic core, LLM edge, **data-residency-
+> preserving** (all inference local / on-prem — no sensitive data leaves the trust
+> boundary; the offline arc is the zero-network *proof*), synthetic data, hash-chained
+> evidence ledger.
 
 This file is a **map, not an encyclopedia**. Read the pointer for your task —
 don't load the whole tree. Depth lives in [`docs/`](docs/index.md).
@@ -19,6 +22,9 @@ don't load the whole tree. Depth lives in [`docs/`](docs/index.md).
   floor. Fix the code or ask — never relax a gate or add a blanket
   `# type: ignore` / `noqa`.
 - **Synthetic data only.** No real data, no secrets, ever.
+- **Data-residency-preserving.** All inference runs local / on-prem; sensitive data
+  never crosses the institution's trust boundary to a third-party API. "Offline" is the
+  *proof* of no-exfiltration (zero network), not a limitation. `ADR-0024`.
 - **Out of scope:** Docker, tox, Sphinx, multi-version CI matrices.
 
 ## Where to look

@@ -135,13 +135,15 @@ def test_budget_bounds_the_run() -> None:
 
 def test_recorded_profile_drives_a_real_adaptive_run() -> None:
     trace = run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
-    # The offline recording is a genuine adaptive run: it escalates the family that
-    # gets through (latentinjection, anchored on the real 10/12 fixture) and drops
-    # the blocked one — the same shape the live agent would produce.
+    # The offline recording is a genuine adaptive run over the REAL-anchored profile
+    # (OPT-A-02 captures, ADR-0023): both families' leads get through, so it escalates
+    # latentinjection (tie-break) and abandons nothing — the "promptinject blocked"
+    # characterization the old profile carried was drift the live run corrected. (The
+    # abandon-a-blocked-family behaviour is covered by the synthetic tests above.)
     assert trace.exploited_family == _LATENT
-    assert trace.abandoned_families == (_PROMPT,)
-    # Anchored to the REAL captured Garak fixture: lead probe failure_rate = 10/12.
-    assert trace.decisions[0].outcome.fails == 10
+    assert trace.abandoned_families == ()
+    # Anchored to the REAL captured OPT-A-02 outcome: lead probe failure_rate = 11/12.
+    assert trace.decisions[0].outcome.fails == 11
     assert trace.decisions[0].outcome.total_evaluated == 12
 
 
