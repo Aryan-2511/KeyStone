@@ -33,21 +33,30 @@ result — a seam event turning named obligations from *violated* to *satisfied*
 trustworthy rather than circular.
 
 **Honest status.** Proven in finance; the design **generalizes structurally**, not
-"built for all sectors". The agents are policies, not LLMs (Option A is deferred).
-Live Garak, Movement C (a defense agent, gated on a real ≥2-remedy menu), and
-Movement 3 (adversarial self-testing) are deferred — see [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md).
+"built for all sectors". The agents are observation-driven policies by default; an
+opt-in **live mode** now exists — the Triage Agent can LLM-reason the route (local
+qwen2.5:3b) and the Red-Team Agent runs **real Garak scans** — both *inside the trust
+boundary*, both with a proven fallback, both honestly tagged for what actually ran.
+Two live-agent experiments showed today's small local model can't yet be trusted for the
+agents' *decisions* (see [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md) §B) — so the policies
+stay the default; capable **on-prem** inference is the evidence-backed compute frontier.
+Movement C (a defense agent, gated on a real ≥2-remedy menu) and Movement 3 (adversarial
+self-testing) are deferred.
 
 **Run it (from a clean clone).** After [Setup](#setup) below:
 
 ```sh
-uv run keystone demo   # runs the real arc end to end, offline — no Ollama/Garak/network
+uv run keystone demo   # runs the real arc end to end within the trust boundary — no data leaves; no Ollama/Garak/network needed
 ```
 
 This runs one genuine Layer-1 assurance arc and narrates the actual result it
 produced: the FATF finding, the Red-Team Agent's landed exploit, the seam bind,
 the Triage Agent's route, and the sealed hash-chained ledger. It is deterministic
-and needs no GPU or network. `make demo` is the same command; `make ui` opens the
-visual Streamlit version.
+and runs with **zero network** — the strongest proof of the **data-residency /
+no-exfiltration** guarantee the product is built for (sensitive data never leaves the
+institution's trust boundary; all inference is local / on-prem). `make demo` is the
+same command; `make ui` opens the visual Streamlit version. An opt-in `--live` mode
+takes the two agents live *inside the boundary* (real Garak scans, local-LLM triage).
 
 **Where to look:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (layers & boundaries) ·
 [`DECISIONS.md`](DECISIONS.md) (the load-bearing *why*) ·
@@ -56,10 +65,11 @@ visual Streamlit version.
 demo video: <https://youtu.be/cxYiSkkMOgA>.
 
 > **Status:** the three compliance layers, the seam matrix (Movement 1), the
-> convergence result (Movement 2), and both agents (Movements A/B) are built and
-> tested. `470` tests collected; the offline suite is green. `uv run keystone demo`
-> is the console front door (runs the real arc offline); `make ui` is the Streamlit
-> visual.
+> convergence result (Movement 2), both agents (Movements A/B), and their opt-in **live
+> modes** (LLM-reasoned triage, real-Garak red-team — both inside the trust boundary)
+> are built and tested; the suite is green. `uv run keystone demo` is the console front
+> door — it runs the real arc **entirely within the trust boundary, zero network** (the
+> no-exfiltration proof); `make ui` is the Streamlit visual.
 
 ## Prerequisites
 

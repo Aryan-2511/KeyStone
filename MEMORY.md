@@ -1038,3 +1038,35 @@
   sequence is minutes — why it's opt-in. Next frontier: LLM-reasoned selection for BOTH
   agents = the compute-gated NVIDIA ask. (`OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`,
   `ADR-0022`.)
+- **THE PRINCIPLE IS DATA-RESIDENCY / NO-EXFILTRATION, NOT "OFFLINE" (ADR-0024).** The
+  load-bearing requirement in regulated finance is that sensitive transaction data + PII
+  must NEVER leave the institution's TRUST BOUNDARY to a third-party API. So all inference
+  runs LOCAL / ON-PREM. "Offline" is the PROOF of the no-exfiltration path (the strongest
+  form: the console arc runs the whole flow with ZERO network) — a security GUARANTEE, not
+  a limitation. The compute ask is for capable ON-PREM NVIDIA inference (NIM inside the
+  boundary) — capable models WITHOUT data leaving; never "more internet". This is a FRAMING
+  sharpening of what's already built (inference is already local via Ollama); on-prem NIM is
+  a design target, NOT deployed. Reframed across README / ARCHITECTURE / CLAUDE /
+  core-principles / MEMORY. (`ADR-0024`.)
+- **THE TWO HARDWARE FINDINGS = THE EVIDENCE-BACKED COMPUTE ASK (ADR-0025).** Finding 1
+  (OPT-A-01): qwen2.5:3b can't reason reliably for triage (agreed 1/6, collapsed to one route
+  on all 18 calls, misread the numeric failure_rate). Finding 2 (OPT-A-02): local Garak scans
+  are intractably slow (deep probes 955-1550s+, one >1800s timeout; full sequence = hours) —
+  PLUS the positive: live scanning CAUGHT a real profile-vs-reality drift. Together they
+  define what capable on-prem inference unlocks — a STRENGTH (rigour), not a gap. The named
+  (NOT built) frontier: a purpose-FINE-TUNED small model for the agents' decisions (triage
+  routing, probe selection) — specialized to beat general models on our narrow bounded tasks,
+  small enough to run fully on-prem, training signal = the policies' labelled decisions. The
+  NVIDIA/NeMo/Nemotron mentorship project. (`ADR-0025`, `OPEN_QUESTIONS.md` §B.)
+- **THE RECORDED DEFENSE PROFILE IS NOW REAL-ANCHORED (ADR-0023) — promptinject drift fixed.**
+  `RECORDED_DEFENSE_PROFILE` was refreshed to REAL OPT-A-02 captures (`_OPT_A_02_CAPTURES`:
+  10 latentinjection probes + the promptinject lead). The live run corrected a DRIFT: the old
+  profile characterized promptinject as fully BLOCKED, but its lead (HijackHateHumans) gets
+  through 11/12 live. This is a DATA refresh, not logic — agent policy / arc / schema /
+  boundary untouched. Uncaptured deep *Full probes + non-lead promptinject stay CONSERVATIVE
+  characterizations (nothing invented — real values only where a scan captured them). Effect
+  on the demo: both leads now get through, so the agent ABANDONS NOTHING (the old "abandon
+  the blocked family" beat is gone from the recorded demo; still covered by the synthetic §2
+  agency tests); latentinjection still exploited (tie-break); seam still binds; triage still
+  ESCALATE (failure_rate now the accurate 0.92). recorded_run.json regenerated; recorded==fresh.
+  (`ADR-0023`.)

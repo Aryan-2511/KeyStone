@@ -14,11 +14,16 @@ An orchestrated compliance & assurance system: a NeMo Agent Toolkit workflow
 sequences deterministic stages that ingest synthetic artifacts, apply policy via
 guardrails, and append verifiable findings to a hash-chained evidence ledger.
 Deterministic by design where auditability demands it (FATF detection, the seam,
-the ledger) — a feature, not a gap. It is now a **multi-agent system**: two genuine
-agents in a supervisor–worker topology — a Red-Team Agent (offensive worker) and a
-Triage Agent (supervisor) — each an observation-driven policy that clears a strict
-agency bar (the next action depends on what it observed), NOT an LLM. Option A
-(LLM-reasoned selection) is a named later upgrade.
+the ledger) — a feature, not a gap. It is **data-residency-preserving**: all inference
+runs local / on-prem so sensitive transaction data + PII never leave the institution's
+trust boundary — and the offline console arc, which runs the whole flow with zero
+network, is the strongest *proof* of that no-exfiltration path. It is now a
+**multi-agent system**: two genuine agents in a supervisor–worker topology — a Red-Team
+Agent (offensive worker) and a Triage Agent (supervisor) — each an observation-driven
+policy that clears a strict agency bar (the next action depends on what it observed),
+NOT an LLM. Option A (LLM-reasoned decisions) has opt-in live modes (local qwen2.5:3b
+triage, real-Garak red-team, both inside the boundary); capable **on-prem** inference
+is the compute frontier (`OPEN_QUESTIONS.md` §B).
 
 ## Layers
 

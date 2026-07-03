@@ -8,6 +8,19 @@ principles** (how agents work in this repo).
 
 ## Domain principles
 
+### Data-residency-preserving (no exfiltration)
+The load-bearing requirement in regulated finance is **data residency**: sensitive
+transaction data and PII must never leave the institution's **trust boundary** to a
+third-party API. So **all inference runs local / on-prem** — the sensitive data stays
+inside the boundary, always. "Offline" is not the goal in itself; it is the *proof* of
+the no-exfiltration path, and the **strongest** form of it: the console arc runs the
+whole assurance flow with **zero network**, which is a guarantee no cloud-API system can
+make, not a limitation. The compute frontier (capable models for LLM-reasoned decisions,
+`OPEN_QUESTIONS.md` §B) is therefore an ask for **on-prem NVIDIA inference (NIM inside the
+trust boundary)** — capable models *without data leaving* — never "more internet". This is
+a framing of what is already built (the architecture runs inference locally); on-prem NIM
+is a design target, not a deployed component.
+
 ### Deterministic core / LLM edge
 Business logic, the evidence ledger, and policy decisions are **deterministic
 and testable**. LLMs live only at the edges — extraction, summarization, natural
@@ -21,11 +34,15 @@ customer data, no secrets, ever. The `detect-secrets` hook (now a CI gate, see
 `ADR-0004`) blocks committed credentials.
 
 ### Inference is a config switch
-The inference backend is selected by configuration on **one code path**:
-- **Hosted NIM** → demo mode (no local GPU required).
-- **Local Ollama** → production mode.
+The inference backend is selected by configuration on **one code path** — and every
+option keeps inference **inside the trust boundary** (the data-residency principle above):
+- **Local Ollama** → the default; runs on-prem, no data leaves.
+- **On-prem NIM** → the capability target: NVIDIA-hosted inference deployed *inside* the
+  institution's boundary, for capable models without exfiltration (a design target, not
+  yet deployed).
 
-Same code, different config — never a forked code path per backend.
+Same code, different config — never a forked code path per backend, and never a
+third-party API that would send sensitive data outside the boundary.
 
 ### Hash-chained evidence ledger
 Every assurance event is appended to a tamper-evident, **hash-chained** ledger

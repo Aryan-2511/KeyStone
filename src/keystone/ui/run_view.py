@@ -116,16 +116,23 @@ def red_team_moment(result: RunResult) -> RedTeamMoment:
     rt = result.red_team
     landed = _landed_exploit(result)
     family = rt.exploited_family or "—"
-    abandoned = ", ".join(rt.abandoned_families) or "none"
     title = (
         f"Escalated '{family}' — {landed:.0%} of its probes landed"
         if rt.exploited_family
         else "Scouted every family; the defense held (nothing to escalate)"
     )
+    # The adaptation reads honestly whether or not a family was abandoned: if the defense
+    # blocked one, the agent dropped it; if every scouted family got through, it says so.
+    if rt.abandoned_families:
+        adapted = (
+            f"escalated '{family}' (the one getting through) and abandoned "
+            f"{', '.join(rt.abandoned_families)} (blocked)"
+        )
+    else:
+        adapted = f"escalated '{family}' (every scouted family got through)"
     detail = (
         f"Scouted {len(rt.scouted_families)} families, then chose where to push: "
-        f"escalated '{family}' (the one getting through) and abandoned {abandoned} "
-        f"(blocked). {rt.probes_run} probes, picked by what landed — not a fixed list."
+        f"{adapted}. {rt.probes_run} probes, picked by what landed — not a fixed list."
     )
     return RedTeamMoment(
         exploited_family=rt.exploited_family,
