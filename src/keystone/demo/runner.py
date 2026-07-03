@@ -105,8 +105,15 @@ def _obligation_modalities() -> dict[str, str]:
     return {o.id: o.enforcement_modality.value for o in load_obligations()}
 
 
-def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
-    """Run the arc on `ledger` and assemble the typed run-result from it."""
+def _assemble(
+    ledger: Ledger, narrate: Narrator, signer: str, *, live: bool = False
+) -> RunResult:
+    """Run the arc on `ledger` and assemble the typed run-result from it.
+
+    `live` (opt-in, OPT-A-01) takes ONLY the Triage Agent's reasoner live — a local LLM
+    reasons the route over the finding's signals, with the policy as fallback. The rest
+    of the arc (detection, seam, ledger, narrative) stays offline and deterministic.
+    """
     res = run_layer1_milestone(narrate=narrate, signer=signer, ledger=ledger)
 
     # Re-derive the typed artifacts deterministically from the same seeded stream
@@ -253,6 +260,7 @@ def _assemble(ledger: Ledger, narrate: Narrator, signer: str) -> RunResult:
             failure_rate=headline_rate,
             seam_result=seam_result,
             severity=finding.severity,
+            live=live,
         ),
     )
 
@@ -262,18 +270,23 @@ def build_run_result(
     narrate: Narrator | None = None,
     signer: str = DEFAULT_SIGNER,
     ledger: Ledger | None = None,
+    live: bool = False,
 ) -> RunResult:
     """Run one Layer-1 arc and return it as a typed `RunResult`.
 
     With no `ledger`, runs on a throwaway ledger so the run-result is one clean
     arc (the shared persistent ledger would accumulate stages across runs and break
     the exact-arc check). With no `narrate`, uses the offline template narrative.
+
+    `live=False` (the default) keeps the whole arc offline and deterministic — the
+    console front door. `live=True` (opt-in, OPT-A-01) takes ONLY the Triage Agent's
+    reasoner live (a local LLM, policy fallback); everything else stays offline.
     """
     narr = narrate if narrate is not None else _template_narrate
     if ledger is not None:
-        return _assemble(ledger, narr, signer)
+        return _assemble(ledger, narr, signer, live=live)
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
-        return _assemble(Ledger(Path(tmp) / "run.db"), narr, signer)
+        return _assemble(Ledger(Path(tmp) / "run.db"), narr, signer, live=live)
 
 
 def save_run_result(result: RunResult, path: str | Path | None = None) -> Path:

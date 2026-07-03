@@ -1062,6 +1062,36 @@
         "tests/test_run_app.py::test_run_the_arc_reveals_the_five_real_steps_recorded",
         "tests/test_shell_app.py::test_run_view_degrades_on_an_incompatible_run"
       ]
+    },
+    {
+      "id": "KS-0616",
+      "title": "The live Triage Agent — genuine LLM-reasoned routing, opt-in, policy fallback (OPT-A-01)",
+      "description": "Takes the Triage Agent (KS-0613) from a transparent policy to genuine LLM reasoning as a STRICTLY ADDITIVE, opt-in live mode (OPT-A-00 the design contract). keystone.agents.triage gains live_triage / triage_live: a local LLM (qwen2.5:3b via Ollama) is prompted with the finding's SIGNALS ONLY (failure_rate, seam_result, severity) and the three allowed routes, and asked to pick EXACTLY ONE + a one-line rationale — bounded selection, not open planning (OPT-A-00 §7.3). The answer is parsed and VALIDATED to exactly {remediate,accept,escalate}; an out-of-space / unparseable / ambiguous answer, or an unavailable / timed-out backend, falls back to the proven Option-B policy (route_for). Reuses the ONE allowed inference seam (keystone.llm.inference.complete, ADR-0008) — no new client. THE honesty guarantee (OPT-A-00 §3): every decision records WHICH reasoner produced the route — 'policy' / 'policy_fallback' / 'llm:<model>' — plus the LLM's rationale when llm; a fallback is NEVER reported as an LLM decision (mechanism_for() derives the matching human label). Opt-in wiring: a --live flag on `keystone demo`; the DEFAULT front door stays fully offline and deterministic (policy or recorded trace) and works with NO Ollama. Schema: NO version bump — TriageView gains a `reasoner` field defaulting to 'policy' (a run recorded before live existed genuinely WAS a policy run, so old v7 data still loads and stays truthfully labelled); recorded_run.json regenerated offline (recorded==fresh). The memo-blind boundary (OPT-A-00 §4, sacred) HOLDS: the LLM prompt carries the abstract signals, never the raw memo / attack channel / detector internals; the AST import-scan boundary test still passes with the live agent present. The open evaluation (scripts/triage_llm_eval.py / `make triage-eval`): an honest LLM-vs-policy comparison surface, NOT a gate and NOT an assumed LLM win — empirically, qwen2.5:3b collapsed toward 'remediate' and misread the numeric failure_rate, so the policy remains the trustworthy default and fallback (the deferred 3B-reliability question, answered). Does NOT make live the default, does NOT touch the Red-Team Agent / FATF / seam / ledger, and does NOT change what a route MEANS — only WHO decides it (LLM vs policy).",
+      "phase": "7 — becoming multi-agent (Movement A, live)",
+      "layer": "agents / orchestration edge",
+      "area": "agents",
+      "status": "done",
+      "depends_on": [
+        "KS-0613"
+      ],
+      "done_criteria": [
+        "live mode genuinely calls qwen2.5:3b and returns a route in exactly {remediate,accept,escalate} with a stated rationale; the LLM is constrained to the 3-route space (parse+validate), never a coerced or invented route; a real reasoned example is produced end to end (`keystone demo --live`)",
+        "the fallback is the safety architecture: an unavailable / timed-out / unparseable / out-of-space LLM answer falls back to the Option-B policy and the route is ALWAYS produced; live can never be worse than offline at producing a valid route",
+        "reasoner-honesty holds: every decision records WHICH reasoner ran (policy / policy_fallback / llm:<model>) and the human mechanism label matches it — a stubbed-unavailable LLM records policy_fallback, a working stub records llm; a fallback is never reported as an LLM decision",
+        "the offline default is UNCHANGED and needs no Ollama: `keystone demo` (no --live) and the AppTest gate produce the deterministic result (policy or recorded trace) with zero network; NO schema bump (TriageView.reasoner defaults to 'policy'); recorded_run.json regenerated offline, recorded==fresh, hash chain re-verifies",
+        "the memo-blind boundary holds WITH the live agent present: the LLM prompt carries the signals ONLY (never the memo / attack channel / detector), the AST import-scan boundary test still passes; make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores; all prior tests green unchanged",
+        "an honest LLM-vs-policy evaluation surface exists (scripts/triage_llm_eval.py, `make triage-eval`) showing agree/differ side by side with the LLM's rationale — reported truthfully, not as an assumed LLM win"
+      ],
+      "tests": [
+        "tests/test_triage_live.py::test_unavailable_llm_records_policy_fallback_not_llm",
+        "tests/test_triage_live.py::test_reasoner_tag_matches_what_actually_ran_via_the_backend",
+        "tests/test_triage_live.py::test_unparseable_or_out_of_space_answers_return_none",
+        "tests/test_triage_live.py::test_garbage_llm_output_falls_back_cleanly_never_coerced",
+        "tests/test_triage_live.py::test_live_prompt_carries_signals_only_never_the_attack_channel",
+        "tests/test_triage_live.py::test_live_path_can_route_over_signal_interplay",
+        "tests/test_triage_live.py::test_build_triage_view_offline_is_the_policy_and_needs_no_llm",
+        "tests/test_triage_live.py::test_real_qwen_produces_a_route_in_the_space_or_falls_back"
+      ]
     }
   ]
 }

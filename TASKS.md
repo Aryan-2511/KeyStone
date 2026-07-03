@@ -267,6 +267,18 @@ designs `MA-00_REDTEAM_AGENT_DESIGN.md` / `MB-00_TRIAGE_AGENT_DESIGN.md`):
       C). Record/replay (schema v7); the boundary holds with BOTH agents present. — `KS-0613`
       (`keystone.agents.triage`; `tests/test_triage_agent.py` (the interplay test),
       `test_triage_boundary.py`). **A + B = a multi-agent system — now TRUE.**
+- [x] **Option A (Triage) — the live Triage Agent** (`OPT-A-01`) — genuine LLM reasoning
+      (qwen2.5:3b via Ollama) as a **strictly additive, opt-in** live mode
+      (`keystone demo --live`): the LLM is prompted with the SIGNALS ONLY, picks EXACTLY one
+      of the 3 routes (bounded selection, parse+validate), and falls back to the proven
+      policy on any failure — the route is always produced; only the reasoner degrades. Every
+      decision is TAGGED with which reasoner ran (`policy` / `policy_fallback` /
+      `llm:<model>`); a fallback is never reported as an LLM decision. Offline default
+      untouched (no Ollama needed), NO schema bump, boundary holds. **Honest 3B finding**
+      (`make triage-eval`): qwen2.5:3b collapsed toward `remediate` and misread the numeric
+      `failure_rate` — genuine but not trustworthy enough to be the default; policy stays the
+      default + fallback. — `KS-0616` (`keystone.agents.triage`; `tests/test_triage_live.py`;
+      `OPTION-A-00_TRIAGE_LIVE_DESIGN.md`; ADR-0021). **Next: OPT-A-02 (live Red-Team).**
 - [ ] **(Later) Movement C** — a defense agent, gated on a real ≥2-remediation menu.
 
 > **Keystone is now honestly MULTI-AGENT.** Two genuine agents in a supervisor–worker

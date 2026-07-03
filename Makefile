@@ -56,6 +56,9 @@ layer1-milestone:  ## Run the live NAT-orchestrated Layer-1 milestone arc (KS-04
 demo:  ## Run the real assurance arc offline and narrate it (the console front door)
 	uv run keystone demo
 
+triage-eval:  ## LLM-vs-policy triage comparison (OPT-A-01; needs Ollama, honest report)
+	uv run python scripts/triage_llm_eval.py
+
 ui:  ## Launch the Streamlit demo app (the visual front door)
 	uv run streamlit run src/keystone/ui/app.py
 

@@ -328,9 +328,11 @@ class TriageView(BaseModel):
     classification (`seam_result`), and the mapped `severity`, and routes the finding
     to one of `routes_available` (the genuine 3-option space). The route depends on the
     INTERPLAY of the three signals, not a single threshold (the MB-00 §2 honesty test):
-    `rationale` states which signals were decisive. Honestly named by MB-00 §3:
-    `mechanism` says it is an adaptive policy, NOT an LLM. "remediate" is a ROUTE (this
-    finding warrants remediation), not a choice among fixes (gated Movement C, §6).
+    `rationale` states which signals were decisive. `reasoner` records WHICH reasoner
+    produced the route (OPT-A-01): the transparent policy by default, or a live LLM when
+    run with `--live`; `mechanism` is the matching human label. We never report a policy
+    fallback as an LLM decision. "remediate" is a ROUTE (this finding warrants
+    remediation), not a choice among fixes (gated Movement C, §6).
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -346,6 +348,12 @@ class TriageView(BaseModel):
     # The genuine 3-option action space — each route reachable (no agency-theater).
     routes_available: tuple[str, ...]
     mechanism: str
+    # WHICH reasoner produced the route (OPT-A-01, the honesty guarantee): "policy"
+    # (offline default), "policy_fallback" (live asked, LLM unavailable → policy ran),
+    # or "llm:<model>" (a live LLM genuinely reasoned it). Defaults to "policy" so a run
+    # recorded before live mode existed — which genuinely WAS a policy run — stays
+    # truthfully labelled and still loads (no schema bump: old data is still accurate).
+    reasoner: str = "policy"
 
 
 class RunResult(BaseModel):

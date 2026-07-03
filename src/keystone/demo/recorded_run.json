@@ -1,6 +1,6 @@
 {
   "schema_version": 7,
-  "generated_at": "2026-06-26T18:23:08.568008+00:00",
+  "generated_at": "2026-07-03T10:10:01.175616+00:00",
   "seam_transaction": {
     "id": "TXN-000016",
     "timestamp": "2026-01-02T00:12:00+00:00",
@@ -234,7 +234,7 @@
     "entries": [
       {
         "id": 1,
-        "ts": "2026-06-26T18:23:08.536122+00:00",
+        "ts": "2026-07-03T10:10:01.145526+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -244,11 +244,11 @@
           "transaction_count": 39
         },
         "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-        "entry_hash": "67bb9caf53ba4517234ddb889121a69993b350b01ed9624f75dde38b576c0c49"
+        "entry_hash": "2b1c2298c2fa8d8215b414977ea8ada24d3d1c4f2d85281407082c874908596a"
       },
       {
         "id": 2,
-        "ts": "2026-06-26T18:23:08.536122+00:00",
+        "ts": "2026-07-03T10:10:01.152766+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -269,12 +269,12 @@
           ],
           "typology": "STRUCTURING"
         },
-        "prev_hash": "67bb9caf53ba4517234ddb889121a69993b350b01ed9624f75dde38b576c0c49",
-        "entry_hash": "b73400e3365cd6e47236b3677c77853cfd1c8c5182a6333e182471a395904369"
+        "prev_hash": "2b1c2298c2fa8d8215b414977ea8ada24d3d1c4f2d85281407082c874908596a",
+        "entry_hash": "af16ad16bd55d76a16f6089d7cabbf0c2aa68ee979c8af60ab833f07b90c206b"
       },
       {
         "id": 3,
-        "ts": "2026-06-26T18:23:08.536122+00:00",
+        "ts": "2026-07-03T10:10:01.154744+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -285,12 +285,12 @@
           "thesis": "the fraud L1 caught carries the exact vulnerability L2 found and patched",
           "transaction_id": "TXN-000016"
         },
-        "prev_hash": "b73400e3365cd6e47236b3677c77853cfd1c8c5182a6333e182471a395904369",
-        "entry_hash": "909c20d8194eebb60c7be4bce448199c8751cd810fc171fbdf0246d769165eb6"
+        "prev_hash": "af16ad16bd55d76a16f6089d7cabbf0c2aa68ee979c8af60ab833f07b90c206b",
+        "entry_hash": "d0c98de3833a05ef3b847d50d189ec99a587c3803f6a05226c8bd490ebe4658f"
       },
       {
         "id": 4,
-        "ts": "2026-06-26T18:23:08.552230+00:00",
+        "ts": "2026-07-03T10:10:01.162336+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -372,12 +372,12 @@
           "total_amount": 85417.57,
           "transaction_count": 9
         },
-        "prev_hash": "909c20d8194eebb60c7be4bce448199c8751cd810fc171fbdf0246d769165eb6",
-        "entry_hash": "26c5885ced7754494a4c907943b3a15e6a1ff7f2dfae0c9e5f3467174a426aa0"
+        "prev_hash": "d0c98de3833a05ef3b847d50d189ec99a587c3803f6a05226c8bd490ebe4658f",
+        "entry_hash": "f8bd2350711f8f2c418a4e4ce4f45a26e70841552dc3660389a7807a5feb5503"
       },
       {
         "id": 5,
-        "ts": "2026-06-26T18:23:08.552230+00:00",
+        "ts": "2026-07-03T10:10:01.169196+00:00",
         "agent": "layer1-milestone",
         "layer": "L1",
         "action": "layer1_milestone_stage",
@@ -386,8 +386,8 @@
           "stage": "signed",
           "status": "SIGNED"
         },
-        "prev_hash": "26c5885ced7754494a4c907943b3a15e6a1ff7f2dfae0c9e5f3467174a426aa0",
-        "entry_hash": "51e31e33798489255ef0f9b0be5d6f53086dc791ed436755730771462e16d3b9"
+        "prev_hash": "f8bd2350711f8f2c418a4e4ce4f45a26e70841552dc3660389a7807a5feb5503",
+        "entry_hash": "e1f387db5ec070ea23d27311da9697b61b1edfeb4e13db24193c2416f96cd42d"
       }
     ]
   },
@@ -621,6 +621,7 @@
       "accept",
       "escalate"
     ],
-    "mechanism": "adaptive triage policy (routes over signal interplay; not an LLM)"
+    "mechanism": "adaptive triage policy (routes over signal interplay; not an LLM)",
+    "reasoner": "policy"
   }
 }
