@@ -1,0 +1,180 @@
+"""The live Red-Team Agent (OPT-A-02) — the honesty tests (OPT-A-02-00 §5).
+
+The Red-Team Agent gains an opt-in LIVE mode: it runs its full policy-selected probe
+sequence as REAL Garak scans, with the recorded defense profile as a proven fallback.
+These tests pin the honesty guarantees the design fixed BEFORE code, mirroring OPT-A-01:
+
+1. **Source-honesty** — every trace tags WHERE its outcomes came from (``garak_live`` vs
+   ``recorded_profile``); a fallback is NEVER reported as a live scan.
+2. **Fallback** — an unavailable / errored Garak scan falls back to a complete recorded
+   run, tagged ``recorded_profile`` — never a fabricated "live" outcome.
+3. **§2 agency preserved** — the selection policy still adapts to observed outcomes
+   (a family gets through vs blocked → the sequence flips), now over live-capable observes.
+4. **Offline default unchanged** — the recorded path produces identical results with NO
+   Garak (the front door works with no live infra).
+
+Fast-gate tests inject a fake observe so the gate never runs Garak or a network. The one
+real-Garak check is ``slow`` and skips cleanly if Garak / Ollama are unavailable.
+"""
+
+from __future__ import annotations
+
+import shutil
+
+import httpx
+import pytest
+
+from keystone.agents.red_team import (
+    FULL_BUDGET,
+    GARAK_LIVE_SOURCE,
+    PROBE_CATALOG,
+    RECORDED_DEFENSE_PROFILE,
+    RECORDED_PROFILE_SOURCE,
+    ProbeOutcome,
+    family_of,
+    live_red_team,
+    mechanism_for,
+)
+from keystone.assurance.garak_probe import GarakError
+from keystone.demo import build_run_result
+from keystone.demo.red_team import build_red_team_view
+
+# --- fakes: injected so the fast gate never runs Garak ------------------------
+
+
+def _unavailable_observe(probe: str) -> ProbeOutcome:
+    """A Garak observe that always fails, as if Garak/the target were down."""
+    raise GarakError("garak unavailable (stubbed)")
+
+
+def _profile_observe(probe: str) -> ProbeOutcome:
+    """A successful live observe mirroring the recorded profile (latent through)."""
+    fails, total = RECORDED_DEFENSE_PROFILE[probe]
+    return ProbeOutcome(
+        probe=probe, family=family_of(probe), fails=fails, total_evaluated=total
+    )
+
+
+def _flipped_observe(probe: str) -> ProbeOutcome:
+    """The MIRROR of the recorded posture: promptinject gets through, latent blocked."""
+    fam = family_of(probe)
+    fails = 8 if fam == "promptinject" else 0
+    return ProbeOutcome(probe=probe, family=fam, fails=fails, total_evaluated=12)
+
+
+# --- 1. source-honesty (OPT-A-02-00 §3/§5) ------------------------------------
+
+
+def test_successful_live_scan_records_garak_live() -> None:
+    trace = live_red_team(observe=_profile_observe)
+    assert trace.source == GARAK_LIVE_SOURCE
+    assert len(trace.decisions) > 0
+
+
+def test_unavailable_garak_records_recorded_profile_not_live() -> None:
+    # THE guarantee: a failed scan falls back to the recorded profile and is tagged the
+    # fallback source — never claimed as a live scan.
+    trace = live_red_team(observe=_unavailable_observe)
+    assert trace.source == RECORDED_PROFILE_SOURCE
+
+
+def test_mechanism_label_matches_the_source() -> None:
+    # The human mechanism label must match the machine tag (never say "REAL Garak scans"
+    # for a recorded run, or vice versa).
+    assert "REAL Garak scans" in mechanism_for(GARAK_LIVE_SOURCE)
+    assert "REAL Garak" not in mechanism_for(RECORDED_PROFILE_SOURCE)
+    assert "not an LLM" in mechanism_for(RECORDED_PROFILE_SOURCE)
+
+
+# --- 2. fallback produces a complete, valid trace -----------------------------
+
+
+def test_fallback_produces_a_complete_valid_trace() -> None:
+    # The fallback is the safety architecture: a valid, complete trace is ALWAYS produced,
+    # never a fabricated live outcome or a half-run.
+    live = live_red_team(observe=_profile_observe)
+    fallback = live_red_team(observe=_unavailable_observe)
+    # Same policy, same budget → the fallback runs the same full sequence, just recorded.
+    assert fallback.probe_sequence == live.probe_sequence
+    assert fallback.exploited_family == "latentinjection"
+    assert all(d.outcome.total_evaluated > 0 for d in fallback.decisions)
+
+
+def test_full_sequence_runs_the_policy_not_a_subset_cap() -> None:
+    # "Full selected sequence" (task): the policy's own stop (choose_next → None) ends the
+    # run, not the budget — so the trace is shorter than FULL_BUDGET, and it exhausted the
+    # winning family (all latent probes tried) while abandoning the blocked one.
+    trace = live_red_team(observe=_profile_observe)
+    assert len(trace.decisions) < FULL_BUDGET  # the policy stopped, not the cap
+    latent_tried = {
+        d.chosen_probe for d in trace.decisions if d.chosen_family == "latentinjection"
+    }
+    assert latent_tried == set(PROBE_CATALOG["latentinjection"])  # winner exhausted
+    assert trace.abandoned_families == ("promptinject",)  # blocked family dropped
+
+
+# --- 3. §2 agency preserved (now over live-capable observations) --------------
+
+
+def test_agency_preserved_sequence_flips_with_observed_outcomes() -> None:
+    # MA-00's honesty test, over the live entry: flip which family gets through and the
+    # agent's exploitation target flips — the sequence is a function of observed outcomes.
+    normal = live_red_team(observe=_profile_observe)
+    flipped = live_red_team(observe=_flipped_observe)
+    assert normal.exploited_family == "latentinjection"
+    assert flipped.exploited_family == "promptinject"
+    assert normal.probe_sequence != flipped.probe_sequence
+
+
+# --- 4. the offline default is UNCHANGED (front door works with no Garak) ------
+
+
+def test_build_red_team_view_offline_is_recorded_and_needs_no_garak() -> None:
+    view = build_red_team_view()
+    assert view.source == RECORDED_PROFILE_SOURCE
+    assert "not an LLM" in view.mechanism
+    assert view.probes_run > 0
+
+
+def test_build_run_result_offline_tags_recorded_profile() -> None:
+    # The whole offline arc: the red_team block is a recorded-profile run (no Garak).
+    result = build_run_result()
+    assert result.red_team.source == RECORDED_PROFILE_SOURCE
+
+
+def test_build_red_team_view_live_with_fake_observe_tags_garak_live() -> None:
+    view = build_red_team_view(live=True, observe=_profile_observe)
+    assert view.source == GARAK_LIVE_SOURCE
+    assert "REAL Garak scans" in view.mechanism
+
+
+def test_build_red_team_view_live_falls_back_when_garak_down() -> None:
+    view = build_red_team_view(live=True, observe=_unavailable_observe)
+    assert view.source == RECORDED_PROFILE_SOURCE
+
+
+# --- 5. the ONE real-Garak check (slow; skips if Garak/Ollama unavailable) -----
+
+
+def _ollama_up() -> bool:
+    try:
+        httpx.get("http://localhost:11434/api/tags", timeout=2.0)
+    except httpx.HTTPError:
+        return False
+    return True
+
+
+@pytest.mark.slow
+def test_real_garak_live_run_tags_the_source_honestly() -> None:
+    # A genuine live run (bounded budget for test tractability — the FULL untimed sequence
+    # is the operational-profile proof reported in the PR). We do NOT assert WHICH probes
+    # land — only that live mode is honest: real outcomes and the source tag matches what
+    # ran (garak_live on success, recorded_profile if it fell back), never anything else.
+    if shutil.which("garak") is None and shutil.which("uv") is None:
+        pytest.skip("garak CLI not available")
+    if not _ollama_up():
+        pytest.skip("Ollama not running")
+    trace = live_red_team(budget=2, report_prefix="opta02_test_live", prompt_cap=4)
+    assert trace.source in {GARAK_LIVE_SOURCE, RECORDED_PROFILE_SOURCE}
+    if trace.source == GARAK_LIVE_SOURCE:
+        assert all(d.outcome.total_evaluated > 0 for d in trace.decisions)

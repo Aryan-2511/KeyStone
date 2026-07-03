@@ -1092,6 +1092,37 @@
         "tests/test_triage_live.py::test_build_triage_view_offline_is_the_policy_and_needs_no_llm",
         "tests/test_triage_live.py::test_real_qwen_produces_a_route_in_the_space_or_falls_back"
       ]
+    },
+    {
+      "id": "KS-0617",
+      "title": "The live Red-Team Agent — real Garak scans of the full selected sequence, opt-in, recorded-profile fallback (OPT-A-02)",
+      "description": "Takes the Red-Team Agent (KS-0612) genuinely live: keystone.agents.red_team.live_red_team runs the agent's FULL policy-selected probe sequence (FULL_BUDGET — the policy's own stop via choose_next, not a subset cap) as REAL Garak scans against the vulnerable mock-agent target (via the existing garak_observe / scan_mock_agent; NO new wrapper, ADR-0003), observing REAL pass/catch outcomes and feeding them to the SAME adaptive selection policy. Opt-in (OPT-A-02-00 the design contract), mirroring OPT-A-01's pattern: the same `keystone demo --live` flag drives BOTH agents live (Red-Team real Garak + Triage LLM), each additively with its own fallback. THE safety architecture (OPT-A-02-00 §3): on ANY Garak failure (unavailable / target unreachable / scan timeout or error → GarakError) it falls back to a COMPLETE recorded-profile run — the trace is ALWAYS produced; only the observation SOURCE degrades. THE honesty guarantee: every RedTeamTrace / RedTeamView records its observation `source` (garak_live / recorded_profile) and mechanism_for() derives the matching human label; a fallback is NEVER reported as a live scan. Selection stays the adaptive policy — LLM-reasoned probe selection is explicitly COMPUTE-GATED (OPT-A-01 / KS-0616 is the evidence: qwen2.5:3b can't do even bounded 3-way selection reliably, and probe selection over 23 options is harder), documented in OPEN_QUESTIONS as the evidence-backed NVIDIA compute ask. Schema: NO version bump — RedTeamView.source defaults to 'recorded_profile' (a run recorded before live existed genuinely WAS a recorded-profile run, so old v7 data still loads truthfully); recorded_run.json regenerated offline (recorded==fresh). The memo-blind boundary (OPT-A-02-00 §4, sacred) HOLDS: live changes WHERE observations come from, never feeding real scan outcomes into the L1 detector; the four independence lock points hold and the AST import-scan boundary test still passes with the live scan path present. Does NOT make live the default (offline recorded path stays the front door, works with no Garak/Ollama), does NOT re-derive the matrix (Movement 1 stays characterized; live makes the SCAN real, not the matrix), and does NOT touch the Triage Agent / FATF / seam / ledger.",
+      "phase": "7 — becoming multi-agent (Movement A, live)",
+      "layer": "agents / orchestration edge",
+      "area": "agents",
+      "status": "done",
+      "depends_on": [
+        "KS-0612",
+        "KS-0616"
+      ],
+      "done_criteria": [
+        "live mode genuinely runs the agent's full policy-selected sequence as REAL Garak scans against the target (Garak 0.15.1), observing real outcomes that feed the adaptive policy; a real run executes end to end and its operational cost (per-probe and total wall-clock) is reported",
+        "the fallback is the safety architecture: on any Garak failure (unavailable / target down / scan error) it falls back to a COMPLETE recorded-profile run and the trace is ALWAYS produced; live can never be worse than offline at producing a valid trace",
+        "source-honesty holds: every trace records its observation source (garak_live / recorded_profile) and the human mechanism label matches it — a stubbed-unavailable Garak records recorded_profile, a successful scan records garak_live; a fallback is never reported as a live scan",
+        "§2 agency is preserved over live-capable observations: flip which family gets through vs is blocked and the agent's exploitation target / sequence flips — the sequence is a function of observed outcomes, not a fixed list",
+        "the offline default is UNCHANGED and needs no Garak/Ollama: `keystone demo` (no --live) and the AppTest gate produce the deterministic recorded result with zero live infra; NO schema bump (RedTeamView.source defaults to 'recorded_profile'); recorded_run.json regenerated offline, recorded==fresh, hash chain re-verifies",
+        "the memo-blind boundary holds WITH the live scan path present: real scan outcomes never reach the detector, the four independence locks hold and the AST import-scan boundary test still passes; probe selection stays the adaptive policy (LLM-selection compute-gated, logged in OPEN_QUESTIONS); make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores; all prior tests green unchanged"
+      ],
+      "tests": [
+        "tests/test_red_team_live.py::test_successful_live_scan_records_garak_live",
+        "tests/test_red_team_live.py::test_unavailable_garak_records_recorded_profile_not_live",
+        "tests/test_red_team_live.py::test_fallback_produces_a_complete_valid_trace",
+        "tests/test_red_team_live.py::test_full_sequence_runs_the_policy_not_a_subset_cap",
+        "tests/test_red_team_live.py::test_agency_preserved_sequence_flips_with_observed_outcomes",
+        "tests/test_red_team_live.py::test_build_run_result_offline_tags_recorded_profile",
+        "tests/test_red_team_live.py::test_build_red_team_view_live_falls_back_when_garak_down",
+        "tests/test_red_team_live.py::test_real_garak_live_run_tags_the_source_honestly"
+      ]
     }
   ]
 }

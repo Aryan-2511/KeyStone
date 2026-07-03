@@ -81,12 +81,20 @@ Each: **what it is · why it's open · what resolving it needs.**
   policy as fallback and an honest reasoner tag — the boundary and §2 bar hold (ADR-0021).
   Empirically, 3B is NOT yet trustworthy enough to be the default (it collapsed toward
   `remediate` and misread the numeric `failure_rate`), so the policy stays the default and
-  fallback — the deferred 3B-reliability question, answered. **The Red-Team Agent is still
-  Option B** (observation-driven policy); taking it live is OPT-A-02. NIM-hosted path
-  (more capable model) is a later reliability comparison.
-- **Live Garak.** The red-team path runs against a recorded/replayed probe space by
-  default (deterministic demo). A live Garak subprocess run is gated behind the
-  `-m slow` tests and backend availability.
+  fallback — the deferred 3B-reliability question, answered.
+- **Live-Garak Red-Team is now real** (OPT-A-02, `KS-0617`): `live_red_team` runs the
+  agent's full policy-selected sequence as REAL Garak scans (opt-in, same `--live` flag),
+  with the recorded profile as a source-tagged fallback — the boundary and §2 agency hold
+  (ADR-0022). What REMAINS compute-gated is **LLM-reasoned probe SELECTION for both
+  agents** — OPT-A-01 is the evidence that 3B can't do even bounded selection reliably, and
+  probe selection over 23 options is harder. This is the documented, evidence-backed NVIDIA
+  compute ask. A NIM-hosted (more capable model) path is the later reliability comparison
+  that could unblock it.
+- **Live Garak.** RESOLVED as a first-class opt-in mode (OPT-A-02, `KS-0617`):
+  `live_red_team` runs the full policy-selected sequence as real Garak scans on `--live`,
+  with the recorded profile as a source-tagged fallback. The DEFAULT still runs against the
+  recorded profile (deterministic demo, no Garak) — a real scan is slow (minutes) and
+  environment-dependent, which is exactly why it's opt-in.
 - **Movement C — a defense agent + adversarial loop.** Gated on a **real ≥2-remedy
   menu** (a single rail is one choice, not an agent). "remediate" is currently a
   ROUTE, not fix-selection. Resolving needs ≥2 genuine remediation options for the

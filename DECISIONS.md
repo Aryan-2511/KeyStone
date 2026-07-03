@@ -30,6 +30,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0019 | "remediate" is a route, not fix-selection (Movement C gate) | Accepted |
 | 0020 | Deck leads problem-first + the buyer-split | Accepted |
 | 0021 | Live Triage Agent: LLM opt-in, fallback is the safety architecture, honest by tag | Accepted |
+| 0022 | Live Red-Team Agent: real Garak opt-in, recorded-profile fallback, source-tagged; LLM-selection compute-gated | Accepted |
 
 ---
 
@@ -725,3 +726,50 @@ valid route, never invented one), but selection *quality* was poor. Conclusion: 
 is genuine reasoning, but on this hardware it is **not yet trustworthy enough to be the
 default** — which is exactly why the policy remains the default and the fallback. This
 is the deferred 3B question answered, tracked in `OPEN_QUESTIONS.md` §B.
+
+## ADR-0022 — The live Red-Team Agent: real Garak is opt-in, the recorded profile is the fallback, the source is honest by tag; LLM-selection is compute-gated
+
+**Status:** Accepted · **Date:** 2026-07-03
+
+**Context.** MA-01 shipped the Red-Team Agent as an adaptive policy that selects probes
+but OBSERVES from the offline `RECORDED_DEFENSE_PROFILE` — the scan is characterized, not
+live. OPT-A-02 makes the scanning genuinely live (real Garak). Two questions a judge
+probes: (1) non-determinism/slowness vs. our offline-default guarantee, and (2) whether
+we should also make probe *selection* LLM-reasoned.
+
+**Decision.** Mirror ADR-0021's proven shape. Live Garak is **strictly additive and
+opt-in** (the same `--live` flag drives both agents); the offline console arc stays the
+default and works with **no Garak/Ollama**. `live_red_team` runs the **full
+policy-selected sequence** as real Garak scans (`FULL_BUDGET` — the policy's own stop,
+not a subset cap). The **recorded profile is the fallback, not a nicety**: on any Garak
+failure (unavailable / target down / scan error → `GarakError`) it falls back to a
+*complete* recorded run — the trace is always produced; only the observation *source*
+degrades. The **record is honest by construction**: every `RedTeamTrace`/`RedTeamView`
+carries a `source` tag (`garak_live` / `recorded_profile`); a fallback is never reported
+as a live scan; `mechanism_for(source)` derives the matching human label. **No schema
+bump**: `RedTeamView.source` defaults to `"recorded_profile"` — a run recorded before
+live existed genuinely *was* a recorded-profile run, so old v7 data still loads and stays
+truthful. Probe **SELECTION stays the adaptive policy** — no new Garak wrapper (reuse
+`garak_observe`/`scan_mock_agent`, ADR-0003), and the memo-blind boundary (ADR-0016)
+holds: live changes WHERE observations come from, never letting scan outcomes reach the
+detector (the AST import-scan still passes).
+
+**LLM-reasoned selection is explicitly compute-gated.** We deliberately do NOT add
+LLM-reasoned probe selection. OPT-A-01 (ADR-0021) showed qwen2.5:3b can't reliably do
+even a bounded 3-way choice over clean numeric inputs; probe selection over 23 options
+with observed outcomes is a *harder* reasoning task, so LLM-selection would re-derive that
+finding at greater cost. It is the documented, evidence-backed compute-gated frontier (the
+NVIDIA ask), tracked in `OPEN_QUESTIONS.md` §B.
+
+**Consequences.** The offensive worker's scanning becomes genuinely real — the
+hardware-independent half of the live-agent frontier — without weakening any guarantee:
+offline-default intact, record/replay preserved, boundary intact, gates green. The matrix
+(Movement 1) stays characterized: live makes the *agent's scan* real, not the whole
+matrix.
+
+**Honest caveat (the operational reality).** A live scan is **slow and
+environment-dependent** — it needs Garak 0.15.1, the vulnerable target, and Ollama
+(qwen2.5:3b) running, and it re-fetches probe resources. One probe is ~30–60s at
+`prompt_cap=12`; the full policy-selected sequence is on the order of minutes. That is
+exactly why live is opt-in and record/replay exists — not a failure, the honest profile
+of real scanning.

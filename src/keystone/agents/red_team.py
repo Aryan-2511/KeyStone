@@ -27,6 +27,15 @@ replays identically — no network, no GPU — for the demo and the fast tests. 
 way the agent genuinely runs and adapts; only the observation *source* differs, and
 the recorded trace is a faithful capture of a real agentic run, not a fabrication.
 
+**Live mode (OPT-A-02, opt-in).** :func:`live_red_team` makes the live path first-class:
+it runs the FULL policy-selected sequence as real Garak scans, and on ANY Garak failure
+(unavailable / target down / scan error) falls back to a complete recorded-profile run —
+the trace is always produced; only the source degrades. Every trace is tagged with its
+observation ``source`` (``garak_live`` / ``recorded_profile``); a fallback is never
+reported as a live scan (the honesty guarantee, mirror of OPT-A-01's reasoner tag).
+Probe SELECTION stays the adaptive policy — LLM-reasoned selection is compute-gated
+(OPT-A-01 showed 3B can't do bounded selection reliably; probe selection is harder).
+
 **The memo-blind boundary (MA-00 §5, sacred).** This agent lives on the OFFENSE
 side. It reads the attack channel (that is its job — it fires injection probes), but
 it has NO path to the crime detector: it imports nothing from the FATF engine or the
@@ -43,6 +52,7 @@ from collections.abc import Callable, Mapping, Sequence
 from pydantic import BaseModel, ConfigDict
 
 from keystone.assurance.garak_probe import (
+    GarakError,
     GarakFinding,
     parse_report,
     scan_mock_agent,
@@ -91,9 +101,23 @@ FAMILY_ORDER: tuple[str, ...] = ("latentinjection", "promptinject")
 # Enough to scout both families and escalate several deep into the winner.
 DEFAULT_BUDGET = 6
 
+# The FULL selected sequence: a budget large enough that the POLICY (choose_next
+# returning None) is what stops the run, not the budget — i.e. no subset cap. Equals
+# the total probe count, so the agent can scout both families and exhaust the winner.
+FULL_BUDGET = sum(len(probes) for probes in PROBE_CATALOG.values())
+
 # Phases of a decision, for the trace / UI.
 PHASE_SCOUT = "scout"
 PHASE_EXPLOIT = "exploit"
+
+# Observation-source tags (OPT-A-02, the honesty guarantee — mirror OPT-A-01's reasoner
+# tag): every recorded trace states WHERE its outcomes came from. Never report a recorded
+# outcome as a live scan.
+#   GARAK_LIVE       — the outcomes are from REAL Garak scans against the target.
+#   RECORDED_PROFILE — the offline default, or a live run that fell back (Garak
+#                      unavailable / target down / scan errored).
+GARAK_LIVE_SOURCE = "garak_live"
+RECORDED_PROFILE_SOURCE = "recorded_profile"
 
 
 def family_of(probe: str) -> str:
@@ -162,6 +186,10 @@ class RedTeamTrace(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     decisions: tuple[RedTeamDecision, ...]
+    # WHERE the outcomes came from (OPT-A-02): "garak_live" (real scans) or
+    # "recorded_profile" (offline default / live fallback). Defaults to the recorded
+    # profile so a trace produced before live mode existed stays truthfully labelled.
+    source: str = RECORDED_PROFILE_SOURCE
 
     @property
     def probe_sequence(self) -> tuple[str, ...]:
@@ -302,12 +330,15 @@ def run_red_team(
     budget: int = DEFAULT_BUDGET,
     catalog: Mapping[str, Sequence[str]] = PROBE_CATALOG,
     family_order: Sequence[str] = FAMILY_ORDER,
+    source: str = RECORDED_PROFILE_SOURCE,
 ) -> RedTeamTrace:
     """Run the agent: observe → reason(policy) → choose → observe → adapt.
 
     The choice at step N is made by :func:`choose_next` from the outcomes of steps
     ``1..N-1`` — so the trace is genuinely a function of what the agent observed.
     Stops when the budget is spent or the policy finds nothing left worth firing.
+    ``source`` tags where the observations came from (recorded profile by default);
+    :func:`live_red_team` sets it to ``garak_live`` for a real scan.
     """
     decisions: list[RedTeamDecision] = []
     while len(decisions) < budget:
@@ -326,7 +357,7 @@ def run_red_team(
                 outcome=outcome,
             )
         )
-    return RedTeamTrace(decisions=tuple(decisions))
+    return RedTeamTrace(decisions=tuple(decisions), source=source)
 
 
 # --- observation oracles (the injected `observe`) -----------------------------
@@ -420,5 +451,52 @@ def _recorded_defense_profile() -> dict[str, tuple[int, int]]:
 # The recorded defense profile the offline demo run is measured against (MA-00 §4).
 RECORDED_DEFENSE_PROFILE: dict[str, tuple[int, int]] = _recorded_defense_profile()
 
+
+def live_red_team(
+    *,
+    budget: int = FULL_BUDGET,
+    observe: Observe | None = None,
+    profile: Mapping[str, tuple[int, int]] = RECORDED_DEFENSE_PROFILE,
+    report_prefix: str = "keystone_live",
+    prompt_cap: int | None = 12,
+) -> RedTeamTrace:
+    """Run the agent LIVE (real Garak per probe); on ANY Garak failure, fall back — TAGGED.
+
+    Mirrors the OPT-A-01 fallback architecture (OPT-A-02 §3): the SAME adaptive policy
+    selects probes, but each is EXECUTED as a real Garak scan against the target
+    (:func:`garak_observe`), observing the REAL outcome and feeding it to the next
+    choice. Runs the FULL policy-selected sequence (``budget=FULL_BUDGET`` — the policy's
+    own stop, not a subset cap). If Garak is unavailable / the target is unreachable / a
+    scan times out or errors (:class:`GarakError`), it falls back to a complete run over
+    the recorded profile — the trace is ALWAYS produced; only the observation SOURCE
+    degrades. The trace is tagged ``garak_live`` or ``recorded_profile`` accordingly; a
+    fallback is never reported as a live scan. ``observe`` is injectable for tests.
+    """
+    live_observe = (
+        observe
+        if observe is not None
+        else garak_observe(report_prefix=report_prefix, prompt_cap=prompt_cap)
+    )
+    try:
+        return run_red_team(live_observe, budget=budget, source=GARAK_LIVE_SOURCE)
+    except GarakError:
+        # Garak unavailable / target down / scan errored → the proven recorded profile
+        # produces a complete, valid trace, honestly tagged as the fallback source.
+        return run_red_team(
+            profile_observe(profile), budget=budget, source=RECORDED_PROFILE_SOURCE
+        )
+
+
 # Honest, one-line description of the mechanism, surfaced in the trace/UI/paper.
 MECHANISM = "adaptive offensive policy (observation-driven probe selection; not an LLM)"
+
+
+def mechanism_for(source: str) -> str:
+    """The honest one-line mechanism label matching the observation source (OPT-A-02 §2).
+
+    In live mode it says the policy ran over REAL Garak scans; on fallback / offline it
+    says the recorded defense profile. The label always matches what actually ran.
+    """
+    if source == GARAK_LIVE_SOURCE:
+        return "adaptive offensive policy over REAL Garak scans (probe selection; not an LLM)"
+    return "adaptive offensive policy (observation-driven probe selection; not an LLM)"

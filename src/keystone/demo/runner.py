@@ -110,9 +110,11 @@ def _assemble(
 ) -> RunResult:
     """Run the arc on `ledger` and assemble the typed run-result from it.
 
-    `live` (opt-in, OPT-A-01) takes ONLY the Triage Agent's reasoner live — a local LLM
-    reasons the route over the finding's signals, with the policy as fallback. The rest
-    of the arc (detection, seam, ledger, narrative) stays offline and deterministic.
+    `live` (opt-in) takes the two AGENTS live, each additively with its own fallback:
+    the Red-Team Agent runs its full policy-selected sequence as REAL Garak scans
+    (OPT-A-02; recorded-profile fallback), and the Triage Agent reasons the route with a
+    local LLM (OPT-A-01; policy fallback). The rest of the arc (detection, seam, ledger,
+    narrative) stays offline and deterministic; each agent tags what actually ran.
     """
     res = run_layer1_milestone(narrate=narrate, signer=signer, ledger=ledger)
 
@@ -157,8 +159,9 @@ def _assemble(
     #   - seam_result : how the seam classifies (the registered pair for this typology);
     #   - severity    : the L1 FATF finding's mapped severity.
     # The supervisor-over-worker topology made literal: the rate it reads IS the
-    # Red-Team Agent's headline result on this run's recorded defense.
-    red_team_view = build_red_team_view()
+    # Red-Team Agent's headline result on this run's defense. In live mode (OPT-A-02)
+    # that rate comes from REAL Garak scans over the full policy-selected sequence.
+    red_team_view = build_red_team_view(live=live)
     headline_rate = max(
         (d.failure_rate for d in red_team_view.decisions if d.got_through),
         default=0.0,
@@ -279,8 +282,9 @@ def build_run_result(
     the exact-arc check). With no `narrate`, uses the offline template narrative.
 
     `live=False` (the default) keeps the whole arc offline and deterministic — the
-    console front door. `live=True` (opt-in, OPT-A-01) takes ONLY the Triage Agent's
-    reasoner live (a local LLM, policy fallback); everything else stays offline.
+    console front door. `live=True` (opt-in) takes the two AGENTS live — the Red-Team
+    Agent runs real Garak scans (OPT-A-02) and the Triage Agent LLM-reasons the route
+    (OPT-A-01), each with its own fallback; everything else stays offline.
     """
     narr = narrate if narrate is not None else _template_narrate
     if ledger is not None:
