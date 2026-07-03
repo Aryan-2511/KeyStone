@@ -30,9 +30,14 @@ def _use_utf8_stdout() -> None:
         sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
-def _run_demo() -> int:
-    """Run the real arc offline and narrate the genuine RunResult it produced."""
-    result = build_run_result()  # offline default: template narrative, no network
+def _run_demo(*, live: bool = False) -> int:
+    """Run the real arc and narrate the genuine RunResult it produced.
+
+    Offline by default (no Ollama, no network). With `live`, ONLY the Triage Agent's
+    reasoner goes live (a local LLM reasons the route, policy fallback); the rest of the
+    arc stays offline and deterministic. The narration states which reasoner actually ran.
+    """
+    result = build_run_result(live=live)
     print(narrate_run(result))
     return 0
 
@@ -49,9 +54,18 @@ def _build_parser() -> argparse.ArgumentParser:
         "--version", action="version", version=f"keystone {__version__}"
     )
     sub = parser.add_subparsers(dest="command")
-    sub.add_parser(
+    demo_parser = sub.add_parser(
         "demo",
         help="run the real assurance arc offline and narrate its result (default)",
+    )
+    demo_parser.add_argument(
+        "--live",
+        action="store_true",
+        help=(
+            "take the Triage Agent's reasoner live (a local LLM reasons the route; "
+            "falls back to the policy if Ollama is unavailable). Opt-in; the rest of "
+            "the arc stays offline. Without this flag the front door is fully offline."
+        ),
     )
     sub.add_parser("version", help="print the version and exit")
     return parser
@@ -70,7 +84,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     # command == "demo"
     try:
-        return _run_demo()
+        return _run_demo(live=bool(getattr(args, "live", False)))
     except Exception as exc:  # fail-loud: clear message + non-zero exit
         print(f"keystone demo failed: {exc}", file=sys.stderr)
         return 1

@@ -21,6 +21,30 @@ def _rule(char: str = "=") -> str:
     return char * 60
 
 
+def _headline(triage_is_live: bool) -> str:
+    """The banner — honest about whether the triage reasoner ran live this run."""
+    if triage_is_live:
+        return (
+            "KEYSTONE - end-to-end assurance arc (LIVE triage reasoner; rest offline)"
+        )
+    return "KEYSTONE - end-to-end assurance arc (offline, deterministic)"
+
+
+def _closing(reasoner: str, triage_is_live: bool) -> str:
+    """The footer — states live-triage honestly, or the fully-offline guarantee."""
+    if triage_is_live:
+        model = reasoner[len("llm:") :]
+        return (
+            f"Triage ran LIVE on {model} (a real LLM call); the rest of the arc ran "
+            "offline & deterministic. Re-run without --live for the fully offline "
+            "front door."
+        )
+    return (
+        "Ran offline from a clean clone - no Ollama, no network, no Garak. "
+        "Deterministic by design."
+    )
+
+
 def narrate_run(result: RunResult) -> str:
     """Render `result` as a readable terminal narration of the real arc."""
     tx = result.seam_transaction
@@ -35,7 +59,11 @@ def narrate_run(result: RunResult) -> str:
     lines: list[str] = []
     add = lines.append
 
-    add("KEYSTONE - end-to-end assurance arc (offline, deterministic)")
+    # Whether the Triage Agent's reasoner ran LIVE on an LLM this run (OPT-A-01). The
+    # rest of the arc is always offline/deterministic; only this stage can go live.
+    triage_is_live = tr.reasoner.startswith("llm:")
+
+    add(_headline(triage_is_live))
     add(_rule())
     add("")
     add("The seam transaction (the one object both findings bind to)")
@@ -79,6 +107,7 @@ def narrate_run(result: RunResult) -> str:
 
     add("4. Triage Agent - supervisor")
     add(f"   {tr.mechanism}")
+    add(f"   reasoner: {tr.reasoner}")
     add(
         f"   route: {tr.route.upper()}  "
         f"(seam={tr.seam_result} | severity={tr.severity} | "
@@ -101,8 +130,5 @@ def narrate_run(result: RunResult) -> str:
     )
     add("")
     add(_rule("-"))
-    add(
-        "Ran offline from a clean clone - no Ollama, no network, no Garak. "
-        "Deterministic by design."
-    )
+    add(_closing(tr.reasoner, triage_is_live))
     return "\n".join(lines)
