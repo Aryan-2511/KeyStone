@@ -324,6 +324,12 @@ class RedTeamView(BaseModel):
     # the recorded profile so a run recorded before live mode existed — which genuinely
     # WAS a recorded-profile run — stays truthfully labelled and still loads (no bump).
     source: str = "recorded_profile"
+    # WHICH probe set the run scanned (OPT-A-02b): "full" (offline recorded / the opt-in
+    # --deep live run) or "tractable" (the default live scan — the known-intractable deep
+    # probes excluded, so a real scan is bounded to minutes). Defaults to "full" so a run
+    # recorded before scoping existed — the whole catalog was available — stays truthful
+    # and still loads (no schema bump). Mirrors red_team.SCOPE_FULL / SCOPE_TRACTABLE.
+    scan_scope: str = "full"
 
 
 class TriageView(BaseModel):

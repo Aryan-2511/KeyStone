@@ -20,23 +20,31 @@ real-Garak check is ``slow`` and skips cleanly if Garak / Ollama are unavailable
 from __future__ import annotations
 
 import shutil
+import sys
 
 import httpx
 import pytest
 
 from keystone.agents.red_team import (
+    DEEP_PROBES,
     GARAK_LIVE_SOURCE,
     PROBE_CATALOG,
     RECORDED_DEFENSE_PROFILE,
     RECORDED_PROFILE_SOURCE,
+    SCOPE_FULL,
+    SCOPE_TRACTABLE,
     ProbeOutcome,
     family_of,
+    is_deep,
     live_red_team,
     mechanism_for,
+    tractable_catalog,
 )
 from keystone.assurance.garak_probe import GarakError
 from keystone.demo import build_run_result
 from keystone.demo.red_team import build_red_team_view
+from keystone.demo.runner import LiveModes
+from keystone.llm.inference import BackendUnreachableError
 
 # --- fakes: injected so the fast gate never runs Garak ------------------------
 
@@ -103,8 +111,12 @@ def test_full_sequence_runs_the_policy_not_a_subset_cap() -> None:
     # "Full selected sequence" (task): the policy's own stop (choose_next → None, when
     # every probe has been tried) ends the run, not the budget. Give it MORE budget than
     # the whole decision space and it still stops at the space size — the cap never bites.
+    # This is the FULL scope (the --deep run), which exercises the whole catalog.
     total_probes = sum(len(v) for v in PROBE_CATALOG.values())
-    trace = live_red_team(observe=_profile_observe, budget=total_probes + 5)
+    trace = live_red_team(
+        observe=_profile_observe, budget=total_probes + 5, scope=SCOPE_FULL
+    )
+    assert trace.scan_scope == SCOPE_FULL
     assert len(trace.decisions) == total_probes  # stopped by the policy, not the budget
     # On the real recorded profile (ADR-0023) BOTH families' leads get through, so the
     # agent exhausts the whole space (latent first by tie-break, then promptinject) and
@@ -158,7 +170,88 @@ def test_build_red_team_view_live_falls_back_when_garak_down() -> None:
     assert view.source == RECORDED_PROFILE_SOURCE
 
 
-# --- 5. the ONE real-Garak check (slow; skips if Garak/Ollama unavailable) -----
+# --- 5. scan scoping: tractable-default vs --deep (OPT-A-02b) ------------------
+
+
+def test_deep_probes_are_classified_from_the_real_timings() -> None:
+    # The deep set is the *Full variants + LatentWhois — the monsters the real OPT-A-02
+    # scan measured (LatentWhois 168 prompts/~1550s, *Full e.g. 270 prompts/~955s+).
+    assert "latentinjection.LatentWhois" in DEEP_PROBES
+    assert all(
+        is_deep(p) for fam in PROBE_CATALOG.values() for p in fam if p.endswith("Full")
+    )
+    # The shallow LatentWhoisSnippet (12 prompts) is NOT deep — only the real monsters are.
+    assert not is_deep("latentinjection.LatentWhoisSnippet")
+    # The tractable catalog is exactly the full catalog minus the deep probes.
+    tractable = {p for fam in tractable_catalog().values() for p in fam}
+    every = {p for fam in PROBE_CATALOG.values() for p in fam}
+    assert tractable == every - set(DEEP_PROBES)
+    assert tractable  # non-empty: there are real, cheap probes to scan
+
+
+def test_default_live_scan_is_tractable_never_fires_a_deep_probe() -> None:
+    # THE fix: the DEFAULT live red-team scans only the tractable set — no monster probe
+    # is ever selected, so a real scan is bounded to minutes, not hours.
+    trace = live_red_team(observe=_profile_observe)  # default scope
+    assert trace.scan_scope == SCOPE_TRACTABLE
+    assert not any(is_deep(p) for p in trace.probe_sequence)
+    assert "latentinjection.LatentWhois" not in trace.probe_sequence
+
+
+def test_deep_scope_includes_the_intractable_probes() -> None:
+    # The opt-in --deep run exercises the FULL space, so the deep probes ARE selected
+    # (the recorded profile has latent getting through, so the agent escalates into them).
+    trace = live_red_team(observe=_profile_observe, scope=SCOPE_FULL)
+    assert trace.scan_scope == SCOPE_FULL
+    assert any(is_deep(p) for p in trace.probe_sequence)
+
+
+def test_build_red_team_view_live_default_is_tractable() -> None:
+    view = build_red_team_view(live=True, observe=_profile_observe)
+    assert view.scan_scope == SCOPE_TRACTABLE
+    assert not any(is_deep(p) for p in view.probe_sequence)
+
+
+def test_build_red_team_view_deep_scans_the_full_set() -> None:
+    view = build_red_team_view(live=True, deep=True, observe=_profile_observe)
+    assert view.scan_scope == SCOPE_FULL
+    assert any(is_deep(p) for p in view.probe_sequence)
+
+
+def test_offline_recorded_run_is_full_scope() -> None:
+    # The offline recorded run has the whole catalog selectable (no live cost) → "full".
+    view = build_red_team_view()
+    assert view.source == RECORDED_PROFILE_SOURCE
+    assert view.scan_scope == SCOPE_FULL
+
+
+def test_live_triage_does_not_trigger_the_red_team_scan(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # THE OPT-A-01b pain fixed (OPT-A-02b): with ONLY triage live, the red-team stays on
+    # the recorded profile — no Garak scan is launched. (Force triage offline via an
+    # unreachable backend so the test needs no Ollama and no network.)
+    class _DownBackend:
+        model = "down"
+
+        def complete(self, prompt: str, *, system: str | None = None) -> str:
+            raise BackendUnreachableError("stubbed offline")
+
+    # The package re-exports the `triage` function, shadowing the submodule attribute, so
+    # reach the real module via sys.modules to patch the name live_triage looks up. Patch
+    # to the class itself — `get_backend()` then constructs a fresh _DownBackend per call.
+    monkeypatch.setattr(
+        sys.modules["keystone.agents.triage"], "get_backend", _DownBackend
+    )
+    result = build_run_result(live=LiveModes(triage=True, redteam=False))
+    # Red-team never scanned: recorded profile, full scope, offline.
+    assert result.red_team.source == RECORDED_PROFILE_SOURCE
+    assert result.red_team.scan_scope == SCOPE_FULL
+    # Triage genuinely took the live path (then fell back offline) — not a live scan.
+    assert result.triage.reasoner == "policy_fallback"
+
+
+# --- 6. the ONE real-Garak check (slow; skips if Garak/Ollama unavailable) -----
 
 
 def _ollama_up() -> bool:

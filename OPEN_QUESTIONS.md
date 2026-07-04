@@ -88,10 +88,13 @@ Each: **what it is · why it's open · what resolving it needs.**
     *resurfaced* (called 0.06 "above 0.10"). Honest verdict: **part prompt artifact, but the
     model ceiling is real** — 3B pattern-matches the examples, it does not robustly apply the
     rules. → the policy stays the default (now better-evidenced). See ADR-0026.
-  - **Finding 2 (OPT-A-02):** local Garak scans are intractably slow — lead probes 45–145s,
-    deep probes **955–1550s+**, one exceeded the 1800s timeout; the full sequence is
-    **hours**. → the recorded profile stays the default, live is opt-in. *Positive:* the
-    live run **caught a real profile-vs-reality drift** (promptinject blocked-in-profile but
+  - **Finding 2 (OPT-A-02, scoped by OPT-A-02b):** local Garak scans are intractably slow —
+    lead probes 45–145s, deep probes **955–1550s+**, one exceeded the 1800s timeout; the full
+    sequence is **hours**. → the recorded profile stays the default, live is opt-in. OPT-A-02b
+    turned this into a usable default: the live red-team scans only the **TRACTABLE** set
+    (`*Full` + `LatentWhois` excluded — minutes, not hours), with **`--deep`** opt-in for the
+    full set; the deep probes remain the intractable frontier (ADR-0027). *Positive:* the live
+    run **caught a real profile-vs-reality drift** (promptinject blocked-in-profile but
     gets-through-live, ADR-0023) — live scanning earns its keep by catching drift.
   - **The frontier (roadmap, NOT built) — a purpose-fine-tuned small model** for the agents'
     decisions (triage routing, probe selection): specialized enough to beat general models on
@@ -118,11 +121,14 @@ Each: **what it is · why it's open · what resolving it needs.**
   probe selection over 23 options is harder. This is the documented, evidence-backed NVIDIA
   compute ask. A NIM-hosted (more capable model) path is the later reliability comparison
   that could unblock it.
-- **Live Garak.** RESOLVED as a first-class opt-in mode (OPT-A-02, `KS-0617`):
-  `live_red_team` runs the full policy-selected sequence as real Garak scans on `--live`,
-  with the recorded profile as a source-tagged fallback. The DEFAULT still runs against the
-  recorded profile (deterministic demo, no Garak) — a real scan is slow (minutes) and
-  environment-dependent, which is exactly why it's opt-in.
+- **Live Garak.** RESOLVED as a first-class opt-in mode (OPT-A-02, `KS-0617`);
+  **scoped + made granular by OPT-A-02b (`KS-0619`, ADR-0027).** `live_red_team` runs the
+  policy-selected sequence as real Garak scans, with the recorded profile as a source-tagged
+  fallback. The DEFAULT still runs against the recorded profile (deterministic demo, no Garak).
+  Live is now controllable per-agent — `--live-triage` (LLM triage only, **no Garak scan** —
+  fixing the OPT-A-01b pain where live triage dragged in the hours-long scan), `--live-redteam`
+  (real scan, **tractable** by default / `--deep` for the full set), `--live` (both). Every
+  trace records its `scan_scope` (tractable/full) so a reader knows whether the deep probes ran.
 - **Movement C — a defense agent + adversarial loop.** Gated on a **real ≥2-remedy
   menu** (a single rail is one choice, not an agent). "remediate" is currently a
   ROUTE, not fix-selection. Resolving needs ≥2 genuine remediation options for the
