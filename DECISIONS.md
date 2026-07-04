@@ -34,6 +34,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0023 | Recorded defense profile refreshed to real OPT-A-02 captures (fixes promptinject drift) | Accepted |
 | 0024 | Data-residency, not "offline": the load-bearing requirement is no-exfiltration | Accepted |
 | 0025 | The two hardware findings + fine-tuning frontier = the evidence-backed on-prem compute ask | Accepted |
+| 0026 | Triage LLM prompt-rescue: OPT-A-01's poor routing was part prompt, but a held-out probe confirms the model ceiling | Accepted |
 
 ---
 
@@ -730,6 +731,13 @@ is genuine reasoning, but on this hardware it is **not yet trustworthy enough to
 default** — which is exactly why the policy remains the default and the fallback. This
 is the deferred 3B question answered, tracked in `OPEN_QUESTIONS.md` §B.
 
+**Update (OPT-A-01b, ADR-0026).** This negative result was **revisited** with a genuine
+prompt-engineering effort (the terse prompt above was a confound). With signal clarity +
+few-shot + taught rules, in-distribution agreement rose **1/6 → 6/6** — but a **held-out
+anti-parrot probe** stayed at **4/6** with the numeric misread resurfacing. Net: *part
+prompt artifact, but the model ceiling is real*; the policy still stays the default. See
+ADR-0026 for the honest before/after.
+
 ## ADR-0022 — The live Red-Team Agent: real Garak is opt-in, the recorded profile is the fallback, the source is honest by tag; LLM-selection is compute-gated
 
 **Status:** Accepted · **Date:** 2026-07-03
@@ -858,7 +866,10 @@ compute-gated frontier they point to:
   qwen2.5:3b agreed with the policy on **1 of 6** scenarios, **collapsed to a single route**
   on all 18 calls, **misread the numeric `failure_rate`**, and ignored the signal interplay.
   Bounded selection held (it always returned a *valid* route) but selection *quality* was
-  poor. → the policy stays the default; the LLM path is opt-in.
+  poor. → the policy stays the default; the LLM path is opt-in. **Refined by OPT-A-01b
+  (ADR-0026):** a genuine prompt effort lifts in-distribution agreement to 6/6, but a
+  held-out probe stays at 4/6 (the numeric misread resurfaces) — part prompt, but the
+  ceiling is real; the conclusion (policy stays default) is unchanged and better-evidenced.
 - **Finding 2 (OPT-A-02, ADR-0022) — local Garak scanning is intractably slow.** Lead probes
   ran ~45–145s, deep probes **955–1550s+**, and one exceeded the 1800s per-scan timeout; the
   full sequence is **hours**. → the recorded profile stays the default; live is opt-in.
@@ -880,3 +891,60 @@ fine-tuned small specialist — to make the agents' *decisions* LLM-reasoned wit
 **Honest caveat.** Fine-tuning is a **named future direction, not built**; no fine-tuned model
 exists in the repo. The findings are what current hardware showed, not a claim that a bigger
 model *would* clear the bar — that is the experiment the compute ask funds.
+
+## ADR-0026 — The Triage LLM prompt-rescue: OPT-A-01's poor routing was PART prompt, but a held-out probe confirms the model ceiling
+
+**Status:** Accepted · **Date:** 2026-07-04
+
+**Context.** ADR-0021 / Finding 1 (ADR-0025) recorded a negative result: qwen2.5:3b agreed
+with the triage policy on only **1/6** scenarios, collapsed to one route, and misread the
+numeric `failure_rate`. But a poor result on a terse prompt is as consistent with a **weak
+prompt** as with a weak model. Before "3B can't route" is treated as settled, we owed the
+model a **genuine prompt-engineering effort** and a re-run of the **same** evaluation
+(OPT-A-01b). Two outcomes were both valuable: it improves (partly a prompt artifact) or it
+still fails after real effort (the ceiling is the model — a stronger compute ask).
+
+**Decision.** Change the **prompt only** — the policy (`route_for`, ground truth + fallback),
+the fallback, reasoner-tagging, the memo-blind boundary, the schema, and the opt-in default
+are all untouched. The rewrite applies four levers targeting the specific OPT-A-01 failures:
+(1) **signal clarity** — `failure_rate` presented with its 0.00–1.00 scale and an explicit
+percent, so the number cannot be misread; (2) **the task taught in words** — the policy's
+decision rules in order (HIGH→escalate; `<0.10`→accept; then seam open/boundary/clean); (3)
+**five few-shot examples** — signal→route→why, all three routes + the interplay case + the
+HIGH override, at **held-out rates** (0.65/0.05/0.90) that never equal an eval tuple and each
+**verified against `route_for`** (a mechanical test pins this); (4) **structured output**.
+SIGNALS ONLY — no memo/attack text (boundary sacred; AST import-scan still passes).
+
+**Findings (the honest before/after, `make triage-eval`, not cherry-picked).**
+- **In-distribution (the SAME 6 scenarios OPT-A-01 measured): 1/6 → 6/6**, stable (18/18 at
+  3×, **30/30 at 5×**). No collapse; it reads the rate (0.02 → "below the 0.10 floor"); it
+  honors interplay (0.50 → remediate/accept/escalate by seam). A dramatic, real improvement.
+- **Held-out anti-parrot probe (6 novel (seam,severity)+rate combos the examples never show,
+  each built so a parrot fails): 4/6 (12/18).** Two **stable** failures expose the ceiling:
+  `0.25 clean LOW` → said **accept** (should remediate — it called a *clean* seam "provably
+  contained", the *boundary* definition, parroting the wrong example); `0.06 open MED` → said
+  **escalate** with rationale "failure_rate is above 0.10" — **0.06 is below 0.10**: the
+  OPT-A-01 numeric misread, **resurfaced** on a held-out value. Even several *correct* routes
+  carry **parroted rationales** (the arc case escalates for the right reason via HIGH but
+  states "an open seam is unresolved" on a *clean* seam).
+
+**Verdict — BOTH, which is the truthful reconciliation.** The OPT-A-01 finding was **partly a
+prompt artifact**: signal clarity + few-shot lift in-distribution accuracy enormously (1/6→6/6).
+**AND the model ceiling is real**: on held-out combos 3B falls to 4/6, still misreads the rate
+and misapplies seam semantics. It **pattern-matches the worked examples; it does not robustly
+apply the rules.** A headline 6/6 that hides a held-out 4/6 is *not* trustworthy — so the
+**policy stays the default**, now with **stronger** evidence than a terse-prompt negative could
+give. Promoting LLM routing to the default was **not** taken here — that remains a separate,
+joint decision, and this result does not justify it.
+
+**Consequences.** Refines Finding 1 (ADR-0025) without overturning it, and **hardens the
+compute ask**: we now know *proper prompt engineering alone does not clear the bar* on 3B for
+this bounded task — which is precisely what a purpose-fine-tuned small on-prem model is for.
+The **held-out anti-parrot probe is now a permanent block in `make triage-eval`**, so an
+in-distribution 6/6 can never again be mistaken for robust reasoning.
+
+**Honest caveat.** The eval is small (6 in-distribution + 6 held-out, 3–5× each); the held-out
+set is designed to be *discriminating*, not exhaustive. The bounded claim: on THIS routing
+task, prompt engineering fixes the in-distribution misreads but 3B does not generalize the
+override rules reliably. This is a statement about qwen2.5:3b with real prompt effort — not a
+claim that a larger or fine-tuned model would fail (that is the experiment the ask funds).

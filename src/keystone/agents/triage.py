@@ -273,12 +273,60 @@ def triage(signals: TriageSignals) -> TriageDecision:
 
 # Bounded selection, not open reasoning (OPT-A-00 §7.3): a 3B model picks reliably
 # from a fixed set but may not plan freely. `/no_think` keeps the reply terse.
+#
+# OPT-A-01b (prompt-rescue): OPT-A-01's terse prompt produced poor routing (collapsed to
+# one route, misread the numeric failure_rate, ignored interplay). This prompt applies the
+# four levers of a genuine prompt-engineering effort — (1) unambiguous signal scale,
+# (2) the routing LOGIC in words (the policy's rules, so the model learns the task),
+# (3) few-shot worked examples covering all three routes AND the interplay case, and
+# (4) a strict output format. The examples use HELD-OUT signal values (never the eval
+# scenarios), so the evaluation tests generalization, not memorization. SIGNALS ONLY —
+# no memo / attack text, ever (OPT-A-00 §4).
 TRIAGE_SYSTEM = (
     "/no_think\n"
-    "You are a security-triage router. You are given three already-computed signals "
-    "about a security finding and a fixed set of allowed routes. Choose EXACTLY ONE "
-    "route from the allowed set — never invent a route. Reply with ONLY one line:\n"
-    "ROUTE: <one of the allowed routes> | WHY: <one short sentence>"
+    "You are a security-triage router. Given three already-computed signals about a "
+    "security finding, choose EXACTLY ONE route: remediate, accept, or escalate — never "
+    "invent a route. The correct route depends on how the signals COMBINE, not on any "
+    "single number.\n"
+    "\n"
+    "The signals:\n"
+    "- failure_rate: a number from 0.00 to 1.00 = the fraction of attacks that got "
+    "through. HIGHER means MORE attacks landed (0.00 = nothing got through; "
+    "1.00 = every attack landed). Read this number carefully.\n"
+    "- seam_result: clean (a real, binding vulnerability), boundary (provably "
+    "contained), or open (unresolved, not yet certain).\n"
+    "- severity: LOW, MEDIUM, or HIGH.\n"
+    "\n"
+    "How to decide (apply these in order, stop at the first that matches):\n"
+    "1. If severity is HIGH -> escalate (a severe finding needs human eyes regardless "
+    "of the other signals).\n"
+    "2. Else if failure_rate < 0.10 -> accept (below the action floor: almost nothing "
+    "got through, so nothing is actionable).\n"
+    "3. Else (failure_rate is 0.10 or higher and severity is not HIGH) the seam decides:\n"
+    "   - seam open -> escalate (unresolved: a human must resolve it)\n"
+    "   - seam boundary -> accept (provably contained, even at the same failure_rate)\n"
+    "   - seam clean -> remediate (a real, resolvable vulnerability to patch)\n"
+    "Note step 3: the SAME failure_rate routes DIFFERENTLY by seam "
+    "(clean -> remediate, boundary -> accept, open -> escalate) — the route is the "
+    "interplay of the signals, not one threshold on the rate.\n"
+    "\n"
+    "Worked examples (these use different numbers than the finding you will route):\n"
+    "- failure_rate 0.65, seam clean, severity MEDIUM -> "
+    "ROUTE: remediate | WHY: above the floor on a clean (binding) seam, a real "
+    "vulnerability to patch.\n"
+    "- failure_rate 0.65, seam boundary, severity MEDIUM -> "
+    "ROUTE: accept | WHY: same rate, but a boundary seam is provably contained, so "
+    "nothing is actionable.\n"
+    "- failure_rate 0.65, seam open, severity MEDIUM -> "
+    "ROUTE: escalate | WHY: same rate, but an open seam is unresolved, so a human must "
+    "resolve it.\n"
+    "- failure_rate 0.05, seam clean, severity LOW -> "
+    "ROUTE: accept | WHY: below the 0.10 action floor, almost nothing landed.\n"
+    "- failure_rate 0.90, seam boundary, severity HIGH -> "
+    "ROUTE: escalate | WHY: HIGH severity escalates regardless of rate or seam.\n"
+    "\n"
+    "Reply with ONLY one line, exactly in this format:\n"
+    "ROUTE: <remediate|accept|escalate> | WHY: <one short sentence>"
 )
 
 
@@ -302,26 +350,24 @@ LlmReasoner = Callable[[TriageSignals, tuple[Route, ...]], LlmRouteChoice | None
 
 
 def build_live_prompt(signals: TriageSignals, routes: tuple[Route, ...]) -> str:
-    """Render the signals + allowed routes as the LLM prompt — SIGNALS ONLY.
+    """Render THIS finding's signals as the LLM prompt — SIGNALS ONLY, unambiguously.
 
-    The prompt carries the three abstract signals (a rate, a seam class, a severity)
-    and the three route meanings. It NEVER carries the raw memo, the attack channel, or
-    any detector internals (OPT-A-00 §4, sacred) — putting the attack text here "to
-    reason better" is the exact forbidden landmine.
+    Carries only the three abstract signals (a rate, a seam class, a severity), presented
+    so the number cannot be misread (OPT-A-01b lever 1). The routing LOGIC, the route
+    meanings, and the worked examples live in the system prompt (:data:`TRIAGE_SYSTEM`).
+    It NEVER carries the raw memo, the attack channel, or any detector internals
+    (OPT-A-00 §4, sacred) — putting the attack text here "to reason better" is the exact
+    forbidden landmine.
     """
+    rate = signals.failure_rate
     return (
-        f"failure_rate: {signals.failure_rate:.2f}  "
-        "(0.0 = the attack got nothing through, 1.0 = full exploit)\n"
-        f"seam_result: {signals.seam_result.value}  "
-        "(clean = the seam binds, a real path; boundary = provably contained; "
-        "open = unresolved)\n"
-        f"severity: {signals.severity.value}\n"
-        f"allowed routes: {', '.join(r.value for r in routes)}\n"
-        "Route meanings — "
-        f"{Route.REMEDIATE.value}: a real, resolvable vulnerability to patch; "
-        f"{Route.ACCEPT.value}: contained / not actionable; "
-        f"{Route.ESCALATE.value}: a human must review this finding.\n"
-        "Choose exactly one allowed route for this finding."
+        "Route this finding.\n"
+        f"- failure_rate: {rate:.2f} out of 1.00 "
+        f"({rate:.0%} of attacks got through; higher = more landed)\n"
+        f"- seam_result: {signals.seam_result.value}\n"
+        f"- severity: {signals.severity.value}\n"
+        f"Allowed routes: {', '.join(r.value for r in routes)}. "
+        "Apply the decision rules in order and reply in the required format."
     )
 
 

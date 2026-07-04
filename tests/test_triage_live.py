@@ -20,6 +20,10 @@ from __future__ import annotations
 
 import pytest
 
+# The eval's scenario tables (scripts/ is on pythonpath + mypy_path), used to prove the
+# prompt's few-shot examples are held out from everything the evaluation routes.
+from triage_llm_eval import HELDOUT_SCENARIOS, SCENARIOS
+
 from keystone.agents.red_team import PROBE_CATALOG
 from keystone.agents.triage import (
     POLICY_FALLBACK_REASONER,
@@ -263,6 +267,41 @@ def test_system_prompt_constrains_to_bounded_selection() -> None:
     # selection, not open planning (OPT-A-00 §7.3).
     assert "EXACTLY ONE" in TRIAGE_SYSTEM
     assert "never invent" in TRIAGE_SYSTEM.lower()
+
+
+# The few-shot worked examples baked into TRIAGE_SYSTEM (OPT-A-01b lever 3). Held here as
+# data so a mechanical test can prove they still match the policy ground truth: a prompt
+# that teaches the model an example the policy would NOT produce is a silent correctness
+# bug. If TRIAGE_SYSTEM's examples change, update this table — the test re-checks route_for.
+_FEWSHOT_EXAMPLES: tuple[
+    tuple[float, SeamClassification, FindingSeverity, Route], ...
+] = (
+    (0.65, SeamClassification.CLEAN, FindingSeverity.MEDIUM, Route.REMEDIATE),
+    (0.65, SeamClassification.BOUNDARY, FindingSeverity.MEDIUM, Route.ACCEPT),
+    (0.65, SeamClassification.OPEN, FindingSeverity.MEDIUM, Route.ESCALATE),
+    (0.05, SeamClassification.CLEAN, FindingSeverity.LOW, Route.ACCEPT),
+    (0.90, SeamClassification.BOUNDARY, FindingSeverity.HIGH, Route.ESCALATE),
+)
+
+
+def test_fewshot_examples_match_the_policy_ground_truth() -> None:
+    # Every worked example the prompt teaches must be a route the policy would actually
+    # produce — the prompt cannot teach the model a decision that contradicts route_for.
+    for rate, seam, sev, expected in _FEWSHOT_EXAMPLES:
+        assert route_for(_signals(rate, seam, sev)) is expected
+        # …and each example's declared route is really present in the system prompt.
+        assert f"ROUTE: {expected.value}" in TRIAGE_SYSTEM
+
+
+def test_fewshot_example_rates_are_held_out_from_the_eval_scenarios() -> None:
+    # The examples must use different (rate, seam, severity) tuples than anything the
+    # eval routes, so the evaluation tests generalization, not memorization (OPT-A-01b).
+    example_tuples = {(r, s, v) for r, s, v, _ in _FEWSHOT_EXAMPLES}
+    eval_tuples = {
+        (sig.failure_rate, sig.seam_result, sig.severity)
+        for _, sig in (*SCENARIOS, *HELDOUT_SCENARIOS)
+    }
+    assert example_tuples.isdisjoint(eval_tuples)
 
 
 # --- 5. the offline default is UNCHANGED (front door works with no Ollama) ----
