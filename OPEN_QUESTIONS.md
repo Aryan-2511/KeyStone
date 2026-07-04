@@ -79,10 +79,15 @@ Each: **what it is · why it's open · what resolving it needs.**
   Two live-agent builds defined exactly what capable **on-prem** inference (ADR-0024:
   inside the trust boundary — no data leaves) would unlock. This is a **strength (rigour),
   not a gap** — we know precisely what's needed and why (full detail: ADR-0025):
-  - **Finding 1 (OPT-A-01):** qwen2.5:3b can't reason reliably for triage routing — agreed
-    with the policy **1/6** scenarios, **collapsed to one route on all 18 calls**, misread
-    the numeric `failure_rate`, ignored the signal interplay. Bounded selection held
-    (always valid) but quality was poor. → the policy stays the default.
+  - **Finding 1 (OPT-A-01, refined by OPT-A-01b):** qwen2.5:3b routes unreliably. OPT-A-01's
+    terse prompt agreed with the policy **1/6**, collapsed to one route, misread the numeric
+    `failure_rate`. OPT-A-01b then made a **genuine prompt-engineering effort** (signal
+    clarity + taught rules + few-shot + structured output) and re-ran the SAME eval:
+    in-distribution rose to **6/6** (30/30 at 5×) — but a **held-out anti-parrot probe**
+    (novel combos, built so pattern-matching fails) stayed at **4/6**, and the numeric misread
+    *resurfaced* (called 0.06 "above 0.10"). Honest verdict: **part prompt artifact, but the
+    model ceiling is real** — 3B pattern-matches the examples, it does not robustly apply the
+    rules. → the policy stays the default (now better-evidenced). See ADR-0026.
   - **Finding 2 (OPT-A-02):** local Garak scans are intractably slow — lead probes 45–145s,
     deep probes **955–1550s+**, one exceeded the 1800s timeout; the full sequence is
     **hours**. → the recorded profile stays the default, live is opt-in. *Positive:* the
@@ -100,9 +105,11 @@ Each: **what it is · why it's open · what resolving it needs.**
   `KS-0616`): `keystone.agents.triage.live_triage` reasons the route with qwen2.5:3b as
   an opt-in mode (`keystone demo --live`), constrained to the 3-route space, with the
   policy as fallback and an honest reasoner tag — the boundary and §2 bar hold (ADR-0021).
-  Empirically, 3B is NOT yet trustworthy enough to be the default (it collapsed toward
-  `remediate` and misread the numeric `failure_rate`), so the policy stays the default and
-  fallback — the deferred 3B-reliability question, answered.
+  Empirically, 3B is NOT yet trustworthy enough to be the default. OPT-A-01b tested whether
+  that was the *prompt* or the *model*: a genuine prompt effort lifted in-distribution
+  agreement 1/6 → 6/6, but a held-out anti-parrot probe stayed 4/6 with the numeric misread
+  resurfacing (ADR-0026) — part prompt, but the ceiling is the model. The policy stays the
+  default and fallback — the deferred 3B-reliability question, answered both ways.
 - **Live-Garak Red-Team is now real** (OPT-A-02, `KS-0617`): `live_red_team` runs the
   agent's full policy-selected sequence as REAL Garak scans (opt-in, same `--live` flag),
   with the recorded profile as a source-tagged fallback — the boundary and §2 agency hold

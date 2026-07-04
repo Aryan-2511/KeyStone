@@ -1123,6 +1123,31 @@
         "tests/test_red_team_live.py::test_build_red_team_view_live_falls_back_when_garak_down",
         "tests/test_red_team_live.py::test_real_garak_live_run_tags_the_source_honestly"
       ]
+    },
+    {
+      "id": "KS-0618",
+      "title": "Triage LLM prompt-rescue — a genuine prompt effort re-tests the OPT-A-01 3B finding (model or prompt?)",
+      "description": "Revisits KS-0616 / ADR-0021's honest-negative 3B finding (qwen2.5:3b agreed with the triage policy on only 1/6 scenarios, collapsed to one route, misread the numeric failure_rate) by asking whether that was a WEAK PROMPT or a weak model. Makes a genuine prompt-engineering effort — the ONLY thing that changes is keystone.agents.triage's LLM prompt (TRIAGE_SYSTEM + build_live_prompt), applying four levers that target the specific OPT-A-01 failures: (1) signal clarity — failure_rate presented with its 0.00–1.00 scale + explicit percent so the number cannot be misread; (2) the task taught in words — the policy's decision rules in order (HIGH→escalate; <0.10→accept; then seam open/boundary/clean→escalate/accept/remediate) with the interplay stated; (3) five few-shot worked examples (signal→route→why) covering all three routes + the interplay + the HIGH override, at HELD-OUT rates (0.65/0.05/0.90) that never equal an eval tuple and each verified against route_for by a mechanical test; (4) structured output (ROUTE|WHY). The memo-blind boundary (OPT-A-00 §4, sacred) HOLDS — the prompt carries the three SIGNALS only, few-shot examples are signal→route pairs never attack text, and the AST import-scan boundary test still passes. The policy (route_for, ground truth + fallback + eval baseline), the fallback, reasoner-tagging, the schema, and the opt-in default are ALL unchanged — the policy stays the default. The evaluation (scripts/triage_llm_eval.py / make triage-eval) gains a second, permanent block: a HELD-OUT anti-parrot probe of six novel (seam,severity)+rate combos the examples never show, each built so a model that PARROTS the examples gets it WRONG while one applying the override RULES gets it right — separating genuine rule-application from few-shot pattern-matching. Honest before/after: in-distribution agreement rose 1/6 → 6/6 (stable, 30/30 at 5×; no collapse, reads the rate, honors interplay) BUT the held-out probe stayed at 4/6 (12/18) with the numeric misread resurfacing (called 0.06 'above 0.10') and seam semantics misapplied (called a clean seam 'contained'). Verdict = both at once: the OPT-A-01 finding was PART prompt artifact AND the model ceiling is real — 3B pattern-matches the examples, it does not robustly apply the rules; the policy stays the default, now better-evidenced (ADR-0026). Does NOT promote LLM routing to the default (a separate, joint decision this result does not justify), does NOT change the policy / fallback / tagging / boundary / schema / arc, and does NOT escalate to an 8B model (3B only).",
+      "phase": "7 — becoming multi-agent (Movement A, live)",
+      "layer": "agents / orchestration edge",
+      "area": "agents",
+      "status": "done",
+      "depends_on": [
+        "KS-0616"
+      ],
+      "done_criteria": [
+        "the ONLY code change is the triage LLM prompt (TRIAGE_SYSTEM + build_live_prompt) applying the four levers; the policy route_for, the fallback, reasoner-tagging, the schema, and the opt-in default are unchanged — the policy stays the default reasoner",
+        "every few-shot worked example baked into the prompt matches route_for (a mechanical test pins this) and uses (rate, seam, severity) tuples held out from every eval scenario — the eval tests generalization, not memorization",
+        "the memo-blind boundary holds: the prompt carries the three signals only (no memo / attack channel / detector), few-shot examples are signal→route pairs not attack text, and the AST import-scan boundary test still passes; the constrained-output + reasoner-honesty + fallback tests pass unchanged",
+        "the SAME evaluation is re-run for a fair before/after and reported truthfully, not cherry-picked: in-distribution 1/6 → 6/6, plus a held-out anti-parrot probe (4/6) that the eval now prints permanently as a distinct block",
+        "the honest verdict is recorded (ADR-0026, OPEN_QUESTIONS Finding 1): part prompt artifact, part model ceiling; the policy stays the default and the promotion decision is deferred to a joint call; make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores, all prior tests green unchanged"
+      ],
+      "tests": [
+        "tests/test_triage_live.py::test_fewshot_examples_match_the_policy_ground_truth",
+        "tests/test_triage_live.py::test_fewshot_example_rates_are_held_out_from_the_eval_scenarios",
+        "tests/test_triage_live.py::test_live_prompt_carries_signals_only_never_the_attack_channel",
+        "tests/test_triage_live.py::test_system_prompt_constrains_to_bounded_selection"
+      ]
     }
   ]
 }
