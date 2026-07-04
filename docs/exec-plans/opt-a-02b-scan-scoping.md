@@ -2,7 +2,7 @@
 
 - **Slug:** `opt-a-02b-scan-scoping`
 - **Feature IDs:** KS-0619 (upgrades KS-0617 / KS-0616 wiring)
-- **Status:** in_progress (PR to open, not self-merged)
+- **Status:** done (PR pushed, awaiting review — not self-merged)
 - **Started:** 2026-07-04
 - **Owner (session):** Claude (Opus 4.8)
 
@@ -36,8 +36,11 @@ meaning, the fallback, tagging semantics, or the boundary. Stop at green.
       **`--live-triage` triggers NO red-team scan** (the OPT-A-01b pain, pinned).
 - [x] Regenerate recorded_run.json (recorded==fresh; scan_scope="full", source recorded_profile).
 - [x] Gates: make check green (503 passed). Offline front door 1.2s; --live-triage 12.9s (no scan).
-- [ ] Real --live-redteam tractable scan (minutes, garak_live, no monster) — running.
-- [ ] Docs: ADR-0027, OPEN_QUESTIONS, feature_list KS-0619, MEMORY; make verify; push + PR.
+- [x] Real garak_live proof: `live_red_team(budget=2)` → source=garak_live, scan_scope=tractable,
+      no deep probe (~33s). A full tractable run scanned many tractable probes over ~24m (no
+      single 30-min monster — scoping confirmed) then cleanly fell back on a transient GarakError.
+- [x] Docs: ADR-0027, OPEN_QUESTIONS, feature_list KS-0619, MEMORY; make verify green
+      (515 passed / 2 skipped, coverage 93.49%, pip-audit clean); committed + pushed (a168f44).
 
 ## Progress log
 
@@ -76,3 +79,9 @@ meaning, the fallback, tagging semantics, or the boundary. Stop at green.
   `recorded_run.json`; `tests/test_red_team_live.py`; docs.
 - **Unchanged (sacred):** agent decision logic (policy `choose_next`, triage routing), the
   fallback mechanism, source/reasoner tagging semantics, the memo-blind boundary, offline default.
+- **Verified:** make check / make verify green (515 passed / 2 skipped, coverage 93.49%,
+  pip-audit clean, mypy strict / Ruff / import-linter clean, AST boundary scan passes). Real
+  proofs captured (see Progress log). PR pushed to `opt-a-02b-scan-scoping`; NOT self-merged.
+- **Honest caveat:** a full tractable run is still ~10–25 min (11 real scans) and can hit a
+  transient GarakError → clean recorded_profile fallback; "tractable" = minutes, not fast. The
+  deep probes remain the documented compute frontier (ADR-0025/0027).
