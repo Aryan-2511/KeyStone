@@ -18,6 +18,8 @@ from __future__ import annotations
 from keystone.agents.red_team import (
     PROBE_CATALOG,
     RECORDED_DEFENSE_PROFILE,
+    SCOPE_FULL,
+    SCOPE_TRACTABLE,
     Observe,
     RedTeamTrace,
     live_red_team,
@@ -55,26 +57,32 @@ def _project(trace: RedTeamTrace) -> RedTeamView:
         probes_run=len(trace.decisions),
         mechanism=mechanism_for(trace.source),
         source=trace.source,
+        scan_scope=trace.scan_scope,
     )
 
 
 def build_red_team_view(
-    *, live: bool = False, observe: Observe | None = None
+    *, live: bool = False, deep: bool = False, observe: Observe | None = None
 ) -> RedTeamView:
     """Run the Red-Team Agent and project its trace into the typed view.
 
     Default (``live=False``): the agent observes the recorded defense profile, reasons
     via its policy, and adapts — the trace replays deterministically (MA-00 §4), tagged
-    ``recorded_profile``. Opt-in (``live=True``, OPT-A-02): the SAME policy selects
-    probes but each is EXECUTED as a real Garak scan (the FULL selected sequence), with
-    the recorded profile as a proven fallback; the trace is tagged ``garak_live`` or —
-    on any Garak failure — ``recorded_profile``. The projected ``source``/``mechanism``
-    state which ran; a fallback is never reported as a live scan (OPT-A-02 §3).
-    ``observe`` is injectable (tests) for the live path.
+    ``recorded_profile`` / scope ``full`` (the whole catalog is selectable; no live cost).
+    Opt-in (``live=True``, OPT-A-02): the SAME policy selects probes but each is EXECUTED
+    as a real Garak scan, with the recorded profile as a proven fallback; the trace is
+    tagged ``garak_live`` or — on any Garak failure — ``recorded_profile``.
+
+    ``deep`` bounds the live scan (OPT-A-02b, the intractable-probe fix): the default live
+    run scans only the TRACTABLE set (``scope=tractable`` — minutes, never a monster probe);
+    ``deep=True`` runs the FULL set incl. the known-intractable deep probes (hours). The
+    projected ``source``/``mechanism``/``scan_scope`` state what actually ran; a fallback
+    is never reported as a live scan (OPT-A-02 §3). ``observe`` is injectable (tests).
     """
-    trace = (
-        live_red_team(observe=observe)
-        if live
-        else run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
-    )
+    if live:
+        trace = live_red_team(
+            observe=observe, scope=SCOPE_FULL if deep else SCOPE_TRACTABLE
+        )
+    else:
+        trace = run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
     return _project(trace)

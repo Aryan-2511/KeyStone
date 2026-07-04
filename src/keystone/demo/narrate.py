@@ -34,18 +34,24 @@ def _headline(redteam_is_live: bool, triage_is_live: bool) -> str:
 
 
 def _closing(
-    reasoner: str, source: str, redteam_is_live: bool, triage_is_live: bool
+    reasoner: str,
+    source: str,
+    scan_scope: str,
+    redteam_is_live: bool,
+    triage_is_live: bool,
 ) -> str:
     """The footer — states which agents ran live honestly, or the fully-offline guarantee."""
     parts: list[str] = []
     if redteam_is_live:
-        parts.append(f"Red-Team ran LIVE on real Garak scans ({source})")
+        parts.append(
+            f"Red-Team ran LIVE on real Garak scans ({source}, {scan_scope} scope)"
+        )
     if triage_is_live:
         parts.append(f"Triage ran LIVE on {reasoner[len('llm:') :]} (a real LLM call)")
     if parts:
         return (
             f"{'; '.join(parts)}; the rest of the arc ran offline & deterministic. "
-            "Re-run without --live for the fully offline front door."
+            "Re-run without a --live flag for the fully offline front door."
         )
     return (
         "Ran offline from a clean clone - no Ollama, no network, no Garak. "
@@ -142,5 +148,7 @@ def narrate_run(result: RunResult) -> str:
     )
     add("")
     add(_rule("-"))
-    add(_closing(tr.reasoner, rt.source, redteam_is_live, triage_is_live))
+    add(
+        _closing(tr.reasoner, rt.source, rt.scan_scope, redteam_is_live, triage_is_live)
+    )
     return "\n".join(lines)

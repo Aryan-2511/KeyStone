@@ -1148,6 +1148,34 @@
         "tests/test_triage_live.py::test_live_prompt_carries_signals_only_never_the_attack_channel",
         "tests/test_triage_live.py::test_system_prompt_constrains_to_bounded_selection"
       ]
+    },
+    {
+      "id": "KS-0619",
+      "title": "Live scan-scoping + granular --live flags — bounded default red-team scan, one agent live without the other (OPT-A-02b)",
+      "description": "Fixes the two operational pains OPT-A-02/OPT-A-01b surfaced: (1) a full live Garak sequence is intractable (LatentWhois ~1550s, the *Full variants ~955s+, one >1800s timeout, the whole sequence HOURS), and (2) `keystone demo --live` drove BOTH agents from ONE flag, so asking for live triage (a ~13s LLM call) launched the hours-long red-team scan too. PART 1 — smart scan scoping: keystone.agents.red_team classifies DEEP_PROBES (the *Full variants + LatentWhois) from the REAL OPT-A-02 timings ONLY (grounded in _OPT_A_02_CAPTURES prompt counts — LatentWhois 168, EnFrFull 270, vs ~12-24 for the leads — and ADR-0025 / OPEN_QUESTIONS Finding 2 durations; nothing invented); tractable_catalog() is PROBE_CATALOG minus the deep probes; live_red_team gains scope (SCOPE_TRACTABLE default / SCOPE_FULL) which hands the UNCHANGED choose_next policy a scoped CATALOG — the default live red-team scans only the tractable set (real, but bounded to minutes), with an opt-in --deep for the full set incl. the monsters (hours). This is scan SCOPING, not a logic change: the policy's selection LOGIC and full capability are untouched (a --deep run exercises the whole space), a scoped-out probe is not-run (never a fabricated 'scanned' result), and every RedTeamTrace / RedTeamView records scan_scope (tractable/full) so a reader knows whether the deep probes were included. PART 2 — granular flags: --live-triage (LLM triage only; red-team stays recorded_profile — NO Garak scan, so live triage never triggers the hours-long scan, the OPT-A-01b pain fixed and pinned by a test), --live-redteam (real Garak, tractable by default; + --deep for the full set), and --live (both live, red-team tractable — redefined from the old 'both, full/hours'). The runner threads a LiveModes(triage, redteam, deep) bundle; the DEFAULT (no flags) stays FULLY OFFLINE (the data-residency front door, works with no Garak/Ollama). Schema: NO version bump — RedTeamView.scan_scope defaults to 'full' (a run recorded before scoping had the whole catalog available, so old data still loads truthfully); recorded_run.json regenerated offline (recorded==fresh). The memo-blind boundary (sacred) HOLDS and the AST import-scan still passes. Does NOT change any agent's decision logic (the red-team choose_next policy, triage routing), the fallback mechanism, the source/reasoner tagging semantics, the schema meaning, or make any live mode the default. Real proof: `keystone demo --live-triage` runs in ~13s (real LLM route, red-team recorded_profile, no scan) where before it was 26+ minutes; `keystone demo --live-redteam` is a real tractable scan (garak_live, scan_scope=tractable, no monster probe); `--deep` opts into the full set.",
+      "phase": "7 — becoming multi-agent (Movement A, live)",
+      "layer": "agents / orchestration edge",
+      "area": "agents",
+      "status": "done",
+      "depends_on": [
+        "KS-0617",
+        "KS-0618"
+      ],
+      "done_criteria": [
+        "the deep/intractable probes are classified from the REAL OPT-A-02 timings only (DEEP_PROBES = the *Full variants + LatentWhois, grounded in _OPT_A_02_CAPTURES prompt counts + ADR-0025 durations) — nothing invented; tractable_catalog() is the full catalog minus those",
+        "the DEFAULT live red-team scans only the tractable set (scope=tractable — no monster probe is ever selected, so a real scan is bounded to minutes); an explicit --deep / SCOPE_FULL run exercises the FULL catalog incl. the deep probes; the trace/view record scan_scope so a reader knows which ran",
+        "scoping does NOT change the agent's selection LOGIC or space: the scoped catalog is handed to the unchanged choose_next policy, the full catalog is intact, a scoped-out probe is not-run (never a fabricated 'scanned' result), and the §2 agency + full-sequence (--deep) behaviour still hold",
+        "granular flags control each agent's live mode independently: --live-triage runs LLM triage with NO red-team scan (the OPT-A-01b pain, pinned by a test asserting red_team.source == recorded_profile), --live-redteam runs a real tractable scan (+ --deep for full), --live runs both (red-team tractable); the default (no flags) stays fully offline and needs no Garak/Ollama",
+        "no agent decision logic / the fallback mechanism / the source+reasoner tagging semantics / the memo-blind boundary / the schema meaning changed; NO schema bump (RedTeamView.scan_scope defaults to 'full'); recorded_run.json regenerated offline (recorded==fresh, hash chain re-verifies); the AST import-scan boundary test still passes; make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores; all prior tests green"
+      ],
+      "tests": [
+        "tests/test_red_team_live.py::test_deep_probes_are_classified_from_the_real_timings",
+        "tests/test_red_team_live.py::test_default_live_scan_is_tractable_never_fires_a_deep_probe",
+        "tests/test_red_team_live.py::test_deep_scope_includes_the_intractable_probes",
+        "tests/test_red_team_live.py::test_build_red_team_view_deep_scans_the_full_set",
+        "tests/test_red_team_live.py::test_live_triage_does_not_trigger_the_red_team_scan",
+        "tests/test_red_team_live.py::test_full_sequence_runs_the_policy_not_a_subset_cap"
+      ]
     }
   ]
 }

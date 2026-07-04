@@ -119,6 +119,50 @@ PHASE_EXPLOIT = "exploit"
 GARAK_LIVE_SOURCE = "garak_live"
 RECORDED_PROFILE_SOURCE = "recorded_profile"
 
+# Scan-scope tags (OPT-A-02b): WHICH probe set a run selected from, so a reader knows
+# whether the known-intractable deep probes were included. A companion to `source` — it
+# describes the SET the run scanned, not WHERE the outcomes came from.
+#   SCOPE_TRACTABLE — only the tractable probes (the default live scan: real, but bounded
+#                     to minutes not hours).
+#   SCOPE_FULL      — the full catalog incl. the deep probes (offline recorded, which has
+#                     no live cost, and the opt-in `--deep` live run).
+SCOPE_TRACTABLE = "tractable"
+SCOPE_FULL = "full"
+
+# The known-INTRACTABLE deep probes, classified from the REAL OPT-A-02 live-scan timings
+# (garak 0.15.1 / qwen2.5:3b / prompt_cap=12; DECISIONS ADR-0025, OPEN_QUESTIONS Finding 2):
+# `LatentWhois` scanned ~1550s (it emits 168 prompts — see `_OPT_A_02_CAPTURES`), the `*Full`
+# variants ~955s+ (e.g. `LatentInjectionTranslationEnFrFull` = 270 prompts) with one
+# exceeding the 1800s per-scan timeout; the tractable leads/shallow probes ran ~45–145s
+# (≤~24 prompts). The rule is grounded in that real data: the `*Full` variants (the full
+# prompt set) and `LatentWhois` are the monsters; everything else is tractable. This bounds
+# the DEFAULT live scan set — it does NOT change the agent's selection LOGIC or its full
+# capability (a `--deep` / SCOPE_FULL run still exercises the whole catalog).
+DEEP_PROBES: frozenset[str] = frozenset(
+    probe
+    for probes in PROBE_CATALOG.values()
+    for probe in probes
+    if probe.endswith("Full") or probe == "latentinjection.LatentWhois"
+)
+
+
+def is_deep(probe: str) -> bool:
+    """True if ``probe`` is a known-intractable deep probe (OPT-A-02 real timings)."""
+    return probe in DEEP_PROBES
+
+
+def tractable_catalog() -> dict[str, tuple[str, ...]]:
+    """:data:`PROBE_CATALOG` minus the deep probes — the default live scan set.
+
+    Same families and ordering, only the known-intractable deep probes removed, so the
+    adaptive policy runs unchanged over a bounded set (minutes not hours). The full
+    catalog is untouched; a ``--deep`` / :data:`SCOPE_FULL` run selects from it directly.
+    """
+    return {
+        family: tuple(p for p in probes if p not in DEEP_PROBES)
+        for family, probes in PROBE_CATALOG.items()
+    }
+
 
 def family_of(probe: str) -> str:
     """The probe family, e.g. ``latentinjection`` from ``latentinjection.X``."""
@@ -190,6 +234,11 @@ class RedTeamTrace(BaseModel):
     # "recorded_profile" (offline default / live fallback). Defaults to the recorded
     # profile so a trace produced before live mode existed stays truthfully labelled.
     source: str = RECORDED_PROFILE_SOURCE
+    # WHICH probe set the run selected from (OPT-A-02b): "full" (offline recorded / the
+    # opt-in --deep live run) or "tractable" (the default live scan, deep probes excluded).
+    # Defaults to "full" so a trace recorded before scoping existed — which had the whole
+    # catalog available — stays truthfully labelled.
+    scan_scope: str = SCOPE_FULL
 
     @property
     def probe_sequence(self) -> tuple[str, ...]:
@@ -338,7 +387,10 @@ def run_red_team(
     ``1..N-1`` — so the trace is genuinely a function of what the agent observed.
     Stops when the budget is spent or the policy finds nothing left worth firing.
     ``source`` tags where the observations came from (recorded profile by default);
-    :func:`live_red_team` sets it to ``garak_live`` for a real scan.
+    :func:`live_red_team` sets it to ``garak_live`` for a real scan. ``catalog`` is the
+    selectable probe set (bounded to :func:`tractable_catalog` for the default live scan):
+    the policy LOGIC is identical, only the set it runs over is bounded. The trace's
+    ``scan_scope`` defaults to ``full``; :func:`live_red_team` stamps the actual scope.
     """
     decisions: list[RedTeamDecision] = []
     while len(decisions) < budget:
@@ -483,35 +535,53 @@ def live_red_team(
     *,
     budget: int = FULL_BUDGET,
     observe: Observe | None = None,
-    profile: Mapping[str, tuple[int, int]] = RECORDED_DEFENSE_PROFILE,
     report_prefix: str = "keystone_live",
     prompt_cap: int | None = 12,
+    scope: str = SCOPE_TRACTABLE,
 ) -> RedTeamTrace:
     """Run the agent LIVE (real Garak per probe); on ANY Garak failure, fall back — TAGGED.
 
     Mirrors the OPT-A-01 fallback architecture (OPT-A-02 §3): the SAME adaptive policy
     selects probes, but each is EXECUTED as a real Garak scan against the target
-    (:func:`garak_observe`), observing the REAL outcome and feeding it to the next
-    choice. Runs the FULL policy-selected sequence (``budget=FULL_BUDGET`` — the policy's
-    own stop, not a subset cap). If Garak is unavailable / the target is unreachable / a
-    scan times out or errors (:class:`GarakError`), it falls back to a complete run over
-    the recorded profile — the trace is ALWAYS produced; only the observation SOURCE
-    degrades. The trace is tagged ``garak_live`` or ``recorded_profile`` accordingly; a
-    fallback is never reported as a live scan. ``observe`` is injectable for tests.
+    (:func:`garak_observe`), observing the REAL outcome and feeding it to the next choice.
+    If Garak is unavailable / the target is unreachable / a scan times out or errors
+    (:class:`GarakError`), it falls back to a complete run over the recorded profile — the
+    trace is ALWAYS produced; only the observation SOURCE degrades. The trace is tagged
+    ``garak_live`` or ``recorded_profile`` accordingly; a fallback is never reported as a
+    live scan. ``observe`` is injectable for tests.
+
+    ``scope`` bounds the live scan set (OPT-A-02b) — the fix for the intractable deep
+    probes (LatentWhois ~1550s, the ``*Full`` variants ~955s+, one >1800s timeout):
+    * :data:`SCOPE_TRACTABLE` (default) — select from :func:`tractable_catalog`, so the
+      real scan is bounded to minutes, never firing a known-monster probe.
+    * :data:`SCOPE_FULL` — select from the whole :data:`PROBE_CATALOG` (the opt-in
+      ``--deep`` run), exercising the full space incl. the deep probes (hours).
+    Either way the policy's selection LOGIC is unchanged and the run still stops on the
+    policy's own ``choose_next`` → ``None`` (``budget=FULL_BUDGET`` is not a subset cap).
+    The chosen scope is recorded on the trace (``scan_scope``) so a reader knows whether
+    the deep probes were included.
     """
+    catalog = tractable_catalog() if scope == SCOPE_TRACTABLE else dict(PROBE_CATALOG)
     live_observe = (
         observe
         if observe is not None
         else garak_observe(report_prefix=report_prefix, prompt_cap=prompt_cap)
     )
     try:
-        return run_red_team(live_observe, budget=budget, source=GARAK_LIVE_SOURCE)
+        trace = run_red_team(
+            live_observe, budget=budget, catalog=catalog, source=GARAK_LIVE_SOURCE
+        )
     except GarakError:
         # Garak unavailable / target down / scan errored → the proven recorded profile
-        # produces a complete, valid trace, honestly tagged as the fallback source.
-        return run_red_team(
-            profile_observe(profile), budget=budget, source=RECORDED_PROFILE_SOURCE
+        # produces a complete, valid trace, honestly tagged as the fallback source. The
+        # scope is unchanged — the fallback covers the SAME set the live run attempted.
+        trace = run_red_team(
+            profile_observe(RECORDED_DEFENSE_PROFILE),
+            budget=budget,
+            catalog=catalog,
+            source=RECORDED_PROFILE_SOURCE,
         )
+    return trace.model_copy(update={"scan_scope": scope})
 
 
 # Honest, one-line description of the mechanism, surfaced in the trace/UI/paper.

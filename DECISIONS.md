@@ -35,6 +35,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0024 | Data-residency, not "offline": the load-bearing requirement is no-exfiltration | Accepted |
 | 0025 | The two hardware findings + fine-tuning frontier = the evidence-backed on-prem compute ask | Accepted |
 | 0026 | Triage LLM prompt-rescue: OPT-A-01's poor routing was part prompt, but a held-out probe confirms the model ceiling | Accepted |
+| 0027 | Live scan-scoping + granular --live flags: default live red-team is a bounded (tractable) scan; deep probes opt-in | Accepted |
 
 ---
 
@@ -948,3 +949,46 @@ set is designed to be *discriminating*, not exhaustive. The bounded claim: on TH
 task, prompt engineering fixes the in-distribution misreads but 3B does not generalize the
 override rules reliably. This is a statement about qwen2.5:3b with real prompt effort — not a
 claim that a larger or fine-tuned model would fail (that is the experiment the ask funds).
+
+## ADR-0027 — Live scan-scoping + granular --live flags: the default live red-team is a real-but-bounded (tractable) scan; deep probes are opt-in
+
+**Status:** Accepted · **Date:** 2026-07-04
+
+**Context.** OPT-A-02 (ADR-0022/0025) established that a full live Garak sequence is
+intractable on local hardware — `LatentWhois` ~1550s, the `*Full` variants ~955s+, one
+exceeding the 1800s per-scan timeout, the whole sequence *hours*. OPT-A-01b then hit the
+operational pain: `keystone demo --live` drove BOTH agents from ONE flag, so asking for
+live *triage* (a ~13s LLM call) launched the *hours-long red-team scan* too. Two bounded,
+honest fixes were owed — without touching any agent's decision logic, the policy, the
+schema meaning, the fallback, the tagging semantics, or the memo-blind boundary.
+
+**Decision.**
+1. **Smart scan scoping.** Classify the probes by tractability from the REAL OPT-A-02
+   timings only (`DEEP_PROBES` = the `*Full` variants + `LatentWhois`, grounded in the
+   `_OPT_A_02_CAPTURES` prompt counts: LatentWhois 168 prompts, EnFrFull 270, vs ~12–24
+   for the leads). The **default live red-team scans the TRACTABLE set** (`tractable_catalog()`
+   — a real scan bounded to minutes), with an explicit **`--deep` / `SCOPE_FULL`** opt-in for
+   the full set incl. the monsters (hours). This is scan SCOPING, not a logic change: the
+   scoped catalog is handed to the *unchanged* `choose_next` policy; the full catalog and the
+   selection space are intact (a `--deep` run exercises the whole space); a scoped-out probe is
+   **not-run**, never a fabricated "scanned" result. Every trace/view records `scan_scope`
+   (`tractable` / `full`) so a reader knows whether the deep probes were included.
+2. **Granular flags.** `--live-triage` (LLM triage only; red-team stays recorded — **no scan**),
+   `--live-redteam` (real Garak, tractable by default; `+ --deep` for full), and `--live` =
+   both live (red-team tractable). The runner threads a `LiveModes(triage, redteam, deep)`
+   bundle; **default (no flags) stays fully offline** (the data-residency front door, no
+   Garak/Ollama). The KEY guarantee, pinned by a test: **live triage never triggers the
+   red-team scan** (the OPT-A-01b pain, fixed).
+
+**Consequences.** Live modes are now composable and honest: `keystone demo --live-triage`
+runs in **~13s** (a real LLM call, red-team `recorded_profile`, no scan), where before it was
+26+ minutes; `--live-redteam` is a real scan bounded to minutes; the hours-long deep run is a
+deliberate `--deep` opt-in. **No schema bump** — `scan_scope` defaults to `"full"` (a run
+recorded before scoping had the whole catalog available), mirroring the OPT-A-02 `source`
+pattern; `recorded_run.json` regenerated (recorded==fresh). The offline default, the fallback,
+the source/reasoner tags, and the boundary are untouched.
+
+**Honest caveat.** "Tractable" means minutes, not fast — the 11-probe tractable set is still
+~10–25 min of real scanning; it is *bounded*, not cheap. The deep probes remain intractable
+on this hardware (the documented compute frontier, ADR-0025, unchanged). Scoping picks a
+sensible default and makes the cost opt-in and legible; it does not make Garak fast.

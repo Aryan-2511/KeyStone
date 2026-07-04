@@ -1038,6 +1038,20 @@
   sequence is minutes — why it's opt-in. Next frontier: LLM-reasoned selection for BOTH
   agents = the compute-gated NVIDIA ask. (`OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`,
   `ADR-0022`.)
+- **LIVE MODES ARE NOW SCOPED + GRANULAR (OPT-A-02b, KS-0619, ADR-0027).** Two fixes to the
+  operational pain that a full live scan is HOURS and one `--live` flag drove BOTH agents.
+  (1) **Scan scoping:** `red_team.DEEP_PROBES` (the `*Full` variants + `LatentWhois`) is
+  classified from the REAL OPT-A-02 timings (LatentWhois 168 prompts/~1550s, EnFrFull 270/~955s+
+  vs ~12-24 for leads — cited, not invented); `live_red_team(scope=…)` hands the UNCHANGED
+  `choose_next` policy a scoped catalog — DEFAULT live red-team scans the TRACTABLE set only
+  (`tractable_catalog()`, minutes), `--deep`/`SCOPE_FULL` runs the whole space (hours). Scoped-out
+  = not-run (never a fabricated result); every trace/view records `scan_scope` (tractable/full).
+  (2) **Granular flags:** `--live-triage` (LLM triage only, **NO Garak scan** — the OPT-A-01b
+  pain fixed: ~13s vs 26+ min, pinned by a test), `--live-redteam` (real scan, tractable / `--deep`
+  full), `--live` (both, tractable). Runner threads a `LiveModes(triage, redteam, deep)` bundle;
+  DEFAULT (no flags) stays fully offline. **NO schema bump** — `RedTeamView.scan_scope` defaults
+  `"full"` (a pre-scoping run had the whole catalog); recorded_run.json regenerated (recorded==fresh).
+  NO agent decision logic / fallback / tagging-semantics / boundary changed. (`ADR-0027`.)
 - **THE PRINCIPLE IS DATA-RESIDENCY / NO-EXFILTRATION, NOT "OFFLINE" (ADR-0024).** The
   load-bearing requirement in regulated finance is that sensitive transaction data + PII
   must NEVER leave the institution's TRUST BOUNDARY to a third-party API. So all inference

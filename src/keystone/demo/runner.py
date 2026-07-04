@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -78,6 +79,31 @@ _INJECTION_FAMILY = "promptinject"
 DEFAULT_RUN_PATH = "keystone-run.json"
 
 
+@dataclass(frozen=True)
+class LiveModes:
+    """Which agents run live this arc, controlled INDEPENDENTLY (OPT-A-02b).
+
+    All-False (the default) is the fully-offline, deterministic front door. The two
+    agents' live modes are separable so you can run live triage WITHOUT triggering the
+    hours-long red-team scan (the OPT-A-01b pain), each with its own fallback:
+
+    * ``triage`` — the Triage Agent LLM-reasons the route (OPT-A-01; policy fallback).
+    * ``redteam`` — the Red-Team Agent runs REAL Garak scans (OPT-A-02; recorded-profile
+      fallback), bounded to the TRACTABLE probe set unless ``deep``.
+    * ``deep`` — with ``redteam``, scan the FULL set incl. the known-intractable deep
+      probes (hours) instead of the tractable default (minutes).
+    """
+
+    triage: bool = False
+    redteam: bool = False
+    deep: bool = False
+
+
+# The fully-offline default — an immutable singleton, so it is safe as a default argument
+# (and avoids constructing a fresh instance on every call).
+OFFLINE_MODES = LiveModes()
+
+
 class RunResultError(ValueError):
     """Raised when the arc / a saved run does not yield a valid run-result.
 
@@ -106,15 +132,17 @@ def _obligation_modalities() -> dict[str, str]:
 
 
 def _assemble(
-    ledger: Ledger, narrate: Narrator, signer: str, *, live: bool = False
+    ledger: Ledger, narrate: Narrator, signer: str, *, live: LiveModes = OFFLINE_MODES
 ) -> RunResult:
     """Run the arc on `ledger` and assemble the typed run-result from it.
 
-    `live` (opt-in) takes the two AGENTS live, each additively with its own fallback:
-    the Red-Team Agent runs its full policy-selected sequence as REAL Garak scans
-    (OPT-A-02; recorded-profile fallback), and the Triage Agent reasons the route with a
-    local LLM (OPT-A-01; policy fallback). The rest of the arc (detection, seam, ledger,
-    narrative) stays offline and deterministic; each agent tags what actually ran.
+    `live` (OPT-A-02b) controls the two agents' live modes INDEPENDENTLY, each additive
+    with its own fallback: `live.redteam` runs the Red-Team Agent's policy-selected
+    sequence as REAL Garak scans (OPT-A-02; recorded-profile fallback) — bounded to the
+    TRACTABLE probe set unless `live.deep`, so live triage never drags in the hours-long
+    deep scan — and `live.triage` reasons the route with a local LLM (OPT-A-01; policy
+    fallback). The rest of the arc (detection, seam, ledger, narrative) stays offline and
+    deterministic; each agent tags what actually ran.
     """
     res = run_layer1_milestone(narrate=narrate, signer=signer, ledger=ledger)
 
@@ -161,7 +189,7 @@ def _assemble(
     # The supervisor-over-worker topology made literal: the rate it reads IS the
     # Red-Team Agent's headline result on this run's defense. In live mode (OPT-A-02)
     # that rate comes from REAL Garak scans over the full policy-selected sequence.
-    red_team_view = build_red_team_view(live=live)
+    red_team_view = build_red_team_view(live=live.redteam, deep=live.deep)
     headline_rate = max(
         (d.failure_rate for d in red_team_view.decisions if d.got_through),
         default=0.0,
@@ -263,7 +291,7 @@ def _assemble(
             failure_rate=headline_rate,
             seam_result=seam_result,
             severity=finding.severity,
-            live=live,
+            live=live.triage,
         ),
     )
 
@@ -273,7 +301,7 @@ def build_run_result(
     narrate: Narrator | None = None,
     signer: str = DEFAULT_SIGNER,
     ledger: Ledger | None = None,
-    live: bool = False,
+    live: LiveModes = OFFLINE_MODES,
 ) -> RunResult:
     """Run one Layer-1 arc and return it as a typed `RunResult`.
 
@@ -281,10 +309,11 @@ def build_run_result(
     arc (the shared persistent ledger would accumulate stages across runs and break
     the exact-arc check). With no `narrate`, uses the offline template narrative.
 
-    `live=False` (the default) keeps the whole arc offline and deterministic — the
-    console front door. `live=True` (opt-in) takes the two AGENTS live — the Red-Team
-    Agent runs real Garak scans (OPT-A-02) and the Triage Agent LLM-reasons the route
-    (OPT-A-01), each with its own fallback; everything else stays offline.
+    `live` defaults to all-offline → the whole arc is deterministic (the console front
+    door / data-residency default). The two agents' live modes are INDEPENDENT (OPT-A-02b,
+    see :class:`LiveModes`): live triage LLM-reasons the route (OPT-A-01) and live red-team
+    runs real Garak scans (OPT-A-02, TRACTABLE unless `live.deep`) — so you can run live
+    triage WITHOUT triggering the hours-long red-team scan. Each falls back on failure.
     """
     narr = narrate if narrate is not None else _template_narrate
     if ledger is not None:
