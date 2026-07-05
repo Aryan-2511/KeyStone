@@ -37,6 +37,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0026 | Triage LLM prompt-rescue: OPT-A-01's poor routing was part prompt, but a held-out probe confirms the model ceiling | Accepted |
 | 0027 | Live scan-scoping + granular --live flags: default live red-team is a bounded (tractable) scan; deep probes opt-in | Accepted |
 | 0028 | Remediation (c): a distinct memo-blind financial-side remediation (stricter thresholds), proven missed-then-caught — the 2nd menu option unblocking Movement C | Accepted |
+| 0029 | The Defense Agent (MC-01): a third genuine agent choosing the remediation (a vs c), policy-first, gated by a proven finding-dependent flip; menu applied via a uniform interface, loop-ready for MC-02 | Accepted |
 
 ---
 
@@ -1039,3 +1040,60 @@ descriptive catalog, not a uniform callable interface (uniform dispatch is MC-01
 Whether a 3B model can reason the (a)-vs-(c) choice reliably is **unproven**; per the OPT-A-01b
 evidence the defense agent should be **Option-B / policy-first**, with LLM reasoning
 compute-gated. (a) and the existing agents' decision logic are untouched.
+
+## ADR-0029 — The Defense Agent (MC-01): a third genuine agent choosing the remediation, policy-first, gated by a proven flip
+
+**Status:** Accepted · **Date:** 2026-07-06
+
+**Context.** MC-PRE-01 (ADR-0028) made the remediation menu genuinely ≥2 — (a) AI-side
+guardrail block, (c) money-side detection tightening. Movement C's defender is honest ONLY if
+the choice among them is **finding-dependent**; a defender picking among options that all fit
+one situation is a fixed dispatch dressed as an agent (theater). MC-00 fixed the design; MC-01
+builds it, gated by a built-in Phase-0 probe that must PROVE the choice can flip before any
+build.
+
+**Decision.**
+- **Phase-0 gate (passed).** Findings carry **independent two-sided strength**: the AI-side
+  `failure_rate` (the Red-Team's landed-exploit rate — a Garak scan of model susceptibility,
+  `runner.py`) and the financial-side `financial_gap` (does a transaction slip baseline FATF
+  detection but get caught once tightened — `remediation.financial_detection_gap`, memo-blind).
+  These are measured by different subsystems over different aspects and are NOT correlated: the
+  real demo finding is `failure_rate 0.92` with `financial_gap False`, and the lone-9,000 tx is
+  low-rate with `financial_gap True`. Both discriminating findings exist in real data → the
+  decision space is real → build.
+- **Uniform interface (§2).** Each `Remediation` implements `apply(context) -> RemediationOutcome`
+  (`assurance.remediation`); the agent selects on the finding then dispatches uniformly. The
+  outcome keeps `side` (never erases the seam difference) and is honestly asymmetric:
+  `verified_offline` is True/False for (c) (an offline detection change, verifiable now) and
+  **None** for (a) (an AI-path control whose effect needs the MC-02 re-scan); `retest_via` is
+  the loop-ready handle for MC-02.
+- **The agent (§3), policy-first.** `keystone.agents.defense.defend` reads `DefenseSignals`
+  (memo-blind) and chooses via a transparent policy — **NOT an LLM** (OPT-A-01b: 3B can't reason
+  a bounded choice reliably; LLM-reasoned choice is compute-gated). Both signals matter:
+  **(c) iff (`financial_gap` and not `failure_rate ≥ 0.10`)**, else **(a)** — the money-side is
+  chosen only when money is provably slipping detection AND the injection is contained; otherwise
+  the AI rail (the root-cause control when the injection is live, the structural default
+  otherwise). The decision (chosen remediation + why + applied outcome) is recorded on
+  `RunResult.defense`.
+
+**The flip (the proof it is an agent).** A strong-AI/weak-financial finding (0.90, gap False)
+→ **(a) `nemo-guardrails-input-rail`**; a weak-AI/strong-financial finding (0.03, gap True) →
+**(c) `fatf-strict-thresholds`**. Same finding → same choice; both remediations reachable; the
+choice genuinely flips (`tests/test_defense_agent.py`). The demo's own finding chooses (a):
+"injection live (92%), money already detected → close the AI hole."
+
+**Consequences.** Keystone now has **THREE genuine agents** — Red-Team (offense), Triage
+(supervisor), Defense (defender) — a multi-agent system on both sides of the seam. **No schema
+bump**: `defense` is an optional defaulted field on `RunResult` (old runs load; mirrors
+OPT-A-01's `reasoner` / OPT-A-02's `source`); `recorded_run.json` regenerated (recorded==fresh).
+The memo-blind boundary holds with all three agents present: the CHOICE reads signals only, and
+even APPLYING (c) uses the memo-blind detector (a test pins detect(strict) blank == injected);
+the AST import-scan and import-linter contracts pass.
+
+**Honest caveat / scope.** MC-01 STOPS at *applying* the remediation — it does **not** re-scan
+or close the offense↔defense loop (that is **MC-02**; the `retest_via` handle is built for it,
+not wired). The choice is **policy-first, not an LLM** — LLM-reasoned remediation choice stays
+compute-gated. The Defense Agent is not a pure signal-only supervisor like Triage: it dispatches
+remediations (so it imports `assurance.remediation`), but its CHOICE is memo-blind and it reaches
+no attack channel or detector-lock directly (a defense-specific boundary test pins this). The
+agent chooses; humans govern — no autonomous-self-healing claim.

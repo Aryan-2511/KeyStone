@@ -1068,6 +1068,24 @@
   byte-unchanged). **NO defense agent yet** — that's MC-01, deliberately after the menu; the 3B-
   reasons-the-choice question stays open (defense agent should be Option-B/policy-first per
   OPT-A-01b). (`ADR-0028`.)
+- **KEYSTONE NOW HAS THREE GENUINE AGENTS — THE DEFENSE AGENT IS BUILT (MC-01, KS-0621,
+  ADR-0029).** `keystone.agents.defense.defend` is the third agent: it CHOOSES which remediation
+  a finding warrants — (a) block the AI side vs (c) tighten the money side — over the finding's
+  **two-sided strength** (AI-side `failure_rate` + memo-blind `financial_gap` =
+  `remediation.financial_detection_gap`: a tx baseline misses that STRICT_THRESHOLDS catches),
+  via a **transparent POLICY, NOT an LLM** (OPT-A-01b evidence; compute-gated). **Phase-0 gate
+  passed** (the strengths are independent — Garak model-susceptibility vs FATF amounts/thresholds
+  — and not correlated: demo finding is 0.92/gap=False, lone-9000 is low-rate/gap=True). **THE
+  FLIP proven:** strong-AI/weak-fin → (a); weak-AI/strong-fin → (c) (`tests/test_defense_agent.py`).
+  Policy: (c) iff (`financial_gap` and `failure_rate < 0.10`), else (a). Applied via a UNIFORM
+  interface `Remediation.apply(context) -> RemediationOutcome` (keeps `side`; `verified_offline`
+  bool for (c) / None for (a); `retest_via` loop-ready for MC-02). Recorded on
+  `RunResult.defense` — **NO schema bump** (optional defaulted field; recorded_run.json regenerated,
+  recorded==fresh). Memo-blind held with all 3 agents (choice signals-only; applying (c) memo-blind;
+  AST scan + import-linter pass — defense imports `assurance.remediation` to dispatch but reaches
+  no attack channel/detector-lock directly). **MC-01 STOPS at applying** — the adversarial loop
+  (re-scan the patched target) is **MC-02**, not wired. The demo finding chooses (a): "injection
+  live (92%), money already detected → close the AI hole." (`ADR-0029`.)
 - **THE PRINCIPLE IS DATA-RESIDENCY / NO-EXFILTRATION, NOT "OFFLINE" (ADR-0024).** The
   load-bearing requirement in regulated finance is that sensitive transaction data + PII
   must NEVER leave the institution's TRUST BOUNDARY to a third-party API. So all inference

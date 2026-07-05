@@ -129,17 +129,19 @@ Each: **what it is · why it's open · what resolving it needs.**
   fixing the OPT-A-01b pain where live triage dragged in the hours-long scan), `--live-redteam`
   (real scan, **tractable** by default / `--deep` for the full set), `--live` (both). Every
   trace records its `scan_scope` (tractable/full) so a reader knows whether the deep probes ran.
-- **Movement C — a defense agent + adversarial loop.** The **≥2-remedy-menu gate is now
-  MET** (MC-PRE-01, `KS-0620`, ADR-0028): the menu is `keystone.assurance.remediation.
-  REMEDIATION_MENU` = **{(a) AI-side guardrail block, (c) financial-side detection
-  tightening}** — two mechanisms on OPPOSITE sides of the seam, proven distinct by a
-  missed-then-caught test (baseline misses a lone 9,000 near-CTR transfer; (c) flags it
-  as LARGE_TRANSFER; memo-blind held). So **MC-00 (defense-agent design) is unblocked.**
-  STILL OPEN: (1) no defense AGENT chooses yet — that is MC-01, deliberately after the
-  menu; (2) whether a 3B model can reason the (a)-vs-(c) choice reliably is unproven —
-  per the OPT-A-01b evidence the defense agent should be **Option-B/policy-first**, LLM
-  reasoning compute-gated. The remediations are descriptive menu entries today, not a
-  uniform callable interface (that dispatch is MC-01's job).
+- **Movement C — a defense agent + adversarial loop.** The **Defense Agent is now built**
+  (MC-01, `KS-0621`, ADR-0029): `keystone.agents.defense.defend` is Keystone's THIRD genuine
+  agent — it chooses which remediation a finding warrants over its two-sided strength (AI-side
+  `failure_rate` + memo-blind `financial_gap`) via a transparent **policy** (NOT an LLM), and
+  applies it through the uniform `Remediation.apply()` interface. The **flip is proven**: a
+  strong-AI/weak-financial finding → (a) guardrail block; a weak-AI/strong-financial finding →
+  (c) money-side tighten (a genuine finding-dependent choice, not a dispatch). Keystone is now a
+  **three-agent system on both sides of the seam** (Red-Team, Triage, Defense); memo-blind held,
+  no schema bump. **REMAINING (MC-02): the adversarial loop** — re-scan the patched target and
+  let the Red-Team agent adapt; MC-01 STOPS at applying the remediation and built the
+  `retest_via` handle loop-ready but did not wire it. **STILL COMPUTE-GATED:** LLM-reasoned
+  remediation choice (the policy is the honest default; OPT-A-01b evidence — a 3B model can't
+  reason the (a)-vs-(c) choice reliably).
 - **Movement 3 — adversarial self-testing.** Not started; the system does not yet
   red-team its own reasoning.
 - **`keystone` console script.** Still a version-only stub

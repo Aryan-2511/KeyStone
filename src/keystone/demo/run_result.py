@@ -369,6 +369,44 @@ class TriageView(BaseModel):
     reasoner: str = "policy"
 
 
+class DefenseView(BaseModel):
+    """The Defense Agent's recorded remediation choice (MC-01) — the defender's call.
+
+    DERIVED by actually RUNNING the Defense Agent (`keystone.agents.defense.defend`) over the
+    finding's two-sided strength — never hand-authored. The agent reads the AI-side strength
+    (`failure_rate` — the injection's landed rate) and the financial-side `financial_gap` (True
+    when a transaction slips baseline detection but tightening catches it), and CHOOSES which
+    remediation the finding warrants: `control` names it, `side` is which side of the seam it
+    acts on ("ai" = block the prompt / "financial" = tighten the money). The choice is
+    finding-dependent (the flip test) and policy-first (`reasoner` = "policy"; NOT an LLM —
+    compute-gated, OPT-A-01b). `verified_offline` is honestly asymmetric: True/False for the
+    financial-side (an offline detection change) or null for the AI-side (its effect needs the
+    MC-02 re-scan); `retest_via` is the loop-ready handle MC-02 would re-test through.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    control: str  # the chosen remediation's control name
+    side: str  # "ai" | "financial" — which side of the seam it acts on
+    # The two-sided strength the agent saw (read-only; memo-blind).
+    failure_rate: float
+    financial_gap: bool
+    seam_result: str  # "clean" | "boundary" | "open"
+    severity: str  # "LOW" | "MEDIUM" | "HIGH"
+    rationale: str
+    # The genuine ≥2-option menu (each reachable — no dispatch-theater).
+    remediations_available: tuple[str, ...]
+    mechanism: str
+    reasoner: str  # "policy" — defense is policy-first in MC-01 (no LLM)
+    # The uniform apply() outcome (MC-00 §2): what the chosen remediation did.
+    summary: str
+    detail: tuple[str, ...]  # concrete artifacts (e.g. the tx ids (c) newly covers)
+    retest_via: str  # the handle MC-02's adversarial loop re-tests through
+    verified_offline: (
+        bool | None
+    )  # (c): bool now; (a): null → verified by the MC-02 re-scan
+
+
 class RunResult(BaseModel):
     """One end-to-end Layer-1 run, as the typed object the front-end renders."""
 
@@ -391,3 +429,8 @@ class RunResult(BaseModel):
     # The Triage Agent's recorded routing decision (MB-01) — the supervisor over the
     # offense worker's finding; the route depends on the signal interplay (not a rule).
     triage: TriageView
+    # The Defense Agent's recorded remediation choice (MC-01) — the defender that chooses
+    # (a) block the AI side vs (c) tighten the money side. OPTIONAL + defaulted None so a run
+    # recorded before the Defense Agent existed still loads (no schema bump — mirrors how
+    # OPT-A-01's `reasoner` / OPT-A-02's `source` were added).
+    defense: DefenseView | None = None

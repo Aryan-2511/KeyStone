@@ -55,6 +55,7 @@ from keystone.core.reporting import (
 from keystone.llm.report_narrative import GuardedNarrative
 
 from .convergence import build_convergence_view
+from .defense import build_defense_view
 from .matrix import build_matrix_view
 from .red_team import build_red_team_view
 from .run_result import (
@@ -292,6 +293,16 @@ def _assemble(
             seam_result=seam_result,
             severity=finding.severity,
             live=live.triage,
+        ),
+        # The Defense Agent (MC-01) chooses the remediation this finding warrants over its
+        # two-sided strength: the same headline_rate (AI side) + the memo-blind financial gap
+        # (computed from the stream). Policy-first, deterministic — no live mode.
+        defense=build_defense_view(
+            failure_rate=headline_rate,
+            seam_result=seam_result,
+            severity=finding.severity,
+            stream=stream,
+            operative_tx_id=seam_tx_id,
         ),
     )
 

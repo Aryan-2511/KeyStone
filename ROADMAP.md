@@ -177,11 +177,14 @@ designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
   detector). Probe **selection stays the adaptive policy** — LLM-reasoned selection is
   **compute-gated** (OPT-A-01 is the evidence: 3B can't do bounded selection; probe selection
   is harder), the documented NVIDIA ask (ADR-0022).
-- **(Later) Movement C**: a defense agent — the **≥2-remediation-menu gate is now MET**
-  (MC-PRE-01, KS-0620, ADR-0028): the menu is `{(a) AI-side guardrail block, (c) financial-side
-  detection tightening}`, two mechanisms on opposite sides of the seam, proven distinct
-  missed-then-caught. **MC-00 (defense-agent design) is unblocked**; the agent itself is MC-01
-  (policy-first, LLM reasoning compute-gated per OPT-A-01b).
+- **Movement C — the Defense Agent is BUILT** (MC-01, KS-0621, ADR-0029). Keystone's THIRD
+  genuine agent chooses which remediation a finding warrants — `{(a) AI-side guardrail block,
+  (c) financial-side detection tightening}` — over the finding's two-sided strength, via a
+  policy (not an LLM; compute-gated per OPT-A-01b). The **flip is proven** (strong-AI → (a);
+  strong-financial → (c)); memo-blind held; no schema bump. Keystone is now a **three-agent
+  system on both sides of the seam**. **REMAINING — MC-02**: the adversarial loop (re-scan the
+  patched target, let the Red-Team agent adapt); MC-01 built the `retest_via` handle loop-ready
+  but STOPS at applying the remediation.
 
 > **The live-agent frontier is honestly complete for current hardware:** Triage can LLM-reason
 > (opt-in, policy-default per OPT-A-01), Red-Team can real-scan (opt-in, recorded-default per

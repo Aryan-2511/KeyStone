@@ -9,6 +9,7 @@ imports this layer (import-linter KEPT).
 from __future__ import annotations
 
 from .convergence import build_convergence_view
+from .defense import build_defense_view
 from .matrix import build_matrix_view
 from .red_team import build_red_team_view
 from .run_result import (
@@ -17,6 +18,7 @@ from .run_result import (
     ArcView,
     ConvergenceMappingView,
     ConvergenceView,
+    DefenseView,
     FinancialCrimeView,
     MatrixPairView,
     MatrixView,
@@ -50,6 +52,7 @@ __all__ = [
     "ArcView",
     "ConvergenceMappingView",
     "ConvergenceView",
+    "DefenseView",
     "FinancialCrimeView",
     "MatrixPairView",
     "MatrixView",
@@ -63,6 +66,7 @@ __all__ = [
     "SeamTransactionView",
     "TriageView",
     "build_convergence_view",
+    "build_defense_view",
     "build_matrix_view",
     "build_red_team_view",
     "build_run_result",
