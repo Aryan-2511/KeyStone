@@ -1052,6 +1052,22 @@
   DEFAULT (no flags) stays fully offline. **NO schema bump** — `RedTeamView.scan_scope` defaults
   `"full"` (a pre-scoping run had the whole catalog); recorded_run.json regenerated (recorded==fresh).
   NO agent decision logic / fallback / tagging-semantics / boundary changed. (`ADR-0027`.)
+- **THE REMEDIATION MENU IS NOW GENUINELY >=2 — MOVEMENT C UNBLOCKED (MC-PRE-01, KS-0620,
+  ADR-0028).** The remediation probe (`remediation_probe.md`) returned MENU-FIRST: only ONE
+  remediation existed (the AI-side guardrail rail, `loop.CONTROL_NAME`). Built the SECOND,
+  genuinely-distinct one: **(c) financial-side detection tightening** — `keystone.assurance.
+  remediation` applies `core.fatf.STRICT_THRESHOLDS` (CTR 10k->5k, structuring floor 5k->2.5k)
+  by re-running the SAME memo-blind `detect()`. Chosen as a stricter FatfThresholds PROFILE (not
+  flagged-destinations) because `detect()` already TAKES thresholds as a param — zero new plumbing.
+  **PROOF (missed-then-caught):** a lone 9,000 transfer (just under the 10k CTR) — baseline flags
+  NOTHING (not a >=3 cluster, not >=10k, not a flagged recipient); (c) flags it LARGE_TRANSFER.
+  Same tx, opposite outcome, driven only by (c) (`tests/test_remediation.py`). **Menu now = {(a)
+  AI-side block, (c) money-side tighten}** — two mechanisms, two sides of the seam, a
+  finding-dependent choice. Memo-blind SACRED held (detect(strict) blank==injected; core stays
+  edge-free; import-linter KEPT). NO schema bump (reuses Finding/detect; DEFAULT_THRESHOLDS
+  byte-unchanged). **NO defense agent yet** — that's MC-01, deliberately after the menu; the 3B-
+  reasons-the-choice question stays open (defense agent should be Option-B/policy-first per
+  OPT-A-01b). (`ADR-0028`.)
 - **THE PRINCIPLE IS DATA-RESIDENCY / NO-EXFILTRATION, NOT "OFFLINE" (ADR-0024).** The
   load-bearing requirement in regulated finance is that sensitive transaction data + PII
   must NEVER leave the institution's TRUST BOUNDARY to a third-party API. So all inference

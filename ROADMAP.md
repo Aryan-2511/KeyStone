@@ -177,8 +177,11 @@ designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
   detector). Probe **selection stays the adaptive policy** — LLM-reasoned selection is
   **compute-gated** (OPT-A-01 is the evidence: 3B can't do bounded selection; probe selection
   is harder), the documented NVIDIA ask (ADR-0022).
-- **(Later) Movement C**: a defense agent — gated on a real ≥2-remediation menu (a single
-  rail is one choice, not an agent).
+- **(Later) Movement C**: a defense agent — the **≥2-remediation-menu gate is now MET**
+  (MC-PRE-01, KS-0620, ADR-0028): the menu is `{(a) AI-side guardrail block, (c) financial-side
+  detection tightening}`, two mechanisms on opposite sides of the seam, proven distinct
+  missed-then-caught. **MC-00 (defense-agent design) is unblocked**; the agent itself is MC-01
+  (policy-first, LLM reasoning compute-gated per OPT-A-01b).
 
 > **The live-agent frontier is honestly complete for current hardware:** Triage can LLM-reason
 > (opt-in, policy-default per OPT-A-01), Red-Team can real-scan (opt-in, recorded-default per

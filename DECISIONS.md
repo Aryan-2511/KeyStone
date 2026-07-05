@@ -36,6 +36,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0025 | The two hardware findings + fine-tuning frontier = the evidence-backed on-prem compute ask | Accepted |
 | 0026 | Triage LLM prompt-rescue: OPT-A-01's poor routing was part prompt, but a held-out probe confirms the model ceiling | Accepted |
 | 0027 | Live scan-scoping + granular --live flags: default live red-team is a bounded (tractable) scan; deep probes opt-in | Accepted |
+| 0028 | Remediation (c): a distinct memo-blind financial-side remediation (stricter thresholds), proven missed-then-caught — the 2nd menu option unblocking Movement C | Accepted |
 
 ---
 
@@ -992,3 +993,49 @@ the source/reasoner tags, and the boundary are untouched.
 ~10–25 min of real scanning; it is *bounded*, not cheap. The deep probes remain intractable
 on this hardware (the documented compute frontier, ADR-0025, unchanged). Scoping picks a
 sensible default and makes the cost opt-in and legible; it does not make Garak fast.
+
+## ADR-0028 — Remediation (c): a genuine, distinct financial-side remediation — the second menu option that unblocks Movement C
+
+**Status:** Accepted · **Date:** 2026-07-05
+
+**Context.** The remediation probe (`remediation_probe.md`) returned **MENU-FIRST**: Movement
+C (a defense agent + adversarial loop) is honest only if a defender chooses among **≥2
+genuinely-distinct** remediations, but only **one** existed — the AI-side NeMo Guardrails
+input rail (`loop.py:37` `CONTROL_NAME`). A defender "choosing" among options that all do the
+same thing is agency-theater. The probe identified **(c) financial-side detection tightening**
+as the cleanest distinct second option: it acts on the *opposite* side of the L2↔L1 seam and
+is memo-blind by construction. MC-PRE-01 builds it as real capability **before** any agent.
+
+**Decision — build (c) as a stricter `FatfThresholds` PROFILE, applied via a new
+`keystone.assurance.remediation` module.** Chosen over the flagged-destinations form because
+`FatfThresholds` is **already a `detect()` parameter** (`engine.py`) — the seam is built for
+exactly this, so (c) is zero new detection plumbing and is pure *tightening* of existing rules
+(not new list data, not a new typology). `core.fatf.STRICT_THRESHOLDS` halves the CTR
+threshold (10k → 5k, structuring band floor 5k → 2.5k in step so the band stays valid): the
+*enhanced-scrutiny* profile treats the sub-threshold evasion band as reportable.
+`assurance.remediation` catalogs the menu (`REMEDIATION_MENU` = the two `Remediation` entries,
+one per `SeamSide`) and exposes (c) as callables: `tighten_financial_detection(stream)` and
+`newly_flagged_by_tightening(stream)` (findings strict catches that baseline misses).
+
+**The proof (c) is genuine — missed-then-caught.** A **lone transfer of 9,000**, deliberately
+sized just under the standard 10k CTR: the **baseline detection flags NOTHING** (it is neither
+a ≥3 structuring cluster, nor a ≥10k large transfer, nor a flagged recipient), yet **(c) flags
+it as a reportable LARGE_TRANSFER** — same transaction, opposite outcome, driven only by (c)
+(`tests/test_remediation.py`). This proves (c) is a real second line of defense, not a no-op
+that only re-catches what (a) already blocks.
+
+**Consequences.** The remediation menu is now genuinely **{(a) AI-side block, (c) money-side
+tighten}** — two mechanisms, two sides of the seam, a *finding-dependent* choice (AI-side-landed
+→ fix the model path; financial-pattern-strong → tighten the money-side). **MC-00 (defense-agent
+design) is unblocked.** No schema bump: (c) reuses the existing `Finding`/`detect` structures;
+`STRICT_THRESHOLDS` is additive core data and `DEFAULT_THRESHOLDS` / baseline behaviour are
+byte-unchanged. The memo-blind boundary holds — (c) re-runs the SAME memo-blind engine (a test
+pins `detect(strict)` blank == injected); the AST import-scan and import-linter contracts pass
+(`assurance` → `core` is allowed; core imports nothing new).
+
+**Honest caveat / scope.** MC-PRE-01 builds the **menu option only** — **no defense agent
+chooses yet** (that is MC-01, deliberately after the menu). The `Remediation` entries are a
+descriptive catalog, not a uniform callable interface (uniform dispatch is MC-01's job).
+Whether a 3B model can reason the (a)-vs-(c) choice reliably is **unproven**; per the OPT-A-01b
+evidence the defense agent should be **Option-B / policy-first**, with LLM reasoning
+compute-gated. (a) and the existing agents' decision logic are untouched.

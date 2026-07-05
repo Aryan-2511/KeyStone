@@ -291,7 +291,9 @@ designs `MA-00_REDTEAM_AGENT_DESIGN.md` / `MB-00_TRIAGE_AGENT_DESIGN.md`):
       (`keystone.agents.red_team`; `tests/test_red_team_live.py`;
       `OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`; ADR-0022). **The live-agent frontier is
       honestly complete for current hardware; LLM-reasoned selection = the NVIDIA compute ask.**
-- [ ] **(Later) Movement C** — a defense agent, gated on a real ≥2-remediation menu.
+- [ ] **(Later) Movement C** — a defense agent. **Menu gate now MET** (MC-PRE-01 / KS-0620:
+      remediation (c) built, menu = {(a) AI-side block, (c) money-side tighten}, proven distinct
+      missed-then-caught). Next: MC-00 (design), then MC-01 (the agent, policy-first).
 
 > **Keystone is now honestly MULTI-AGENT.** Two genuine agents in a supervisor–worker
 > topology (Red-Team worker + Triage supervisor), each passing the strict §2 agency bar —
