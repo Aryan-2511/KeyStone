@@ -291,14 +291,16 @@ designs `MA-00_REDTEAM_AGENT_DESIGN.md` / `MB-00_TRIAGE_AGENT_DESIGN.md`):
       (`keystone.agents.red_team`; `tests/test_red_team_live.py`;
       `OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`; ADR-0022). **The live-agent frontier is
       honestly complete for current hardware; LLM-reasoned selection = the NVIDIA compute ask.**
-- [ ] **(Later) Movement C** — a defense agent. **Menu gate now MET** (MC-PRE-01 / KS-0620:
-      remediation (c) built, menu = {(a) AI-side block, (c) money-side tighten}, proven distinct
-      missed-then-caught). Next: MC-00 (design), then MC-01 (the agent, policy-first).
+- [x] **Movement C — the Defense Agent** (MC-01 / KS-0621, ADR-0029): the THIRD genuine agent
+      chooses the remediation ((a) block AI vs (c) tighten money) over the finding's two-sided
+      strength, policy-first; the flip is proven; memo-blind held; no schema bump. **Remaining —
+      MC-02:** the adversarial loop (re-scan the patched target); the `retest_via` handle is
+      built loop-ready but not wired.
 
-> **Keystone is now honestly MULTI-AGENT.** Two genuine agents in a supervisor–worker
-> topology (Red-Team worker + Triage supervisor), each passing the strict §2 agency bar —
-> the present-tense "multi-agent system" claim is defensible. Next, optionally: Movement C
-> (a defense agent), Option A upgrades (LLM-reasoned red-team / triage), or an
+> **Keystone is now honestly MULTI-AGENT — THREE genuine agents on both sides of the seam**
+> (Red-Team worker + Triage supervisor + Defense defender), each passing the strict §2 agency
+> bar. Next, optionally: MC-02 (the adversarial offense↔defense loop), Option A upgrades
+> (LLM-reasoned red-team / triage / defense — compute-gated), or an
 > agentic-framing pass on the deck + demo now that the claim is true.
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)

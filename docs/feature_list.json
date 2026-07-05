@@ -1204,6 +1204,36 @@
         "tests/test_remediation.py::test_menu_has_two_distinct_remediations_on_opposite_sides",
         "tests/test_remediation.py::test_guardrail_control_name_matches_the_existing_rail_unchanged"
       ]
+    },
+    {
+      "id": "KS-0621",
+      "title": "The Defense Agent (MC-01) — a third genuine agent choosing the remediation (a vs c), policy-first, proven flip",
+      "description": "MC-01. Builds Keystone's THIRD genuine agent, gated by a built-in Phase-0 probe that PROVES the choice is finding-dependent before any build (else it is theater). Phase 0 (passed): findings carry INDEPENDENT two-sided strength — the AI-side failure_rate (the Red-Team's landed-exploit rate, a Garak scan of model susceptibility) and the financial-side financial_gap (does a transaction slip baseline FATF detection but get caught once tightened — keystone.assurance.remediation.financial_detection_gap, memo-blind) — measured by different subsystems over different aspects, NOT correlated (the real demo finding is failure_rate 0.92 with financial_gap False; the lone-9,000 tx is low-rate with financial_gap True), so the choice can genuinely flip. Phase 1 — the uniform interface (MC-00 §2): each Remediation implements apply(context) -> RemediationOutcome; the agent selects on the finding then dispatches uniformly (never a signature-branch); the outcome keeps `side` (never erases the seam difference) and is honestly asymmetric — verified_offline True/False for (c) (an offline detection change, verifiable now) or None for (a) (an AI-path control whose effect needs the MC-02 re-scan); retest_via is the loop-ready handle for MC-02. Phase 2 — the agent (MC-00 §3): keystone.agents.defense.defend reads DefenseSignals (memo-blind) and chooses via a TRANSPARENT POLICY, NOT an LLM (OPT-A-01b evidence: 3B can't reason a bounded choice reliably; LLM-reasoned choice is compute-gated; honest label 'adaptive defense policy … not an LLM'). Both signals matter: (c) iff (financial_gap and failure_rate < 0.10), else (a) — the money-side is chosen only when money is provably slipping detection AND the injection is contained; otherwise the AI rail (root-cause control when the injection is live, structural default otherwise). The decision (chosen remediation + why + applied outcome) is recorded on RunResult.defense. Schema: NO version bump — `defense` is an OPTIONAL defaulted (None) field on RunResult (old runs still load; mirrors OPT-A-01's reasoner / OPT-A-02's source); recorded_run.json regenerated offline (recorded==fresh). The memo-blind boundary (MC-00 §4, sacred) HOLDS with all three agents present: the CHOICE reads signals only, and even APPLYING (c) uses the memo-blind detector (a test pins detect(strict) blank == injected); the AST import-scan boundary test and import-linter contracts pass (the Defense Agent dispatches remediations so it imports assurance.remediation — allowed — but reaches no attack channel / detector-lock directly, pinned by a defense-specific boundary test). Does NOT close the adversarial loop / re-scan (that is MC-02 — the retest_via handle is built loop-ready, not wired), does NOT LLM-reason the choice (policy-first), does NOT change the existing agents' logic / (a)/(c)'s core behaviour / the seam / the FATF baseline / the ledger, and makes no autonomous-self-healing claim (the agent chooses; humans govern). Keystone is now a three-agent system on both sides of the seam (Red-Team offense, Triage supervisor, Defense defender).",
+      "phase": "7 — becoming multi-agent (Movement C)",
+      "layer": "agents / orchestration edge",
+      "area": "agents",
+      "status": "done",
+      "depends_on": [
+        "KS-0620",
+        "KS-0616"
+      ],
+      "done_criteria": [
+        "the Phase-0 gate is proven from real data: findings carry independent two-sided strength (AI-side failure_rate + memo-blind financial_gap) that is not always correlated, so the (a)-vs-(c) choice can genuinely flip — documented in the PR as a probe block, and if it could NOT flip the task stops (honest gate)",
+        "THE FLIP: a strong-AI/weak-financial finding chooses (a) guardrail block, a weak-AI/strong-financial finding chooses (c) money-side tighten — same finding same choice, both remediations reachable, the choice a pure function of the finding (tests/test_defense_agent.py)",
+        "the uniform interface: (a) and (c) both implement apply(context) -> RemediationOutcome and the agent dispatches uniformly WITHOUT erasing the seam-side difference (side on every outcome) or leaking the signature into the choice; verified_offline is honestly asymmetric (bool for (c) now, None for (a) — verified by the MC-02 re-scan); retest_via built loop-ready",
+        "policy-first (NOT an LLM): the reasoner tag is always 'policy'; the decision is recorded on RunResult.defense; the offline / data-residency default is intact (the choice needs no model); NO schema bump (defense is an optional defaulted field); recorded_run.json regenerated offline (recorded==fresh, hash chain re-verifies)",
+        "the memo-blind boundary holds with all THREE agents present: the choice reads signals only, applying (c) is memo-blind (detect(strict) blank == injected), the AST import-scan boundary test and import-linter contracts pass; MC-01 STOPS at applying the remediation (no loop / re-scan); make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores, all prior tests green unchanged"
+      ],
+      "tests": [
+        "tests/test_defense_agent.py::test_the_choice_flips_between_a_favoring_and_c_favoring_findings",
+        "tests/test_defense_agent.py::test_both_signals_matter_not_a_single_threshold",
+        "tests/test_defense_agent.py::test_all_remediations_are_reachable",
+        "tests/test_defense_agent.py::test_same_finding_same_remediation",
+        "tests/test_defense_agent.py::test_c_apply_re_runs_memo_blind_detection_and_reports_the_gap",
+        "tests/test_defense_boundary.py::test_defense_agent_reaches_no_attack_channel_or_detector_lock",
+        "tests/test_defense_boundary.py::test_applying_c_is_memo_blind_blank_equals_injected",
+        "tests/test_defense_boundary.py::test_independence_holds_with_all_three_agents_present"
+      ]
     }
   ]
 }

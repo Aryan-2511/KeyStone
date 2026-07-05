@@ -24,8 +24,8 @@ the core never imports it (import-linter KEPT).
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from dataclasses import dataclass
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, field
 from enum import StrEnum
 
 from keystone.core.fatf import STRICT_THRESHOLDS, Finding, detect
@@ -44,38 +44,15 @@ class SeamSide(StrEnum):
 GUARDRAIL_PATCH_CONTROL = "nemo-guardrails-input-rail"
 FINANCIAL_TIGHTENING_CONTROL = "fatf-strict-thresholds"
 
-
-@dataclass(frozen=True)
-class Remediation:
-    """One menu entry: a named remediation, the seam side it acts on, and a one-liner.
-
-    A descriptive catalog entry (not yet a uniform callable — MC-01's defense agent will
-    dispatch on it); the point of MC-PRE-01 is that ``REMEDIATION_MENU`` holds ≥2 entries
-    on DIFFERENT sides, so a future agent has a genuine choice to reason over.
-    """
-
-    control: str
-    side: SeamSide
-    summary: str
-
-
-GUARDRAIL_PATCH = Remediation(
-    control=GUARDRAIL_PATCH_CONTROL,
-    side=SeamSide.AI,
-    summary="Block memo prompt-injection at the NeMo Guardrails input rail (KS-0302).",
+# Re-test handles (MC-00 §2): how MC-02's adversarial loop would RE-TEST each remediation.
+# Named here so the interface is loop-ready; MC-01 does NOT wire the loop.
+RETEST_GUARDED_SCAN = (
+    "scan_guarded_agent"  # (a): re-scan the guarded endpoint with Garak
 )
-FINANCIAL_TIGHTENING = Remediation(
-    control=FINANCIAL_TIGHTENING_CONTROL,
-    side=SeamSide.FINANCIAL,
-    summary=(
-        "Tighten FATF detection (STRICT_THRESHOLDS) so a transfer that slipped the "
-        "baseline is flagged — memo-blind, the financial-side second line of defense."
-    ),
-)
+RETEST_STRICT_DETECT = "detect_strict"  # (c): re-run detection at STRICT_THRESHOLDS
 
-# The menu: ≥2 genuinely-distinct remediations, one per side of the seam. What MC-00's
-# defense agent will choose over; today it is the catalog, no agent chooses yet.
-REMEDIATION_MENU: tuple[Remediation, ...] = (GUARDRAIL_PATCH, FINANCIAL_TIGHTENING)
+
+# --- the FATF-tightening mechanism (c), also the MC-PRE-01 proof surface -------
 
 
 def tighten_financial_detection(stream: Sequence[Transaction]) -> list[Finding]:
@@ -101,3 +78,126 @@ def newly_flagged_by_tightening(stream: Sequence[Transaction]) -> list[Finding]:
         for finding in tighten_financial_detection(stream)
         if (finding.typology, finding.transaction_ids) not in baseline
     ]
+
+
+def financial_detection_gap(stream: Sequence[Transaction]) -> frozenset[str]:
+    """Tx ids the BASELINE misses ENTIRELY (no finding) that STRICT_THRESHOLDS catches.
+
+    The Defense Agent's memo-blind financial-side signal: a non-empty gap means money is
+    slipping detection (a transfer covered by no baseline finding but caught once tightened)
+    — the residual risk remediation (c) closes. Distinct from
+    :func:`newly_flagged_by_tightening` (finding-level, which also re-flags already-covered
+    transactions under a stricter typology); this is TRANSACTION COVERAGE — what slips through.
+    """
+    baseline = {tid for f in detect(stream) for tid in f.transaction_ids}
+    strict = {
+        tid for f in detect(stream, STRICT_THRESHOLDS) for tid in f.transaction_ids
+    }
+    return frozenset(strict - baseline)
+
+
+# --- the uniform remediation interface (MC-00 §2) -----------------------------
+
+
+@dataclass(frozen=True)
+class RemediationContext:
+    """What a remediation's ``apply`` may draw on — the RUN context, not the agent's choice.
+
+    The Defense Agent CHOOSES on the finding's signals (memo-blind); dispatch then hands the
+    chosen remediation this context. (c) reads ``stream`` (re-detect); (a) uses
+    ``operative_tx_id`` as its re-test handle. Carrying the stream here does NOT make the
+    agent's CHOICE depend on it — the choice is made before dispatch, on signals alone.
+    """
+
+    stream: tuple[Transaction, ...] = ()
+    operative_tx_id: str | None = None
+
+
+@dataclass(frozen=True)
+class RemediationOutcome:
+    """The uniform result of applying a remediation — abstracts the action, keeps the side.
+
+    ``verified_offline`` is honestly asymmetric: (c) is a pure offline detection change so its
+    effect is known now (True/False); (a) is an AI-path control whose effect needs a re-scan,
+    so it is ``None`` here — verified by MC-02's loop via ``retest_via``.
+    """
+
+    control: str
+    side: SeamSide
+    summary: str
+    detail: tuple[str, ...]  # concrete artifacts, e.g. the tx ids (c) newly covers
+    retest_via: (
+        str  # the handle MC-02's loop re-tests through (loop-ready, not wired here)
+    )
+    verified_offline: bool | None
+
+
+def _apply_guardrail(context: RemediationContext) -> RemediationOutcome:
+    """(a) AI-side: enforce the NeMo Guardrails input rail on the memo channel (KS-0302).
+
+    MC-01 records the control applied and the re-test handle; it does NOT run the live model
+    or re-scan (that closes the loop — MC-02), so the rail's effect on THIS finding is
+    ``verified_offline=None`` (verified by the MC-02 re-scan). (a)'s behaviour is unchanged.
+    """
+    return RemediationOutcome(
+        control=GUARDRAIL_PATCH_CONTROL,
+        side=SeamSide.AI,
+        summary="Enforce the NeMo Guardrails input rail on the memo channel (KS-0302).",
+        detail=(context.operative_tx_id,) if context.operative_tx_id else (),
+        retest_via=RETEST_GUARDED_SCAN,
+        verified_offline=None,  # AI-path effect needs the MC-02 re-scan; not claimed now
+    )
+
+
+def _apply_financial_tightening(context: RemediationContext) -> RemediationOutcome:
+    """(c) financial-side: re-run memo-blind detection at STRICT_THRESHOLDS; report the catch.
+
+    Fully offline and deterministic — its effect (which transactions the tightening newly
+    covers) is known now, so ``verified_offline`` is a real bool.
+    """
+    gap = sorted(financial_detection_gap(context.stream))
+    return RemediationOutcome(
+        control=FINANCIAL_TIGHTENING_CONTROL,
+        side=SeamSide.FINANCIAL,
+        summary="Tighten FATF detection (STRICT_THRESHOLDS) — memo-blind re-detection.",
+        detail=tuple(gap),
+        retest_via=RETEST_STRICT_DETECT,
+        verified_offline=bool(gap),
+    )
+
+
+@dataclass(frozen=True)
+class Remediation:
+    """One menu entry: a named remediation, the seam side it acts on, and its ``apply``.
+
+    ``apply`` is the uniform interface (MC-00 §2): the Defense Agent selects a Remediation on
+    the finding, then calls ``apply(context)`` — same signature for both, so the dispatch is
+    uniform, never a signature-branch masquerading as a choice. ``side`` keeps the seam-side
+    difference visible on every entry and outcome.
+    """
+
+    control: str
+    side: SeamSide
+    summary: str
+    apply: Callable[[RemediationContext], RemediationOutcome] = field(compare=False)
+
+
+GUARDRAIL_PATCH = Remediation(
+    control=GUARDRAIL_PATCH_CONTROL,
+    side=SeamSide.AI,
+    summary="Block memo prompt-injection at the NeMo Guardrails input rail (KS-0302).",
+    apply=_apply_guardrail,
+)
+FINANCIAL_TIGHTENING = Remediation(
+    control=FINANCIAL_TIGHTENING_CONTROL,
+    side=SeamSide.FINANCIAL,
+    summary=(
+        "Tighten FATF detection (STRICT_THRESHOLDS) so a transfer that slipped the "
+        "baseline is flagged — memo-blind, the financial-side second line of defense."
+    ),
+    apply=_apply_financial_tightening,
+)
+
+# The menu: ≥2 genuinely-distinct remediations, one per side of the seam. What the MC-01
+# defense agent chooses over via the uniform ``apply`` interface.
+REMEDIATION_MENU: tuple[Remediation, ...] = (GUARDRAIL_PATCH, FINANCIAL_TIGHTENING)

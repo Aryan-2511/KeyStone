@@ -14,7 +14,7 @@ console encoding (including Windows cp1252), with no stdout reconfiguration.
 
 from __future__ import annotations
 
-from .run_result import RunResult
+from .run_result import RunResult, TriageView
 
 
 def _rule(char: str = "=") -> str:
@@ -57,6 +57,41 @@ def _closing(
         "Ran offline from a clean clone - no Ollama, no network, no Garak. "
         "Deterministic by design."
     )
+
+
+def _triage_lines(tr: TriageView) -> list[str]:
+    """The Triage Agent (MB-01) block — the supervisor's route over the signal interplay."""
+    return [
+        "4. Triage Agent - supervisor",
+        f"   {tr.mechanism}",
+        f"   reasoner: {tr.reasoner}",
+        f"   route: {tr.route.upper()}  "
+        f"(seam={tr.seam_result} | severity={tr.severity} | "
+        f"failure_rate={tr.failure_rate:.2f})",
+        f"   options: {' / '.join(tr.routes_available)}",
+        f"   {tr.rationale}",
+        "",
+    ]
+
+
+def _defense_lines(result: RunResult) -> list[str]:
+    """The Defense Agent (MC-01) block — the third agent's remediation choice, or empty.
+
+    Optional: a run recorded before the Defense Agent existed has no `defense` block.
+    """
+    df = result.defense
+    if df is None:
+        return []
+    return [
+        "4b. Defense Agent - defender",
+        f"   {df.mechanism}",
+        f"   reasoner: {df.reasoner}",
+        f"   chose: {df.control} [{df.side}]  "
+        f"(failure_rate={df.failure_rate:.2f} | financial_gap={df.financial_gap})",
+        f"   menu: {' / '.join(df.remediations_available)}",
+        f"   {df.rationale}",
+        "",
+    ]
 
 
 def narrate_run(result: RunResult) -> str:
@@ -123,17 +158,12 @@ def narrate_run(result: RunResult) -> str:
     add(f"   {bind.thesis}")
     add("")
 
-    add("4. Triage Agent - supervisor")
-    add(f"   {tr.mechanism}")
-    add(f"   reasoner: {tr.reasoner}")
-    add(
-        f"   route: {tr.route.upper()}  "
-        f"(seam={tr.seam_result} | severity={tr.severity} | "
-        f"failure_rate={tr.failure_rate:.2f})"
-    )
-    add(f"   options: {' / '.join(tr.routes_available)}")
-    add(f"   {tr.rationale}")
-    add("")
+    for line in _triage_lines(tr):
+        add(line)
+
+    # 4b. Defense Agent (MC-01) — the third agent, present when the run recorded a choice.
+    for line in _defense_lines(result):
+        add(line)
 
     add("5. Evidence ledger  (sealed, hash-chained)")
     add(f"   arc: {' -> '.join(arc.stages)}")

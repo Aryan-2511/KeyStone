@@ -30,6 +30,17 @@ every decision. Live is strictly additive — the offline default is untouched.
 
 from __future__ import annotations
 
+from .defense import (
+    DEFENSE_FLOOR,
+    DefenseDecision,
+    DefenseSignals,
+    choose_remediation,
+    defend,
+)
+
+# MECHANISM is the red-team agent's; the triage agent's is TRIAGE_MECHANISM, the defense
+# agent's is DEFENSE_MECHANISM (all three collide by simple name, so the edges are aliased).
+from .defense import MECHANISM as DEFENSE_MECHANISM
 from .red_team import (
     DEFAULT_BUDGET,
     FULL_BUDGET,
@@ -69,13 +80,17 @@ from .triage import (
     triage,
     triage_live,
 )
-
-# MECHANISM is the red-team agent's; the triage agent's is TRIAGE_MECHANISM.
 from .triage import MECHANISM as TRIAGE_MECHANISM
 
 __all__ = [
     "ACTION_FLOOR",
     "DEFAULT_BUDGET",
+    "DEFENSE_FLOOR",
+    "DEFENSE_MECHANISM",
+    "DefenseDecision",
+    "DefenseSignals",
+    "choose_remediation",
+    "defend",
     "FULL_BUDGET",
     "GARAK_LIVE_SOURCE",
     "MECHANISM",
