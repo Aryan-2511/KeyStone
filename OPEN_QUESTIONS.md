@@ -129,10 +129,17 @@ Each: **what it is · why it's open · what resolving it needs.**
   fixing the OPT-A-01b pain where live triage dragged in the hours-long scan), `--live-redteam`
   (real scan, **tractable** by default / `--deep` for the full set), `--live` (both). Every
   trace records its `scan_scope` (tractable/full) so a reader knows whether the deep probes ran.
-- **Movement C — a defense agent + adversarial loop.** Gated on a **real ≥2-remedy
-  menu** (a single rail is one choice, not an agent). "remediate" is currently a
-  ROUTE, not fix-selection. Resolving needs ≥2 genuine remediation options for the
-  triage supervisor to choose between.
+- **Movement C — a defense agent + adversarial loop.** The **≥2-remedy-menu gate is now
+  MET** (MC-PRE-01, `KS-0620`, ADR-0028): the menu is `keystone.assurance.remediation.
+  REMEDIATION_MENU` = **{(a) AI-side guardrail block, (c) financial-side detection
+  tightening}** — two mechanisms on OPPOSITE sides of the seam, proven distinct by a
+  missed-then-caught test (baseline misses a lone 9,000 near-CTR transfer; (c) flags it
+  as LARGE_TRANSFER; memo-blind held). So **MC-00 (defense-agent design) is unblocked.**
+  STILL OPEN: (1) no defense AGENT chooses yet — that is MC-01, deliberately after the
+  menu; (2) whether a 3B model can reason the (a)-vs-(c) choice reliably is unproven —
+  per the OPT-A-01b evidence the defense agent should be **Option-B/policy-first**, LLM
+  reasoning compute-gated. The remediations are descriptive menu entries today, not a
+  uniform callable interface (that dispatch is MC-01's job).
 - **Movement 3 — adversarial self-testing.** Not started; the system does not yet
   red-team its own reasoning.
 - **`keystone` console script.** Still a version-only stub

@@ -64,6 +64,20 @@ class FatfThresholds:
 
 DEFAULT_THRESHOLDS = FatfThresholds()
 
+# An ENHANCED-SCRUTINY profile (MC-PRE-01): the same memo-blind rules run at tightened
+# thresholds — the financial-side remediation (c). It halves the CTR reporting threshold
+# (10k → 5k) so a LONE transfer deliberately sized just under the standard 10k threshold —
+# an evasion the baseline lets pass (it is neither a ≥3 structuring cluster nor a ≥10k
+# large transfer) — is now a reportable LARGE_TRANSFER; the structuring band floor is
+# lowered in step (5k → 2.5k) so the band stays valid and smaller smurfing is caught too.
+# It is a stricter PROFILE, not a logic change: `detect` already takes the thresholds as a
+# parameter (memo-blind either way). `DEFAULT_THRESHOLDS` and baseline behaviour are
+# unchanged. Applied as remediation (c) via `keystone.assurance.remediation`.
+STRICT_THRESHOLDS = FatfThresholds(
+    ctr_threshold=5_000.0,
+    structuring_band_floor=2_500.0,
+)
+
 
 def _transfers_by_sender(
     transactions: Sequence[Transaction],

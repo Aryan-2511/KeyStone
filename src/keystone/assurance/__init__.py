@@ -57,6 +57,17 @@ from .garak_probe import (
 )
 from .pairs import REGISTERED_PAIRS
 from .referenced import REFERENCED_ASSURANCE, ReferencedAssurance
+from .remediation import (
+    FINANCIAL_TIGHTENING,
+    FINANCIAL_TIGHTENING_CONTROL,
+    GUARDRAIL_PATCH,
+    GUARDRAIL_PATCH_CONTROL,
+    REMEDIATION_MENU,
+    Remediation,
+    SeamSide,
+    newly_flagged_by_tightening,
+    tighten_financial_detection,
+)
 from .seam import (
     P1_PAIR,
     SeamError,
@@ -126,8 +137,17 @@ __all__ = [
     "P4_PAIR",
     "P5_PAIR",
     "PINNED_GARAK_VERSION",
+    "FINANCIAL_TIGHTENING",
+    "FINANCIAL_TIGHTENING_CONTROL",
+    "GUARDRAIL_PATCH",
+    "GUARDRAIL_PATCH_CONTROL",
     "REFERENCED_ASSURANCE",
     "REGISTERED_PAIRS",
+    "REMEDIATION_MENU",
+    "Remediation",
+    "SeamSide",
+    "newly_flagged_by_tightening",
+    "tighten_financial_detection",
     "ReferencedAssurance",
     "PROMPT_INJECTION_FAMILIES",
     "TOOLS",
