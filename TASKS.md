@@ -297,6 +297,10 @@ designs `MA-00_REDTEAM_AGENT_DESIGN.md` / `MB-00_TRIAGE_AGENT_DESIGN.md`):
       CLOSED** — after the patch, the Red-Team re-scans the PATCHED target (11/12 unpatched →
       0/12 recorded / 0/4 measured live) and adapts (abandons the closed surface). (a) real
       re-scan; (c) offline re-verify; memo-blind held; offline lean; no schema bump.
+- [x] **Consolidation + diagrams (docs-only).** The repo was audited and truthed-up for mentor
+      review (`FINAL_STATE_AUDIT.md`); `ARCHITECTURE.md` now carries three committed Mermaid
+      diagrams (system architecture · the seam thesis · the closed adversarial loop) that render
+      natively on GitHub and match the doc exactly (DIAGRAMS-01).
 
 > **Keystone's multi-agent architecture is COMPLETE — THREE genuine agents interacting across
 > the seam** (Red-Team offense → Triage supervision → Defense defender → re-scan → adapt), the

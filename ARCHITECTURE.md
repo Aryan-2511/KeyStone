@@ -43,6 +43,49 @@ frontier for making the agents' *decisions* LLM-reasoned (`OPEN_QUESTIONS.md` §
 | Agents           | Red-Team (offense) + Triage (supervisor) + Defense (defender) — observation-driven policies; the offense↔defense loop closes | policy |
 | UI               | Streamlit demo front-end                               | n/a         |
 
+The same shape as a diagram — the NeMo Agent Toolkit orchestrator over the three
+compliance layers (L3 obligation mapping · L2 AI Assurance with the three agents ·
+L1 FATF transaction monitoring), the vulnerable target under test, the seam that binds
+an AI exploit to a financial crime, and the shared deterministic spine:
+
+```mermaid
+flowchart TD
+    ORCH["NeMo Agent Toolkit orchestrator (nvidia-nat workflow)"]
+
+    subgraph L3["L3 - Obligation and control mapping (governance)"]
+        OBL["Obligations-to-controls crosswalk; convergence: violated to satisfied"]
+    end
+
+    subgraph L2["L2 - AI Assurance: three genuine agents (observation-driven policies, NOT LLMs)"]
+        RT["Red-Team Agent (offense: adapts probes to what landed)"]
+        TR["Triage Agent (supervisor: routes on signal interplay)"]
+        DF["Defense Agent (defender: picks remediation a or c)"]
+    end
+
+    subgraph L1["L1 - Transaction Monitor: FATF financial-crime detection (memo-blind)"]
+        FATF["FATF typology rules over amounts / timing / accounts"]
+    end
+
+    TGT["Target under test: mock-payments-agent (memo-trusting, vulnerable by design)"]
+    SEAM{{"The seam: one event is BOTH an AI exploit AND a financial crime"}}
+
+    subgraph SPINE["Shared spine (deterministic, auditable)"]
+        GUARD["NeMo Guardrails input rail"]
+        BOUND["Memo-blind boundary: detector never reads the attack channel"]
+        LEDGER["Hash-chained evidence ledger"]
+    end
+
+    ORCH --> L3
+    ORCH --> L2
+    ORCH --> L1
+    L2 -->|"Garak probes the guarded surface"| TGT
+    RT -.->|"AI exploit lands"| SEAM
+    FATF -.->|"flags STRUCTURING"| SEAM
+    SEAM --> SPINE
+    L1 --> SPINE
+    L3 --> SPINE
+```
+
 ## Key decisions (see [`DECISIONS.md`](DECISIONS.md))
 
 - Python 3.12 only — [`ADR-0001`](DECISIONS.md#adr-0001--pin-python-to-312-only).
@@ -79,3 +122,46 @@ The convergence view shows a seam event taking named obligations from *violated*
 front door, `make demo`), the Streamlit app (`make ui`), and `python -m keystone.demo`
 (build + save a run-result). The console narration walks all of it, ending on the loop
 finale ("4c. Adversarial loop — offense re-tests defense").
+
+## The seam (the thesis)
+
+The load-bearing claim: **one event is both an AI-security failure and a financial crime**,
+bound on the shared transaction id — and the two detections are held *independent* by the
+memo-blind boundary (the FATF detector never reads the attack channel), which is what keeps
+the convergence result trustworthy rather than circular.
+
+```mermaid
+flowchart LR
+    RTX["AI-security side (L2): Red-Team Agent finds a memo prompt-injection (latentinjection, OWASP LLM01)"]
+    FATFX["Financial-crime side (L1): FATF flags STRUCTURING from financial signals only (amounts / timing / accounts)"]
+    TX{{"ONE event: transaction TXN-000016"}}
+    BOUND["Memo-blind boundary: the FATF detector NEVER reads the attack channel (the memo)"]
+    THESIS["The seam thesis: the same event is BOTH an AI-security failure AND a financial crime, bound on the shared tx id"]
+
+    RTX -->|"AI-security failure"| TX
+    FATFX -->|"financial crime"| TX
+    BOUND -.->|"structural independence: the two detections cannot be circular"| FATFX
+    TX --> THESIS
+```
+
+## The multi-agent adversarial loop
+
+The finale: after the Defense Agent patches, the Red-Team **re-scans the patched target** and
+adapts — the closed offense↔defense loop (offense → supervision → defense → re-scan → adapt).
+All three agents are observation-driven policies, not LLMs; the core stays deterministic; the
+agents choose, humans govern.
+
+```mermaid
+flowchart TD
+    RT["Red-Team Agent: fires a probe; an exploit LANDS (measured 11/12)"]
+    TR["Triage Agent: routes the finding by signal interplay (remediate / accept / escalate)"]
+    DF["Defense Agent: chooses a remediation by two-sided strength -- (a) block the AI-side injection at the guardrail, or (c) tighten the money-side FATF detection"]
+    RESCAN["Re-scan the PATCHED target: does the exploit still land? (measured 11/12 unpatched, then 0/12 once the rail is on)"]
+    NOTE["Honest framing: all three agents are observation-driven policies (NOT LLMs); the core is deterministic; the agent chooses, humans govern"]
+
+    RT --> TR
+    TR --> DF
+    DF --> RESCAN
+    RESCAN -->|"the Red-Team ADAPTS to the patch: abandons a closed surface, or pivots to an open family"| RT
+    NOTE -.-> DF
+```
