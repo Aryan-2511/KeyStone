@@ -291,16 +291,17 @@ designs `MA-00_REDTEAM_AGENT_DESIGN.md` / `MB-00_TRIAGE_AGENT_DESIGN.md`):
       (`keystone.agents.red_team`; `tests/test_red_team_live.py`;
       `OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`; ADR-0022). **The live-agent frontier is
       honestly complete for current hardware; LLM-reasoned selection = the NVIDIA compute ask.**
-- [x] **Movement C — the Defense Agent** (MC-01 / KS-0621, ADR-0029): the THIRD genuine agent
-      chooses the remediation ((a) block AI vs (c) tighten money) over the finding's two-sided
-      strength, policy-first; the flip is proven; memo-blind held; no schema bump. **Remaining —
-      MC-02:** the adversarial loop (re-scan the patched target); the `retest_via` handle is
-      built loop-ready but not wired.
+- [x] **Movement C — COMPLETE.** MC-01 (KS-0621, ADR-0029): the THIRD agent chooses the
+      remediation ((a) block AI vs (c) tighten money) over the finding's two-sided strength,
+      policy-first; the flip is proven. **MC-02 (KS-0622, ADR-0030): the adversarial loop is
+      CLOSED** — after the patch, the Red-Team re-scans the PATCHED target (11/12 unpatched →
+      0/12 recorded / 0/4 measured live) and adapts (abandons the closed surface). (a) real
+      re-scan; (c) offline re-verify; memo-blind held; offline lean; no schema bump.
 
-> **Keystone is now honestly MULTI-AGENT — THREE genuine agents on both sides of the seam**
-> (Red-Team worker + Triage supervisor + Defense defender), each passing the strict §2 agency
-> bar. Next, optionally: MC-02 (the adversarial offense↔defense loop), Option A upgrades
-> (LLM-reasoned red-team / triage / defense — compute-gated), or an
+> **Keystone's multi-agent architecture is COMPLETE — THREE genuine agents interacting across
+> the seam** (Red-Team offense → Triage supervision → Defense defender → re-scan → adapt), the
+> offense↔defense loop closed. Next, optionally: Option A upgrades (LLM-reasoned red-team /
+> triage / defense — compute-gated, the fine-tuning ask), or an
 > agentic-framing pass on the deck + demo now that the claim is true.
 
 ## Backlog — hygiene / tech-debt (not scheduled; not features)

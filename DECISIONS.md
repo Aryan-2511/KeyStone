@@ -38,6 +38,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0027 | Live scan-scoping + granular --live flags: default live red-team is a bounded (tractable) scan; deep probes opt-in | Accepted |
 | 0028 | Remediation (c): a distinct memo-blind financial-side remediation (stricter thresholds), proven missed-then-caught — the 2nd menu option unblocking Movement C | Accepted |
 | 0029 | The Defense Agent (MC-01): a third genuine agent choosing the remediation (a vs c), policy-first, gated by a proven finding-dependent flip; menu applied via a uniform interface, loop-ready for MC-02 | Accepted |
+| 0030 | The closed adversarial loop (MC-02): offense re-scans the patched target and adapts (measured 11/12→0, live garak_live 11/12→0/4); (a) real re-scan vs (c) offline re-verify; the multi-agent architecture complete | Accepted |
 
 ---
 
@@ -1097,3 +1098,59 @@ compute-gated. The Defense Agent is not a pure signal-only supervisor like Triag
 remediations (so it imports `assurance.remediation`), but its CHOICE is memo-blind and it reaches
 no attack channel or detector-lock directly (a defense-specific boundary test pins this). The
 agent chooses; humans govern — no autonomous-self-healing claim.
+
+## ADR-0030 — The closed adversarial loop (MC-02): offense re-scans the patched target and adapts — the multi-agent finale
+
+**Status:** Accepted · **Date:** 2026-07-06
+
+**Context.** MC-01 gave Keystone a third agent (Defense) that CHOOSES + applies a remediation,
+built loop-ready (`retest_via`). MC-02 closes the loop (MC-00 §4): after the Defense Agent
+patches, the Red-Team RE-SCANS the PATCHED target — does the exploit still land? — and ADAPTS.
+The remediation probe (Q4) found the re-scan primitive exists (`scan_guarded_agent`) but is
+hard-wired to the one rail, and the live Red-Team scans only the UNGUARDED target — MC-02 fixes
+exactly that, under the OPT-A-02b cost discipline (real re-scans are minutes-to-hours).
+
+**Decision.** A new offense-side module `keystone.agents.adversarial` closes the loop
+(`close_loop(trace, decision)`), handling the two remediations HONESTLY because their loops are
+genuinely different:
+- **(a) guardrail patch — a REAL re-scan (AI side).** Re-scan the trace's strongest exploited
+  probe against the GUARDED target. Live: a real Garak scan (`guarded_observe`, opt-in via
+  `--live-redteam`; `garak_endpoint` loaded via `importlib` so the OFFLINE path never imports
+  nemoguardrails). Offline default: replay `RECORDED_GUARDED_PROFILE` — anchored to the proven
+  KS-0304 result (`REFERENCED_ASSURANCE`: the memo-injection exploit went 10/12 → **0/12** with
+  the rail), NOT fabricated. `mitigated` is **MEASURED** (exploit landed pre-patch, no longer
+  post-patch); if a patch did NOT change the outcome, the loop **says so** (a real finding).
+  Then the Red-Team re-runs its policy over the post-patch posture — its MA-00 §2 agency, now
+  over post-patch outcomes — and ADAPTS (abandons a closed surface, or pivots to an open family).
+- **(c) detection tightening — an OFFLINE re-verify (financial side).** (c) tightens detection,
+  not the model path; there is no AI target to re-scan. Its re-test is the already-offline-verified
+  fact that the tightened detection covers the gap (`verified_offline`). Described truthfully as
+  an offline re-verify (`kind="financial_reverify"`, `source="offline"`), NEVER a live re-scan.
+
+The loop records on `RunResult.adversarial_loop` (an optional defaulted field — **no schema
+bump**, mirroring `defense`); the offline demo replays it deterministically; a live `--live-redteam`
+run makes exactly ONE real guarded scan (the exploited probe), with a source-tagged recorded
+fallback on any `GarakError` (whole-loop fallback, OPT-A-02 discipline).
+
+**The proof the loop closed (before/after-patch).** Recorded: the latentinjection lead lands
+**11/12** on the unpatched target → Defense chooses (a) → re-scan the PATCHED target → **0/12** →
+`mitigated=True`; the Red-Team re-runs, finds the injection surface closed, and abandons it (the
+defense held). **Measured LIVE** (real Garak of the guarded endpoint): **11/12 → 0/4**,
+`source=garak_live`. Same attack, patched vs unpatched, a measured outcome difference — the loop
+genuinely closes (`tests/test_adversarial_loop.py`).
+
+**Consequences. Keystone's multi-agent architecture is COMPLETE**: three agents genuinely
+interacting across the seam — offense (Red-Team) → supervision (Triage) → defense (Defense) →
+**re-scan → adapt** (the offense↔defense loop closed). No LLM anywhere in the loop (all three
+agents stay policy/observation-driven — compute-gated). The memo-blind boundary holds with the
+full loop: it is offense-side and reaches no crime detector (an AST boundary test pins it); the
+offline default stays lean (no nemoguardrails imported). `recorded_run.json` regenerated
+(recorded==fresh); the hash chain re-verifies.
+
+**Honest caveats.** (1) The recorded guarded profile's NON-lead probe values are modeled from the
+rail's general memo-injection design (the rail vets the memo channel both families ride), anchored
+to REFERENCED_ASSURANCE for the lead — not separately captured; the live re-scan measures the
+exploited probe. (2) The adaptation re-run is deterministic policy behaviour over the recorded
+guarded posture (so a live loop makes ONE real scan, not one per probe — tractable); the
+before/after MEASUREMENT is the exploited-probe re-scan. (3) The remaining frontier is unchanged:
+LLM-reasoning for all three agents is compute-gated (OPT-A-01b), the fine-tuning project the ask.

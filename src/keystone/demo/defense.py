@@ -22,6 +22,7 @@ from collections.abc import Sequence
 
 from keystone.agents.defense import (
     DEFENSE_FLOOR,
+    DefenseDecision,
     DefenseSignals,
     defend,
     mechanism_for,
@@ -39,21 +40,20 @@ from keystone.core.transactions import Transaction
 from .run_result import DefenseView
 
 
-def build_defense_view(
+def defense_decision(
     *,
     failure_rate: float,
     seam_result: SeamResult,
     severity: Severity,
     stream: Sequence[Transaction],
     operative_tx_id: str | None = None,
-) -> DefenseView:
-    """Run the Defense Agent over the finding's two-sided strength and project it.
+) -> DefenseDecision:
+    """Run the Defense Agent and return its RAW decision (before projection).
 
-    A REAL agentic run: the defender observes the AI-side `failure_rate` and the memo-blind
-    financial-side gap (`financial_detection_gap(stream)` — transactions baseline misses that
-    STRICT_THRESHOLDS catches), reasons via the transparent policy, chooses a remediation, and
-    applies it through the uniform interface. `financial_gap` is computed HERE (the integration
-    layer) from the real stream, never by the agent — the agent stays memo-blind.
+    Maps the real framework `SeamResult` / FATF `Severity` onto the agent's value enums and
+    computes the memo-blind `financial_gap` HERE (the integration layer) — the agent never
+    recomputes them. Exposed so the runner can both project the view AND close the MC-02
+    adversarial loop over the same decision (no double run).
     """
     gap = financial_detection_gap(stream)
     signals = DefenseSignals(
@@ -62,12 +62,17 @@ def build_defense_view(
         seam_result=SeamClassification(seam_result.value),
         severity=FindingSeverity(severity.value),
     )
-    decision = defend(
+    return defend(
         signals,
         context=RemediationContext(
             stream=tuple(stream), operative_tx_id=operative_tx_id
         ),
     )
+
+
+def project_defense_view(decision: DefenseDecision) -> DefenseView:
+    """Project a genuine Defense Agent decision into the typed view (its chosen remediation)."""
+    signals = decision.signals
     return DefenseView(
         control=decision.remediation.control,
         side=decision.remediation.side.value,
@@ -83,6 +88,31 @@ def build_defense_view(
         detail=decision.outcome.detail,
         retest_via=decision.outcome.retest_via,
         verified_offline=decision.outcome.verified_offline,
+    )
+
+
+def build_defense_view(
+    *,
+    failure_rate: float,
+    seam_result: SeamResult,
+    severity: Severity,
+    stream: Sequence[Transaction],
+    operative_tx_id: str | None = None,
+) -> DefenseView:
+    """Run the Defense Agent over the finding's two-sided strength and project it.
+
+    Thin wrapper over :func:`defense_decision` + :func:`project_defense_view`: the defender
+    observes the AI-side `failure_rate` and the memo-blind financial-side gap, reasons via the
+    transparent policy, chooses a remediation, and applies it through the uniform interface.
+    """
+    return project_defense_view(
+        defense_decision(
+            failure_rate=failure_rate,
+            seam_result=seam_result,
+            severity=severity,
+            stream=stream,
+            operative_tx_id=operative_tx_id,
+        )
     )
 
 

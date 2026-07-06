@@ -407,6 +407,39 @@ class DefenseView(BaseModel):
     )  # (c): bool now; (a): null → verified by the MC-02 re-scan
 
 
+class AdversarialLoopView(BaseModel):
+    """The closed offense↔defense loop (MC-02) — exploit → patch → re-scan → adapt.
+
+    DERIVED by actually running the loop (`keystone.agents.adversarial.close_loop`): the
+    Red-Team's exploit, the Defense Agent's applied remediation, the RE-SCAN of the PATCHED
+    target, and the Red-Team's ADAPTATION to the post-patch observation. `kind` states which
+    remediation's loop ran and is honest about the difference: "ai_rescan" = a REAL re-scan of
+    the guarded target ((a); `pre_patch`/`post_patch` fails measured, `mitigated` computed);
+    "financial_reverify" = the OFFLINE detection re-verify ((c); no AI target, `post_patch` null,
+    `source` "offline"). `source` tags the re-scan (garak_live / recorded_profile), never a
+    fallback reported as a live scan. `mitigated` is MEASURED, not assumed.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    remediation_control: str
+    side: str  # "ai" | "financial"
+    kind: str  # "ai_rescan" | "financial_reverify"
+    probe: str | None  # the exploited probe re-tested (a); null for (c)
+    pre_patch_fails: int
+    pre_patch_total: int
+    post_patch_fails: int | None  # measured on the patched target (a); null for (c)
+    post_patch_total: int | None
+    mitigated: (
+        bool  # the patch changed the outcome (exploit no longer lands / gap covered)
+    )
+    source: str  # "garak_live" | "recorded_profile" (a) | "offline" (c)
+    adaptation: str  # how the Red-Team responds to the post-patch observation
+    adapted_exploited_family: (
+        str | None
+    )  # what it exploits post-patch (null = defense held)
+
+
 class RunResult(BaseModel):
     """One end-to-end Layer-1 run, as the typed object the front-end renders."""
 
@@ -434,3 +467,6 @@ class RunResult(BaseModel):
     # recorded before the Defense Agent existed still loads (no schema bump — mirrors how
     # OPT-A-01's `reasoner` / OPT-A-02's `source` were added).
     defense: DefenseView | None = None
+    # The closed adversarial loop (MC-02) — offense→defense→re-scan→adapt. OPTIONAL + defaulted
+    # None so a run recorded before the loop existed still loads (no schema bump).
+    adversarial_loop: AdversarialLoopView | None = None

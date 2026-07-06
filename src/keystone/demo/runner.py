@@ -54,10 +54,11 @@ from keystone.core.reporting import (
 )
 from keystone.llm.report_narrative import GuardedNarrative
 
+from .adversarial import build_adversarial_loop_view
 from .convergence import build_convergence_view
-from .defense import build_defense_view
+from .defense import defense_decision, project_defense_view
 from .matrix import build_matrix_view
-from .red_team import build_red_team_view
+from .red_team import project_red_team_view, red_team_trace
 from .run_result import (
     RUN_RESULT_SCHEMA_VERSION,
     AiSecurityView,
@@ -190,7 +191,8 @@ def _assemble(
     # The supervisor-over-worker topology made literal: the rate it reads IS the
     # Red-Team Agent's headline result on this run's defense. In live mode (OPT-A-02)
     # that rate comes from REAL Garak scans over the full policy-selected sequence.
-    red_team_view = build_red_team_view(live=live.redteam, deep=live.deep)
+    rt_trace = red_team_trace(live=live.redteam, deep=live.deep)
+    red_team_view = project_red_team_view(rt_trace)
     headline_rate = max(
         (d.failure_rate for d in red_team_view.decisions if d.got_through),
         default=0.0,
@@ -198,6 +200,16 @@ def _assemble(
     seam_result = next(
         (p.result for p in REGISTERED_PAIRS if p.crime.typology == finding.typology),
         SeamResult.OPEN,  # unresolved by default if no registered pair classifies it
+    )
+
+    # The Defense Agent's raw decision (MC-01) — captured once so the runner can both project
+    # its view AND close the MC-02 adversarial loop over the SAME decision (no double run).
+    defense = defense_decision(
+        failure_rate=headline_rate,
+        seam_result=seam_result,
+        severity=finding.severity,
+        stream=stream,
+        operative_tx_id=seam_tx_id,
     )
 
     # Rebuild the signed report and render BOTH regulator formats from one fact model
@@ -297,12 +309,12 @@ def _assemble(
         # The Defense Agent (MC-01) chooses the remediation this finding warrants over its
         # two-sided strength: the same headline_rate (AI side) + the memo-blind financial gap
         # (computed from the stream). Policy-first, deterministic — no live mode.
-        defense=build_defense_view(
-            failure_rate=headline_rate,
-            seam_result=seam_result,
-            severity=finding.severity,
-            stream=stream,
-            operative_tx_id=seam_tx_id,
+        defense=project_defense_view(defense),
+        # The closed adversarial loop (MC-02): the Red-Team re-scans the PATCHED target and
+        # adapts. Offline replays the recorded guarded profile; live (live.redteam) runs a real
+        # Garak re-scan of the guarded target with a source-tagged recorded fallback.
+        adversarial_loop=build_adversarial_loop_view(
+            trace=rt_trace, decision=defense, live=live.redteam
         ),
     )
 

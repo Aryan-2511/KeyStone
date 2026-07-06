@@ -1234,6 +1234,36 @@
         "tests/test_defense_boundary.py::test_applying_c_is_memo_blind_blank_equals_injected",
         "tests/test_defense_boundary.py::test_independence_holds_with_all_three_agents_present"
       ]
+    },
+    {
+      "id": "KS-0622",
+      "title": "The closed adversarial loop (MC-02) — offense re-scans the patched target and adapts (the multi-agent finale)",
+      "description": "MC-02. Closes Movement C's offense↔defense loop: after the Defense Agent (MC-01) applies a remediation, the Red-Team RE-SCANS the PATCHED target and ADAPTS. A new offense-side module keystone.agents.adversarial.close_loop(trace, decision) handles the two remediations HONESTLY (their loops are genuinely different): (a) guardrail patch = a REAL re-scan of the guarded target — live via guarded_observe (a real Garak scan of the guarded endpoint via the existing scan_guarded_agent, garak_endpoint loaded via importlib inside the closure so the OFFLINE path never imports nemoguardrails), offline via RECORDED_GUARDED_PROFILE (anchored to the proven KS-0304 REFERENCED_ASSURANCE: the memo-injection exploit went 10/12 -> 0/12 with the rail — NOT fabricated); mitigated is MEASURED (exploit landed pre-patch, no longer post-patch), and if a patch did NOT change the outcome the loop SAYS SO (honest, not hidden). The Red-Team then re-runs its policy over the post-patch posture — its MA-00 §2 agency, now over post-patch outcomes — and ADAPTS (abandons a closed surface when the general rail shuts the injection surface; pivots to an open family when only the exploited family is closed). (c) detection tightening = an OFFLINE re-verify (financial side) — (c) tightens detection not the model path, so there is no AI target to re-scan; its re-test is the already-offline-verified fact that the tightened detection covers the gap (kind=financial_reverify, source=offline), described truthfully, NEVER as a live re-scan. THE PROOF (before/after-patch): the latentinjection lead lands 11/12 unpatched -> (a) applied -> re-scan patched -> 0/12 (recorded) / 0/4 (measured LIVE, garak_live) -> mitigated=True, the Red-Team abandons the closed surface (the defense held). The loop records on RunResult.adversarial_loop (an OPTIONAL defaulted None field — NO schema bump, mirroring defense); the offline demo replays it deterministically; a live --live-redteam run makes exactly ONE real guarded scan (the exploited probe — the adaptation re-run is deterministic over the recorded guarded posture, keeping the cost tractable per OPT-A-02b), with a source-tagged recorded fallback on any GarakError (whole-loop fallback). Memo-blind (sacred) HOLDS with the full loop: it is offense-side and reaches no crime detector (an AST boundary test pins it: no import of fatf/framework/injection_patterns), and the offline default stays LEAN (a test confirms nemoguardrails is not imported during an offline build). NO LLM anywhere in the loop (all three agents stay policy/observation-driven — compute-gated). Does NOT make the live re-scan the default (offline/recorded default, live opt-in), does NOT change the agents' core decision logic beyond wiring the re-scan observation into the Red-Team's existing adaptation, does NOT touch the seam / FATF baseline / ledger meaning, and makes no autonomous-self-healing claim. Keystone's multi-agent architecture is COMPLETE: three agents genuinely interacting across the seam, offense->supervision->defense->re-scan->adapt.",
+      "phase": "7 — becoming multi-agent (Movement C complete)",
+      "layer": "agents / orchestration edge",
+      "area": "agents",
+      "status": "done",
+      "depends_on": [
+        "KS-0621",
+        "KS-0617"
+      ],
+      "done_criteria": [
+        "the loop closes with a before/after-patch proof: the exploit LANDS on the unpatched target and the re-scan of the PATCHED target shows the changed outcome (11/12 -> 0/12 recorded; 11/12 -> 0/4 measured live, garak_live) — mitigated is MEASURED, not assumed; a patch that does NOT change the outcome is reported honestly",
+        "the Red-Team ADAPTS to the post-patch observation: its selection responds (abandons the closed injection surface when the general rail shuts it; pivots to the open family when only the exploited family is closed) — the MA-00 §2 agency, now over post-patch outcomes",
+        "(a) real re-scan vs (c) offline re-verify handled honestly: (a) kind=ai_rescan with measured pre/post + source garak_live/recorded_profile; (c) kind=financial_reverify, source=offline, post_patch null — never claimed as a live post-patch scan",
+        "the loop is fully exercisable OFFLINE (replays RECORDED_GUARDED_PROFILE, no Garak/Ollama) and the offline default stays lean (nemoguardrails not imported during an offline build); source-tags correct; recorded on RunResult.adversarial_loop with NO schema bump (optional defaulted field); recorded_run.json regenerated offline (recorded==fresh, hash chain re-verifies)",
+        "the memo-blind boundary holds with the full loop present (offense-side, no path to the crime detector — AST boundary test passes: no import of fatf/framework/injection_patterns); NO LLM in the loop; make check / make verify green, mypy strict / Ruff / import-linter clean with no new ignores, all prior tests green unchanged"
+      ],
+      "tests": [
+        "tests/test_adversarial_loop.py::test_loop_closes_exploit_lands_then_patched_rescan_mitigates",
+        "tests/test_adversarial_loop.py::test_red_team_adapts_defense_held_when_the_surface_is_closed",
+        "tests/test_adversarial_loop.py::test_red_team_pivots_when_only_the_patched_family_is_closed",
+        "tests/test_adversarial_loop.py::test_loop_reports_honestly_when_the_patch_does_not_mitigate",
+        "tests/test_adversarial_loop.py::test_c_loop_is_an_offline_reverify_not_a_live_rescan",
+        "tests/test_adversarial_loop.py::test_recorded_guarded_profile_is_anchored_to_the_proven_result",
+        "tests/test_adversarial_loop.py::test_adversarial_module_reaches_no_crime_detector",
+        "tests/test_adversarial_loop.py::test_real_guarded_rescan_measures_the_post_patch_outcome"
+      ]
     }
   ]
 }

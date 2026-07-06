@@ -30,6 +30,12 @@ every decision. Live is strictly additive — the offline default is untouched.
 
 from __future__ import annotations
 
+from .adversarial import (
+    RECORDED_GUARDED_PROFILE,
+    AdversarialLoopResult,
+    close_loop,
+    guarded_observe,
+)
 from .defense import (
     DEFENSE_FLOOR,
     DefenseDecision,
@@ -87,10 +93,14 @@ __all__ = [
     "DEFAULT_BUDGET",
     "DEFENSE_FLOOR",
     "DEFENSE_MECHANISM",
+    "RECORDED_GUARDED_PROFILE",
+    "AdversarialLoopResult",
     "DefenseDecision",
     "DefenseSignals",
     "choose_remediation",
+    "close_loop",
     "defend",
+    "guarded_observe",
     "FULL_BUDGET",
     "GARAK_LIVE_SOURCE",
     "MECHANISM",

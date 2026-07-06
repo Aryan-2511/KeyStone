@@ -31,7 +31,7 @@ from keystone.agents.red_team import (
 from .run_result import RedTeamProbeView, RedTeamView
 
 
-def _project(trace: RedTeamTrace) -> RedTeamView:
+def project_red_team_view(trace: RedTeamTrace) -> RedTeamView:
     """Project a genuine agent trace into the typed view (reading its DERIVED steps)."""
     decisions = tuple(
         RedTeamProbeView(
@@ -61,28 +61,31 @@ def _project(trace: RedTeamTrace) -> RedTeamView:
     )
 
 
+def red_team_trace(
+    *, live: bool = False, deep: bool = False, observe: Observe | None = None
+) -> RedTeamTrace:
+    """Run the Red-Team Agent and return its RAW trace (before projection).
+
+    Default (``live=False``): the agent observes the recorded defense profile and adapts —
+    the trace replays deterministically (MA-00 §4). Opt-in (``live=True``, OPT-A-02): each
+    probe is a real Garak scan (tractable unless ``deep``), with the recorded profile as a
+    source-tagged fallback. Exposed so the runner can both project the view AND close the
+    MC-02 adversarial loop over the same trace (no double run). ``observe`` injectable (tests).
+    """
+    if live:
+        return live_red_team(
+            observe=observe, scope=SCOPE_FULL if deep else SCOPE_TRACTABLE
+        )
+    return run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
+
+
 def build_red_team_view(
     *, live: bool = False, deep: bool = False, observe: Observe | None = None
 ) -> RedTeamView:
     """Run the Red-Team Agent and project its trace into the typed view.
 
-    Default (``live=False``): the agent observes the recorded defense profile, reasons
-    via its policy, and adapts — the trace replays deterministically (MA-00 §4), tagged
-    ``recorded_profile`` / scope ``full`` (the whole catalog is selectable; no live cost).
-    Opt-in (``live=True``, OPT-A-02): the SAME policy selects probes but each is EXECUTED
-    as a real Garak scan, with the recorded profile as a proven fallback; the trace is
-    tagged ``garak_live`` or — on any Garak failure — ``recorded_profile``.
-
-    ``deep`` bounds the live scan (OPT-A-02b, the intractable-probe fix): the default live
-    run scans only the TRACTABLE set (``scope=tractable`` — minutes, never a monster probe);
-    ``deep=True`` runs the FULL set incl. the known-intractable deep probes (hours). The
-    projected ``source``/``mechanism``/``scan_scope`` state what actually ran; a fallback
-    is never reported as a live scan (OPT-A-02 §3). ``observe`` is injectable (tests).
+    Thin wrapper over :func:`red_team_trace` + :func:`_project`; see that function for the
+    live / recorded / scope semantics. The projected ``source`` / ``mechanism`` /
+    ``scan_scope`` state what actually ran; a fallback is never reported as a live scan.
     """
-    if live:
-        trace = live_red_team(
-            observe=observe, scope=SCOPE_FULL if deep else SCOPE_TRACTABLE
-        )
-    else:
-        trace = run_red_team(profile_observe(RECORDED_DEFENSE_PROFILE))
-    return _project(trace)
+    return project_red_team_view(red_team_trace(live=live, deep=deep, observe=observe))
