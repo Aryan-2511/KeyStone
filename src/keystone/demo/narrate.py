@@ -74,6 +74,31 @@ def _triage_lines(tr: TriageView) -> list[str]:
     ]
 
 
+def _loop_lines(result: RunResult) -> list[str]:
+    """The closed adversarial loop (MC-02) — offense re-scans the patched target and adapts."""
+    lp = result.adversarial_loop
+    if lp is None:
+        return []
+    if lp.kind == "financial_reverify":
+        return [
+            "4c. Adversarial loop - offense re-tests defense (MC-02)",
+            f"   remediation: {lp.remediation_control} [{lp.side}]  (offline re-verify)",
+            f"   mitigated: {'yes' if lp.mitigated else 'NO'}",
+            f"   {lp.adaptation}",
+            "",
+        ]
+    pre = f"{lp.pre_patch_fails}/{lp.pre_patch_total}"
+    post = f"{lp.post_patch_fails}/{lp.post_patch_total}"
+    return [
+        "4c. Adversarial loop - offense re-tests defense (MC-02)",
+        f"   remediation: {lp.remediation_control} [{lp.side}]  (re-scan source: {lp.source})",
+        f"   re-scan {lp.probe.split('.', 1)[1] if lp.probe else '-'}: "
+        f"{pre} (unpatched) -> {post} (patched)  | mitigated: {'yes' if lp.mitigated else 'NO'}",
+        f"   {lp.adaptation}",
+        "",
+    ]
+
+
 def _defense_lines(result: RunResult) -> list[str]:
     """The Defense Agent (MC-01) block — the third agent's remediation choice, or empty.
 
@@ -163,6 +188,10 @@ def narrate_run(result: RunResult) -> str:
 
     # 4b. Defense Agent (MC-01) — the third agent, present when the run recorded a choice.
     for line in _defense_lines(result):
+        add(line)
+
+    # 4c. The closed adversarial loop (MC-02) — offense re-tests the patched defense.
+    for line in _loop_lines(result):
         add(line)
 
     add("5. Evidence ledger  (sealed, hash-chained)")

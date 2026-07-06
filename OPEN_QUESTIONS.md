@@ -129,19 +129,20 @@ Each: **what it is · why it's open · what resolving it needs.**
   fixing the OPT-A-01b pain where live triage dragged in the hours-long scan), `--live-redteam`
   (real scan, **tractable** by default / `--deep` for the full set), `--live` (both). Every
   trace records its `scan_scope` (tractable/full) so a reader knows whether the deep probes ran.
-- **Movement C — a defense agent + adversarial loop.** The **Defense Agent is now built**
-  (MC-01, `KS-0621`, ADR-0029): `keystone.agents.defense.defend` is Keystone's THIRD genuine
-  agent — it chooses which remediation a finding warrants over its two-sided strength (AI-side
-  `failure_rate` + memo-blind `financial_gap`) via a transparent **policy** (NOT an LLM), and
-  applies it through the uniform `Remediation.apply()` interface. The **flip is proven**: a
-  strong-AI/weak-financial finding → (a) guardrail block; a weak-AI/strong-financial finding →
-  (c) money-side tighten (a genuine finding-dependent choice, not a dispatch). Keystone is now a
-  **three-agent system on both sides of the seam** (Red-Team, Triage, Defense); memo-blind held,
-  no schema bump. **REMAINING (MC-02): the adversarial loop** — re-scan the patched target and
-  let the Red-Team agent adapt; MC-01 STOPS at applying the remediation and built the
-  `retest_via` handle loop-ready but did not wire it. **STILL COMPUTE-GATED:** LLM-reasoned
-  remediation choice (the policy is the honest default; OPT-A-01b evidence — a 3B model can't
-  reason the (a)-vs-(c) choice reliably).
+- **Movement C — a defense agent + adversarial loop. COMPLETE (MC-01 + MC-02).** The **Defense
+  Agent** (MC-01, `KS-0621`, ADR-0029) is Keystone's THIRD genuine agent — it chooses which
+  remediation a finding warrants over its two-sided strength (AI-side `failure_rate` + memo-blind
+  `financial_gap`) via a transparent **policy** (NOT an LLM); the **flip is proven** (strong-AI →
+  (a) guardrail block; strong-financial → (c) money-side tighten). The **adversarial loop is now
+  CLOSED** (MC-02, `KS-0622`, ADR-0030): after the Defense Agent patches, the Red-Team RE-SCANS
+  the PATCHED target and ADAPTS. Proof (before/after-patch): the exploit lands **11/12** unpatched
+  → (a) applied → re-scan patched → **0/12** (recorded) / **0/4** (measured LIVE, `garak_live`) →
+  mitigated; the Red-Team re-runs, finds the surface closed, and abandons it (the defense held).
+  (a) is a real re-scan; (c) is an honest offline detection re-verify. Memo-blind held with the
+  full loop, offline default lean (no nemoguardrails), no schema bump. **Keystone's multi-agent
+  architecture is COMPLETE: three agents genuinely interacting across the seam, offense↔defense
+  closed.** **STILL COMPUTE-GATED (the remaining frontier):** LLM-reasoning for ALL three agents'
+  decisions (the policies are the honest default; OPT-A-01b evidence) — the fine-tuning ask.
 - **Movement 3 — adversarial self-testing.** Not started; the system does not yet
   red-team its own reasoning.
 - **`keystone` console script.** Still a version-only stub

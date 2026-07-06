@@ -177,14 +177,17 @@ designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
   detector). Probe **selection stays the adaptive policy** — LLM-reasoned selection is
   **compute-gated** (OPT-A-01 is the evidence: 3B can't do bounded selection; probe selection
   is harder), the documented NVIDIA ask (ADR-0022).
-- **Movement C — the Defense Agent is BUILT** (MC-01, KS-0621, ADR-0029). Keystone's THIRD
-  genuine agent chooses which remediation a finding warrants — `{(a) AI-side guardrail block,
-  (c) financial-side detection tightening}` — over the finding's two-sided strength, via a
-  policy (not an LLM; compute-gated per OPT-A-01b). The **flip is proven** (strong-AI → (a);
-  strong-financial → (c)); memo-blind held; no schema bump. Keystone is now a **three-agent
-  system on both sides of the seam**. **REMAINING — MC-02**: the adversarial loop (re-scan the
-  patched target, let the Red-Team agent adapt); MC-01 built the `retest_via` handle loop-ready
-  but STOPS at applying the remediation.
+- **Movement C — COMPLETE (the Defense Agent + the closed adversarial loop).** MC-01 (KS-0621,
+  ADR-0029): Keystone's THIRD genuine agent chooses which remediation a finding warrants —
+  `{(a) AI-side guardrail block, (c) financial-side detection tightening}` — over the finding's
+  two-sided strength, via a policy (not an LLM); the flip is proven. **MC-02 (KS-0622, ADR-0030):
+  the adversarial loop is CLOSED** — after the Defense Agent patches, the Red-Team RE-SCANS the
+  PATCHED target and ADAPTS. Proof: the exploit lands **11/12** unpatched → (a) → re-scan patched
+  → **0/12** (recorded) / **0/4** (measured LIVE, `garak_live`) → mitigated; the Red-Team abandons
+  the closed surface (the defense held). (a) is a real re-scan; (c) an honest offline re-verify.
+  Memo-blind held; offline default lean; no schema bump. **Keystone's multi-agent architecture is
+  COMPLETE: three agents genuinely interacting across the seam, offense↔defense closed.** The
+  remaining frontier is LLM-reasoning for all agents (compute-gated) + the fine-tuning ask.
 
 > **The live-agent frontier is honestly complete for current hardware:** Triage can LLM-reason
 > (opt-in, policy-default per OPT-A-01), Red-Team can real-scan (opt-in, recorded-default per

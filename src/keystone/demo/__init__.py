@@ -8,12 +8,14 @@ imports this layer (import-linter KEPT).
 
 from __future__ import annotations
 
+from .adversarial import build_adversarial_loop_view
 from .convergence import build_convergence_view
 from .defense import build_defense_view
 from .matrix import build_matrix_view
 from .red_team import build_red_team_view
 from .run_result import (
     RUN_RESULT_SCHEMA_VERSION,
+    AdversarialLoopView,
     AiSecurityView,
     ArcView,
     ConvergenceMappingView,
@@ -48,6 +50,7 @@ __all__ = [
     "DEFAULT_RUN_PATH",
     "RECORDED_RUN_PATH",
     "RUN_RESULT_SCHEMA_VERSION",
+    "AdversarialLoopView",
     "AiSecurityView",
     "ArcView",
     "ConvergenceMappingView",
@@ -65,6 +68,7 @@ __all__ = [
     "SeamBindingView",
     "SeamTransactionView",
     "TriageView",
+    "build_adversarial_loop_view",
     "build_convergence_view",
     "build_defense_view",
     "build_matrix_view",

@@ -3,9 +3,10 @@
 > **Keystone** is a single-developer demo of an **orchestrated compliance &
 > assurance** workflow on the NVIDIA agentic stack (NeMo Agent Toolkit +
 > Guardrails, Garak for red-teaming) — deterministic by design where auditability
-> demands it, and now a **multi-agent system** (three genuine agents — a Red-Team
-> Agent, a Triage Agent + a Defense Agent, observation-driven policies, NOT LLMs;
-> Movements A/B/C done, with opt-in live modes). Deterministic core, LLM edge, **data-residency-
+> demands it, and now a **complete multi-agent system** (three genuine agents — a
+> Red-Team Agent, a Triage Agent + a Defense Agent, observation-driven policies, NOT
+> LLMs; Movements A/B/C done incl. the closed offense↔defense loop, with opt-in live
+> modes). Deterministic core, LLM edge, **data-residency-
 > preserving** (all inference local / on-prem — no sensitive data leaves the trust
 > boundary; the offline arc is the zero-network *proof*), synthetic data, hash-chained
 > evidence ledger.

@@ -1086,6 +1086,23 @@
   no attack channel/detector-lock directly). **MC-01 STOPS at applying** — the adversarial loop
   (re-scan the patched target) is **MC-02**, not wired. The demo finding chooses (a): "injection
   live (92%), money already detected → close the AI hole." (`ADR-0029`.)
+- **THE ADVERSARIAL LOOP IS CLOSED — THE MULTI-AGENT ARCHITECTURE IS COMPLETE (MC-02, KS-0622,
+  ADR-0030).** `keystone.agents.adversarial.close_loop(trace, decision)` closes offense↔defense:
+  after the Defense Agent patches, the Red-Team RE-SCANS the PATCHED target and ADAPTS. **(a)** =
+  a REAL re-scan — live `guarded_observe` (real Garak of the guarded endpoint via `scan_guarded_agent`;
+  `garak_endpoint` loaded via `importlib` inside the closure so the OFFLINE path never imports
+  nemoguardrails — verified), offline `RECORDED_GUARDED_PROFILE` (anchored to `REFERENCED_ASSURANCE`,
+  the proven KS-0304 10/12→0/12; NOT fabricated). **(c)** = an honest OFFLINE re-verify (no AI
+  target; kind=financial_reverify, source=offline). **`mitigated` is MEASURED**; a patch that
+  doesn't change the outcome is reported honestly. **PROOF:** latent lead lands **11/12** unpatched
+  → (a) → re-scan patched → **0/12** recorded / **0/4** measured LIVE (`garak_live`) → mitigated;
+  the Red-Team re-runs, finds the surface closed, abandons it (defense held). Adaptation re-run is
+  deterministic over the recorded guarded posture (so a live loop = ONE real scan, tractable per
+  OPT-A-02b). Recorded on `RunResult.adversarial_loop` (**no schema bump**, optional field;
+  recorded_run.json regenerated). Memo-blind held (offense-side, no detector path — AST test);
+  NO LLM in the loop. **Three agents now genuinely interact across the seam: offense → supervision
+  → defense → re-scan → adapt.** Remaining frontier: LLM-reasoning for all agents (compute-gated,
+  OPT-A-01b) + the fine-tuning ask. (`ADR-0030`.)
 - **THE PRINCIPLE IS DATA-RESIDENCY / NO-EXFILTRATION, NOT "OFFLINE" (ADR-0024).** The
   load-bearing requirement in regulated finance is that sensitive transaction data + PII
   must NEVER leave the institution's TRUST BOUNDARY to a third-party API. So all inference
