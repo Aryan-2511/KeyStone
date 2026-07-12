@@ -1103,6 +1103,16 @@
   NO LLM in the loop. **Three agents now genuinely interact across the seam: offense → supervision
   → defense → re-scan → adapt.** Remaining frontier: LLM-reasoning for all agents (compute-gated,
   OPT-A-01b) + the fine-tuning ask. (`ADR-0030`.)
+- **ARCHITECTURE.md carries THREE committed Mermaid diagrams (DIAGRAMS-01, docs-only).** GitHub
+  renders them natively: (1) system architecture (NeMo Agent Toolkit orchestrator → L3 obligation
+  mapping · L2 AI Assurance with the 3 agents · L1 FATF transaction monitoring → target → seam →
+  shared spine), (2) the seam thesis (AI side + financial side bind to ONE event TXN-000016,
+  memo-blind boundary keeps them independent), (3) the closed adversarial loop (Red-Team 11/12 →
+  Triage → Defense (a)/(c) → re-scan 0/12 → adapt). They MATCH ARCHITECTURE.md exactly (three
+  agents, real loop, "hash-chained evidence ledger" not blockchain, policies-not-LLMs). Grammar
+  validated with `mermaid.parse()` under jsdom (mmdc can't launch a browser here). README "Where
+  to look" points at them. No feature_list KS entry (docs augmentation, and the task was docs-only
+  so no test to cite).
 - **THE PRINCIPLE IS DATA-RESIDENCY / NO-EXFILTRATION, NOT "OFFLINE" (ADR-0024).** The
   load-bearing requirement in regulated finance is that sensitive transaction data + PII
   must NEVER leave the institution's TRUST BOUNDARY to a third-party API. So all inference

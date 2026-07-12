@@ -66,7 +66,7 @@ local / on-prem). `make demo` is the same command; `make ui` opens the visual St
 version. An opt-in `--live` mode takes the agents live *inside the boundary* (real Garak
 scans incl. the real guarded re-scan, local-LLM triage).
 
-**Where to look:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (layers & boundaries) ·
+**Where to look:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (layers & boundaries — with **diagrams** of the architecture, the seam, and the adversarial loop) ·
 [`DECISIONS.md`](DECISIONS.md) (the load-bearing *why*) ·
 [`ARTIFACT_INDEX.md`](ARTIFACT_INDEX.md) (deck, demo video, design docs, probes) ·
 [`FINAL_STATE_AUDIT.md`](FINAL_STATE_AUDIT.md) (the completed-system ground-truth audit) ·
