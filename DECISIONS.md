@@ -39,6 +39,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0028 | Remediation (c): a distinct memo-blind financial-side remediation (stricter thresholds), proven missed-then-caught — the 2nd menu option unblocking Movement C | Accepted |
 | 0029 | The Defense Agent (MC-01): a third genuine agent choosing the remediation (a vs c), policy-first, gated by a proven finding-dependent flip; menu applied via a uniform interface, loop-ready for MC-02 | Accepted |
 | 0030 | The closed adversarial loop (MC-02): offense re-scans the patched target and adapts (measured 11/12→0, live garak_live 11/12→0/4); (a) real re-scan vs (c) offline re-verify; the multi-agent architecture complete | Accepted |
+| 0031 | Reproducibility upgraded from spot-check to exhaustive normalized equality (EVAL-HARDEN-01): mask only generated_at + each ledger ts/entry_hash/prev_hash, then assert full RunResult recorded==fresh; the artifact is fully reproducible | Accepted |
 
 ---
 
