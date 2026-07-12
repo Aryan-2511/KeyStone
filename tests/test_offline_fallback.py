@@ -12,6 +12,7 @@ import socket
 
 from keystone.demo import (
     RUN_RESULT_SCHEMA_VERSION,
+    RunResult,
     build_run_result,
     load_recorded_run,
     load_run_result,
@@ -33,9 +34,60 @@ def test_recorded_run_exists_is_current_version_and_chain_valid() -> None:
     assert rr.arc.arc_complete is True
 
 
+# The COMPLETE set of fields that legitimately vary run-to-run — the paper's
+# "reproducibility caveat" disclosure list, and the ONLY fields the exhaustive
+# equality test below is allowed to mask. Confirmed empirically: diffing two fresh
+# build_run_result() outputs (and the recorded run against a fresh build) yields
+# EXACTLY these leaf paths and no others.
+#
+#   * ``generated_at`` — wall-clock stamp of the build (runner.py:227,
+#     ``datetime.now(UTC)``).
+#   * each ledger entry's ``ts`` — wall-clock stamp of the append
+#     (core/ledger/ledger.py:75, ``datetime.now(UTC)``).
+#   * each ledger entry's ``entry_hash`` — a SHA-256 over content that INCLUDES ``ts``
+#     (core/ledger/models.py:32-52), so it necessarily varies whenever ``ts`` does.
+#   * each ledger entry's ``prev_hash`` — the previous entry's ``entry_hash`` chained
+#     forward, hence equally ts-derived (entry[0]'s ``prev_hash`` is the constant
+#     GENESIS_HASH and does not vary; masking it uniformly is a safe no-op).
+#
+# Every OTHER field is substantive and MUST match between the recorded artifact and a
+# fresh build — if one differs, the artifact is not fully reproducible and the test
+# fails loudly (a real finding, not something to mask away).
+_MASK = "<normalized>"
+
+
+def _normalize(rr: RunResult) -> RunResult:
+    """Return a copy of `rr` with EXACTLY the legitimately-varying fields masked.
+
+    Masks only `generated_at` and, per ledger entry, `ts` + the ts-derived chain
+    hashes (`entry_hash`, `prev_hash`) to a canonical constant. Nothing else is
+    touched, so two genuine builds of the same arc compare fully equal while any
+    substantive divergence still fails the comparison.
+    """
+    data = rr.model_dump()
+    data["generated_at"] = _MASK
+    for entry in data["arc"]["entries"]:
+        entry["ts"] = _MASK
+        entry["entry_hash"] = _MASK
+        entry["prev_hash"] = _MASK
+    return RunResult.model_validate(data)
+
+
+def test_recorded_run_equals_fresh_build_exhaustively() -> None:
+    # The reproducibility claim, formalized: with ONLY the disclosed run-varying fields
+    # masked (generated_at + each ledger ts + the ts-derived entry_hash/prev_hash), the
+    # committed recorded run equals a fresh build_run_result() as a WHOLE object — every
+    # substantive number regenerates deterministically from the code. This is exhaustive
+    # (full-object equality), not a field subset: any other difference would fail here.
+    rec = load_recorded_run()
+    fresh = build_run_result()
+    assert _normalize(rec) == _normalize(fresh)
+
+
 def test_recorded_run_is_a_genuine_build_not_hand_edited() -> None:
-    # Its substantive values match a fresh real build (only timestamps/hashes differ),
-    # proving it was produced by build_run_result, not fabricated.
+    # A fast, human-readable smoke check on a handful of headline fields. Now fully
+    # SUBSUMED by test_recorded_run_equals_fresh_build_exhaustively (which asserts these
+    # and every other substantive field); kept as a quick, readable sanity spot-check.
     rec = load_recorded_run()
     fresh = build_run_result()
     assert rec.seam_transaction.id == fresh.seam_transaction.id

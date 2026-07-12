@@ -621,6 +621,20 @@
   Google-Fonts `@import` in the SVG, which falls back to system fonts offline (affects
   live and recorded equally — they stay indistinguishable). Both apps default replay to
   the recording; a stray `keystone-run.json` no longer overrides it.
+- **Reproducibility = EXHAUSTIVE normalized equality (EVAL-HARDEN-01, ADR-0031).** The
+  paper's "every reported number regenerates deterministically" claim is backed by
+  `test_recorded_run_equals_fresh_build_exhaustively` (`tests/test_offline_fallback.py`):
+  normalize `recorded_run.json` and a fresh `build_run_result()` by masking ONLY the
+  legitimately-varying fields, then assert **full `RunResult` equality** (not a field
+  subset). **The disclosed masked set (confirmed by diffing two fresh builds + recorded-vs-
+  fresh — EXACTLY these, nothing more):** `generated_at`, and per ledger entry `ts` +
+  `entry_hash` + `prev_hash` (all ts or ts-derived; `ts` is INSIDE the hashed content, so
+  the chain hashes vary with it; entry[0].prev_hash is the constant GENESIS_HASH). The
+  recorded artifact is **fully reproducible** — with only those masked, recorded == fresh
+  across the whole object. This is substantive-content equality, NOT byte-identity (the hash
+  chain is tamper-evidence *within* a run, not a cross-run digest). The old ~6-field spot-
+  check (`test_recorded_run_is_a_genuine_build_not_hand_edited`) is now subsumed but kept as
+  a fast readable sanity check. Test-only; no artifact/builder edited to force equality.
 - **The Seam Framework (`keystone.assurance.framework`, M1-01) generalises the one
   seam into a class.** A `SeamPair` = an `AttackSide` (OWASP id + canonical
   `VulnerabilitySignature` + `AttackChannel`) × a `CrimeSide` (FATF `Typology` +
