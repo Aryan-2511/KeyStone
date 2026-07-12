@@ -39,6 +39,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0028 | Remediation (c): a distinct memo-blind financial-side remediation (stricter thresholds), proven missed-then-caught — the 2nd menu option unblocking Movement C | Accepted |
 | 0029 | The Defense Agent (MC-01): a third genuine agent choosing the remediation (a vs c), policy-first, gated by a proven finding-dependent flip; menu applied via a uniform interface, loop-ready for MC-02 | Accepted |
 | 0030 | The closed adversarial loop (MC-02): offense re-scans the patched target and adapts (measured 11/12→0, live garak_live 11/12→0/4); (a) real re-scan vs (c) offline re-verify; the multi-agent architecture complete | Accepted |
+| 0031 | Reproducibility upgraded from spot-check to exhaustive normalized equality (EVAL-HARDEN-01): mask only generated_at + each ledger ts/entry_hash/prev_hash, then assert full RunResult recorded==fresh; the artifact is fully reproducible | Accepted |
 
 ---
 
@@ -1154,3 +1155,44 @@ exploited probe. (2) The adaptation re-run is deterministic policy behaviour ove
 guarded posture (so a live loop makes ONE real scan, not one per probe — tractable); the
 before/after MEASUREMENT is the exploited-probe re-scan. (3) The remaining frontier is unchanged:
 LLM-reasoning for all three agents is compute-gated (OPT-A-01b), the fine-tuning project the ask.
+
+## ADR-0031 — Reproducibility upgraded from spot-check to exhaustive normalized equality (EVAL-HARDEN-01)
+
+**Status:** Accepted · **Date:** 2026-07-13
+
+**Context.** Reproducibility is a paper differentiator ("every reported number regenerates
+deterministically from the code"), but the backing test only spot-checked ~6 fields
+(`test_recorded_run_is_a_genuine_build_not_hand_edited`, "only timestamps/hashes differ"). The
+eval-feasibility probe (`eval_feasibility.md` Q4) flagged this: the claim was *asserted* at the
+scope the test proved, not the scope the paper wants. The cheap fix it named: an exhaustive
+normalized-equality test.
+
+**Decision.** Add `test_recorded_run_equals_fresh_build_exhaustively` (`tests/test_offline_fallback.py`):
+normalize the committed `recorded_run.json` and a fresh `build_run_result()` by masking ONLY the
+legitimately-varying fields, then assert **full-object equality** of the two `RunResult`s (not a
+field subset). Any substantive divergence fails the test loudly.
+
+**The masked-field set (the paper's "legitimately varying" disclosure list) — confirmed empirically
+by diffing two fresh builds AND recorded-vs-fresh, which yield EXACTLY these leaf paths and no
+others:**
+- `generated_at` — the build's wall-clock stamp (`runner.py:227`, `datetime.now(UTC)`).
+- each ledger entry's `ts` — the append's wall-clock stamp (`core/ledger/ledger.py:75`).
+- each ledger entry's `entry_hash` — SHA-256 over content that **includes `ts`**
+  (`core/ledger/models.py:32-52`), so it necessarily varies whenever `ts` does.
+- each ledger entry's `prev_hash` — the previous entry's `entry_hash` chained forward, hence
+  equally ts-derived (entry[0]'s `prev_hash` is the constant `GENESIS_HASH`; masking it uniformly
+  is a safe no-op).
+
+Every OTHER field is substantive and must match. **Nothing was over-masked** — the mask set is
+exactly the ts + ts-derived-hash fields the diff proved to vary. **The recorded artifact IS fully
+reproducible**: with only those fields masked, recorded == fresh across the WHOLE `RunResult`.
+
+**Consequences.** The claim upgrades from "spot-checked (~6 fields)" → "exhaustive: every
+substantive number in the offline artifact regenerates deterministically, verified by full-object
+equality." The masked set is precisely the paper's reproducibility caveat, so test and paper agree.
+Test-only change — no behavior change, and neither `recorded_run.json` nor the builder was edited to
+force equality (they already agreed). The old spot-check is now fully subsumed but kept as a fast,
+readable sanity check. Scope caveats from ADR/`eval_feasibility.md` stand unchanged: this is
+substantive-content equality, NOT byte-identity (the hash chain is tamper-evidence *within* a run,
+not a cross-run digest), and live Garak numbers remain real-but-stochastic (the *offline* artifact
+is the deterministic object).
