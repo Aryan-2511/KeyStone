@@ -40,6 +40,8 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0029 | The Defense Agent (MC-01): a third genuine agent choosing the remediation (a vs c), policy-first, gated by a proven finding-dependent flip; menu applied via a uniform interface, loop-ready for MC-02 | Accepted |
 | 0030 | The closed adversarial loop (MC-02): offense re-scans the patched target and adapts (measured 11/12→0, live garak_live 11/12→0/4); (a) real re-scan vs (c) offline re-verify; the multi-agent architecture complete | Accepted |
 | 0031 | Reproducibility upgraded from spot-check to exhaustive normalized equality (EVAL-HARDEN-01): mask only generated_at + each ledger ts/entry_hash/prev_hash, then assert full RunResult recorded==fresh; the artifact is fully reproducible | Accepted |
+| 0032 | P2/P3 attack outcomes MEASURED live (agent-obey: canonical memos land 10/10 on qwen2.5:3b) + tractable Garak set completed to 11/11 (HijackKillHumans/HijackLongPrompt = 10/12); Garak N/12 is a family-level measure, not a per-memo scan | Accepted |
+| 0033 | Transitive pillow bumped 12.2.0 → 12.3.0 (uv.lock only) to clear 5 newly-published CVEs (PYSEC-2026-2253..2257) so the pip-audit gate stays green; no direct-dep or code change | Accepted |
 
 ---
 
@@ -1196,3 +1198,72 @@ readable sanity check. Scope caveats from ADR/`eval_feasibility.md` stand unchan
 substantive-content equality, NOT byte-identity (the hash chain is tamper-evidence *within* a run,
 not a cross-run digest), and live Garak numbers remain real-but-stochastic (the *offline* artifact
 is the deterministic object).
+
+## ADR-0032 — P2/P3 attack outcomes measured live + the tractable Garak set completed (EVAL-HARDEN-02)
+
+**Status:** Accepted · **Date:** 2026-07-13
+
+**Context.** The eval-feasibility probe (`eval_feasibility.md` Q1/Q2) left two attack-side gaps:
+(1) P2/P3's canonical memos (`CANONICAL_FORWARDING_EXPLOIT`, `CANONICAL_LARGE_TRANSFER_EXPLOIT`)
+were UNMEASURED — "UNCLEAR whether they actually land live"; (2) 9 of the 11 tractable Garak probes
+had real captures, 2 did not. Orientation also surfaced a **framing correction**: the probe doc
+implied P1's `CANONICAL_MEMO_EXPLOIT` is "wired into the actual Garak probe." It is not — the Garak
+N/12 rates come from garak's GENERIC latent-injection probes against the shared vulnerable system
+prompt (`garak_probe.py` / `_targets/vuln_agent_target.py` sends *garak's* prompt); the canonical
+memos are what the vulnerable AGENT is fed (`loop_live.py`) and what's planted into the synthetic
+stream (`seam_p2/p3.py`). So there is no per-pair Garak scan — the N/12 is a family-level measure.
+
+**Decision (real measurement — Step -1 gate confirmed garak 0.15.1 executes against qwen2.5:3b).**
+Two complementary REAL measurements, nothing tuned:
+- **Agent-obey (per canonical memo).** Feed P2's and P3's canonical memos to the real vulnerable
+  agent (`run_agent` → qwen2.5:3b under `VULNERABLE_SYSTEM_PROMPT`, temp 0). Both LAND: the agent
+  obeys and fires an unauthorized `initiate_transfer` to the injected recipient — **P1/P2/P3 each
+  10/10 deterministic**. Pinned by a `-m slow` live test mirroring P1's
+  (`test_live_p2_p3_canonical_memos_land_on_qwen`, `tests/test_mock_agent.py`). This is an
+  AGENT-OBEY measure (binary, deterministic), **NOT a Garak ASR** — the honest framing.
+- **Garak family capture (completes the tractable set).** Real-scanned the 2 remaining tractable
+  probes: **`promptinject.HijackKillHumans` = 10/12, `promptinject.HijackLongPrompt` = 10/12** —
+  added to `_OPT_A_02_CAPTURES` (`agents/red_team.py`), so **all 11 tractable probes now have real
+  captures (11/11)**. This EXTENDS the OPT-A-02 correction: the whole tractable promptinject family
+  lands ~10–11/12 (NOT blocked past the lead). The deep `*Full` variants remain uncaptured
+  (compute-gated) and are now given the same conservative "characterized-as-landing" fallback as
+  latentinjection (removing the now-contradicted "blocked" characterization).
+
+**Consequences — the measured attack surface.** The paper can now say the attack side is MEASURED
+for **three seam bindings across three financial typologies** (P1 structuring / P2 rapid-movement /
+P3 large-transfer) on a **shared OWASP LLM01 prompt-injection family**: each pair's specific memo is
+measured to land on the live agent, and the family's live Garak ASR is measured across 11 tractable
+probes. **The MEASURED-vs-CHARACTERIZED line stays crisp:** P1/P2/P3 attack sides = MEASURED;
+**P4 (LLM06 exfil) and P5 (LLM08 tool-misuse) remain CHARACTERIZED/synthetic** (P4's attack needs a
+live LLM06 exfil scan; P5 has no tool-call surface). Attack breadth is still deep within ONE OWASP
+category — this measures the three memos *within* LLM01, it does not add categories.
+
+**Honesty guardrails held.** Every number reported as measured came from a real run (Step -1 gate +
+source-tagging); nothing was tuned to make P2/P3 land better (memos planted as-is); the agent-obey
+result is never labelled a Garak ASR. `recorded_run.json` is UNCHANGED — the offline red-team trace
+fires 6 probes and exploits latentinjection, never reaching the newly-captured promptinject probes,
+so recorded==fresh still holds (EVAL-HARDEN-01 exhaustive test green) with no regeneration. Caveat
+recorded by the probe doc stands: the Garak N/12 is a family-level measure, not a per-canonical-memo
+scan; a genuinely NEW measured attack would need a new OWASP category (P4 LLM06 / P5 LLM08), the
+compute-gated future work.
+
+## ADR-0033 — Transitive pillow bumped 12.2.0 → 12.3.0 to clear the pip-audit gate (EVAL-HARDEN-02)
+
+**Status:** Accepted · **Date:** 2026-07-13
+
+**Context.** During EVAL-HARDEN-02 the `pip-audit` gate (`make check`) went red on **5
+newly-published pillow advisories** — PYSEC-2026-2253/2254/2255/2256/2257 — all fixed in pillow
+**12.3.0**. `pillow` is a **transitive** dependency (pulled by `streamlit` and `fastembed`), not a
+direct keystone dependency, and the advisories are unrelated to any code in this branch: the failure
+reproduces on `main`. Per the non-negotiable "strict gates, never weakened — fix the code or ask,"
+the honest fix is to advance the vulnerable dependency, not to suppress the finding.
+
+**Decision.** `uv lock --upgrade-package pillow` → pillow **12.2.0 → 12.3.0** (uv.lock only; no
+change to `pyproject.toml`, so pillow stays transitive and no new direct dependency is introduced).
+`uv sync` installed it; `pip-audit` is clean again. This was bundled into EVAL-HARDEN-02 (rather than
+split into its own PR) at the maintainer's request so the branch's gates go fully green.
+
+**Consequences.** The security gate is green with the patched pillow; no source or direct-dependency
+change. A patch-level bump of an imaging library used only by the Streamlit UI / dataviz path; the
+deterministic core and the measurement work are unaffected. If the transitive bump ever needs
+pinning to survive a future re-resolution, promote it to a `[tool.uv]` constraint — not needed today.

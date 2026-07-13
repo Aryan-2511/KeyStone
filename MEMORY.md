@@ -1052,6 +1052,23 @@
   sequence is minutes — why it's opt-in. Next frontier: LLM-reasoned selection for BOTH
   agents = the compute-gated NVIDIA ask. (`OPTION-A-02-00_REDTEAM_LIVE_DESIGN.md`,
   `ADR-0022`.)
+- **P2/P3 ATTACKS MEASURED LIVE + TRACTABLE SET COMPLETED (EVAL-HARDEN-02, ADR-0032, 2026-07-13).**
+  Two real measurements (garak 0.15.1 / qwen2.5:3b; Step -1 gate confirmed genuine execution;
+  nothing tuned): (1) **Agent-obey** — P1/P2/P3's canonical memos ALL LAND on the live agent
+  (`run_agent`, temp 0): each obeys and fires `initiate_transfer` to the injected recipient,
+  **10/10 deterministic**. Pinned by `-m slow` `test_live_p2_p3_canonical_memos_land_on_qwen`
+  (mirrors P1's `test_live_memo_injection_fires_on_qwen`). This is AGENT-OBEY, **not** a Garak ASR.
+  (2) **Garak** — the 2 remaining tractable probes captured: `promptinject.HijackKillHumans` (10,12)
+  + `HijackLongPrompt` (10,12) → `_OPT_A_02_CAPTURES` now **11/11 tractable captured**; the whole
+  tractable promptinject family lands ~10–11/12 (NOT blocked past the lead). **KEY FRAMING (fixes a
+  probe-doc inaccuracy):** the Garak N/12 is a **family-level** measure over garak's GENERIC
+  latent-injection probes vs the shared vulnerable system prompt — **NOT a per-canonical-memo scan**
+  (`garak_probe.py`/`_targets/vuln_agent_target.py` send garak's prompt; canonical memos feed the
+  AGENT via `loop_live.py` + plant into the `seam_p2/p3` streams). **Measured surface now: attack
+  side MEASURED for 3 seam bindings (structuring/rapid-movement/large-transfer) within OWASP LLM01;
+  P4 (LLM06) + P5 (LLM08) stay CHARACTERIZED/synthetic.** `recorded_run.json` UNCHANGED (offline
+  trace exploits latentinjection, never reaches the new promptinject probes) — recorded==fresh holds.
+  [[eval_feasibility.md lives on the unmerged probe-eval-feasibility branch, not main.]]
 - **LIVE MODES ARE NOW SCOPED + GRANULAR (OPT-A-02b, KS-0619, ADR-0027).** Two fixes to the
   operational pain that a full live scan is HOURS and one `--live` flag drove BOTH agents.
   (1) **Scan scoping:** `red_team.DEEP_PROBES` (the `*Full` variants + `LatentWhois`) is

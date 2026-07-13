@@ -6,7 +6,12 @@ instructions) plus its exploit OUTCOME (an unauthorized consequential tool call)
 NOT the literal attack bytes. Both downstream pieces import THIS definition rather
 than re-describing the flaw:
 
-- the Garak probe (KS-0303) builds its attack from `CANONICAL_MEMO_EXPLOIT`;
+- the live exploit feeds a `MaliciousMemoExample`'s memo (e.g. `CANONICAL_MEMO_EXPLOIT`)
+  to the vulnerable AGENT, which obeys it (KS-0304 loop / the live obey-test). The Garak
+  probe (KS-0303) exercises the SAME instruction-in-data flaw the signature names, but via
+  garak's GENERIC latent-injection probes against the vulnerable system prompt — it does
+  NOT inject the canonical memo string itself (so the Garak N/12 is a FAMILY-level measure,
+  not a per-canonical-memo scan);
 - the Layer-1 fraud fixture (KS-0403) detects the `ExploitOutcome` it names.
 
 Keeping one definition referenced by both is the L2↔L1 seam (ADR-0011): a refactor
