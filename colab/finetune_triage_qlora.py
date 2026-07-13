@@ -107,7 +107,7 @@ def main() -> None:
             gradient_accumulation_steps=2,
             learning_rate=LR,
             logging_steps=10,
-            max_seq_length=MAX_SEQ_LEN,
+            max_length=MAX_SEQ_LEN,  # TRL >=0.20 renamed this from `max_seq_length`
             bf16=True,
             report_to="none",
         ),
