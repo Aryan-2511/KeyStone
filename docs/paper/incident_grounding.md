@@ -10,12 +10,16 @@ motivate that thesis. The incident used to ground it **must structurally match w
 Keystone does** — prompt injection driving an AI agent to authorize a forbidden
 financial transfer — or the grounding reads as a motivation–implementation gap.
 
-This document grounds the thesis in the **Freysa** incident (mechanism-matched), maps
-it honestly onto Keystone's abstraction, labels the synthetic demo as *modeled on* that
-structure, and scopes out the deepfake modality (**Arup**) as an explicit boundary. The
-honest line is fixed throughout: Keystone's abstraction **represents / would surface /
-would bind** this class of event. It was **not** run on any real incident, and no claim
-of **prevention** is made.
+This document grounds the thesis in **two** mechanism-matched anchors: the **Freysa**
+incident — a reproducible adversarial *game* where the mechanism is fully documented — and
+the **Grok/Bankrbot** incident — the **production, real-money, non-game** counterpart that
+answers the "but was it just a game?" objection. It maps both honestly onto Keystone's
+abstraction, labels the synthetic demo as *modeled on* that shared structure, and scopes
+out the deepfake modality (**Arup**) as an explicit boundary. The honest line is fixed
+throughout: Keystone's abstraction **represents / would surface / would bind** this class
+of event. It was **not** run on any real incident, and no claim of **prevention** is made.
+Where an incident has components beyond Keystone's seam (Grok's privilege-escalation step),
+the scope is stated precisely rather than smoothed over.
 
 ---
 
@@ -59,7 +63,68 @@ what a threat model should be motivated by.
 
 ---
 
-## 2. The structural mapping — abstraction ↔ real event (not "we ran it")
+## 2. The Grok/Bankrbot incident — the production, non-game anchor
+
+On **4 May 2026**, an attacker drove the production AI agent **Grok** (on X/Twitter) and the
+wallet-connected execution bot **Bankrbot** into an unauthorized on-chain transfer of
+**~3 billion DRB tokens** (**≈ $150K–200K**) on the **Base** network. The triggering
+instruction was **obfuscated in Morse code** and posted at `@grok`: Grok decoded it and,
+functioning as designed, relayed a transfer command tagging `@bankrbot`; Bankr's scanner
+treated Grok's reply as a valid executable command and initiated the transfer.[^grok-slowmist][^grok-oecd]
+**No private key was stolen** — the exploit lived entirely in **how an AI agent processed
+and relayed an untrusted instruction.** Roughly **80%** of the value was later returned
+through negotiation (in USDC/ETH).[^grok-slowmist] The movement is on-chain as tx
+`0x6fc7…739a` on Base.[^grok-basescan]
+
+**Why the dollar figure is a range, not a point.** Estimates run **~$150K–200K** (some
+reconstructions cite ~$174K) because the fiat value of 3B DRB depends on the **price
+snapshot** used — the large forced sale itself moved DRB's price — and on whether one counts
+the **gross transfer or the net after ~80% was recovered**. The honest figure is the
+**range with its reason**, not the largest number available.
+
+**The mechanism-match (honest).** SlowMist reconstructs the exploit as
+**"untrusted input → AI output → external Agent execution → asset transfer,"** with Grok as
+an "exploited intermediary layer" and Bankr performing the on-chain execution.[^grok-slowmist]
+OECD.AI logs it as a **direct AI incident** precisely because "the AI's role is pivotal … the
+exploit relied on how the AI interpreted user input," not on a smart-contract flaw.[^grok-oecd]
+That flow — an **AI agent driven by an untrusted instruction into an unauthorized financial
+transfer** — is Keystone's seam, now in **production, with real funds, outside any game**.
+Grok is the **non-game counterpart to Freysa**.
+
+**The honest scope (non-negotiable).** The Grok incident had **two** components, and Keystone
+addresses only one:
+
+1. A **privilege-escalation** step — the attacker first activated a **Bankr Club Membership**
+   for the wallet, unlocking Bankr's high-privilege agentic toolset (the ability to execute
+   transfers at all). SlowMist classes the incident as *AI-Agent permission-chain abuse*.
+2. The **obfuscated prompt-injection** — the Morse-code instruction that then drove the actual
+   transfer.
+
+**Keystone's seam maps to the injection-into-transfer component (2)** — an untrusted
+instruction coercing an agent into a forbidden transfer — which Keystone's abstraction would
+**represent** and would **surface** by binding the AI-side exploit to the financial-side
+movement on one shared object. The **permission / privilege-escalation** step (1) is a
+**complementary surface Keystone does not claim to address.** As with Freysa, the verbs are
+exact: Keystone **represents / would surface** the injection component — it was **not** run on
+the Grok incident, and no claim that it **would have prevented** the transfer (still less the
+whole permission chain) is made.
+
+**Two anchors, one mechanism.** Freysa and Grok bracket the seam from both sides. **Freysa**
+is a **reproducible research/game instance** — a public adversarial challenge with the
+mechanism fully documented — answering *"can this mechanism be shown cleanly?"* **Grok** is a
+**production, real-money, non-game incident**, answering *"was it just a game?"* Together they
+demonstrate the same seam mechanism — untrusted instruction → AI agent → forbidden transfer —
+across **both a controlled instance and a real production incident.**
+
+**In-the-wild indirect injection.** Beyond single incidents, security research documents
+**indirect** prompt-injection *campaigns* in the wild — instructions hidden in content an
+agent reads and treats as trusted context (Zscaler ThreatLabz, 2026) — showing that the
+indirect-injection pattern, which is structurally Keystone's **memo channel**
+(instruction-in-data), is a real in-the-wild attack surface, not a lab curiosity.[^zscaler][^zscaler-infosec]
+
+---
+
+## 3. The structural mapping — abstraction ↔ real event (not "we ran it")
 
 Keystone represents a seam event as one shared transaction object bound to two findings:
 an **AI-security** finding (the exploit) and a **financial-crime** finding (the anomaly),
@@ -86,7 +151,7 @@ represent / bind** — never *ran on*, *detected*, or *prevented*.
 
 ---
 
-## 3. The modeled-on case — grounding the synthetic demo honestly
+## 4. The modeled-on case — grounding the synthetic demo honestly
 
 Keystone's demonstration does not use the Freysa data (which is external and, for a
 data-residency-preserving system, could not be ingested regardless). It uses a **synthetic**
@@ -108,11 +173,12 @@ the distinction is unmissable and load-bearing:
 This is the same honesty discipline the evaluation already applies elsewhere (the
 recorded-run artifact is deterministic and *anchored to* real Garak captures, never passed
 off as a live incident): the demo is **synthetic** for residency, and **grounded** because
-its structure is modeled on a documented real event.
+its structure is modeled on a documented real event — a structure now corroborated in
+**production** by the Grok injection-into-transfer component (§2), not only the Freysa game.
 
 ---
 
-## 4. Scope boundary — the deepfake modality (Arup), out of scope
+## 5. Scope boundary — the deepfake modality (Arup), out of scope
 
 The seam is broader than prompt injection: it spans multiple AI-attack modalities that all
 resolve to "AI-enabled deception → financial crime." The **Arup** case is the clearest
@@ -129,19 +195,24 @@ deepfake-detection capability** whatsoever.
 
 ---
 
-## 5. What this grounding does and does not claim
+## 6. What this grounding does and does not claim
 
 **It DOES:**
-- Motivate the threat model with a **real, mechanism-matched** incident (Freysa: prompt
-  injection → an agent's forbidden financial transfer).
-- Ground the synthetic demo as **modeled on** a real structure (`TXN-000016` mirrors the
-  Freysa class), keeping the demo synthetic-for-residency yet non-arbitrary.
+- Motivate the threat model with **two real, mechanism-matched** anchors — **Freysa** (a
+  reproducible research/game instance) and the **Grok/Bankrbot** production incident (real
+  money, non-game) — both: prompt injection → an agent's forbidden financial transfer.
+- **Scope the Grok match precisely** to the **injection-into-transfer component** (untrusted
+  instruction → transfer), the part Keystone's abstraction would represent and surface.
+- Ground the synthetic demo as **modeled on** that shared real structure (`TXN-000016` mirrors
+  the injection-into-transfer class), keeping the demo synthetic-for-residency yet non-arbitrary.
 - **Scope the seam's breadth honestly**, naming a real same-seam / different-modality event
   (Arup) as an explicit out-of-scope boundary.
 
 **It does NOT:**
-- Claim Keystone was **run on** Freysa, Arup, or any real incident (it was not — no access).
+- Claim Keystone was **run on** Freysa, Grok, Arup, or any real incident (it was not — no access).
 - Claim Keystone **would have prevented** any real fraud (an unprovable counterfactual).
+- Claim Keystone addresses Grok's **privilege-escalation / permission-chain** component (the
+  Bankr Club Membership step) — only the **injection-into-transfer** component is in scope.
 - Claim any **deepfake-detection** capability (Arup is out of scope).
 - **Blur** "synthetic, modeled on a real structure" with "real": the demo is synthetic; the
   grounding is an analytical mapping, not an execution.
@@ -160,6 +231,30 @@ Freysa (November 2024):
 
 [^freysa-block]: The Block, "Human outwits Freysa AI agent to win $47,000."
     <https://www.theblock.co/post/328843/the-daily-human-outwits-freysa-ai-agent-to-win-47000-hyperliquid-token-exceeds-5-billion-fdv-following-airdrop-and-more>
+
+Grok / Bankrbot (4 May 2026):
+
+[^grok-slowmist]: SlowMist, "Behind the Grok Exploitation: An Analysis of AI Agent Permission
+    Chain Abuse," May 2026 — threat-intel technical reconstruction ("untrusted input → AI
+    output → external Agent execution → asset transfer").
+    <https://slowmist.medium.com/behind-the-grok-exploitation-an-analysis-of-ai-agent-permission-chain-abuse-4d832d1bfc73>
+
+[^grok-oecd]: OECD.AI Incidents, "AI Prompt Injection Exploit Drains Grok-Linked Crypto Wallet,"
+    incident 2026-05-04 — institutional incident record (classified a direct AI incident).
+    <https://oecd.ai/en/incidents/2026-05-04-4a73>
+
+[^grok-basescan]: On-chain primary evidence — DRB transfer on Base, tx
+    `0x6fc7eb7da9379383efda4253e4f599bbc3a99afed0468eabfe18484ec525739a` (Basescan).
+    <https://basescan.org/tx/0x6fc7eb7da9379383efda4253e4f599bbc3a99afed0468eabfe18484ec525739a>
+
+Indirect prompt injection in the wild (2026):
+
+[^zscaler]: Zscaler ThreatLabz, "Indirect Prompt Injection in Web Content Targets AI Agents,"
+    2026 — two documented campaigns hiding instructions in web content an agent reads.
+    <https://www.zscaler.com/blogs/security-research/indirect-prompt-injection-web-content-targets-ai-agents>
+
+[^zscaler-infosec]: Infosecurity Magazine, "Indirect Prompt Injection in Web Content Targets AI
+    Agents." <https://www.infosecurity-magazine.com/news/indirect-prompt-injection-web/>
 
 Arup (disclosed 2024):
 
