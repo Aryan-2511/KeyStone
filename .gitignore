@@ -41,3 +41,7 @@ secrets.*
 .vscode/
 .DS_Store
 Thumbs.db
+
+# FINETUNE-SPIKE-01: chat dataset is generated (embeds the full system prompt x465, ~1.3MB);
+# reproducible from the committed train.jsonl via `make finetune-data`.
+src/keystone/finetune/data/train_chat.jsonl

@@ -163,26 +163,6 @@ def write_chat_jsonl(path: Path, cases: Iterable[Case]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def read_chat_signals(path: Path) -> list[TriageSignals]:
-    """Read just the structured signals from a chat-format training JSONL.
-
-    The disjointness test uses this to check the training rows against the held-out set
-    without having to parse them back out of the prompt text.
-    """
-    out: list[TriageSignals] = []
-    for line in _nonempty_lines(path):
-        row = json.loads(line)
-        sig = row["signals"]
-        out.append(
-            TriageSignals(
-                failure_rate=float(sig["failure_rate"]),
-                seam_result=SeamClassification(str(sig["seam_result"])),
-                severity=FindingSeverity(str(sig["severity"])),
-            )
-        )
-    return out
-
-
 def _nonempty_lines(path: Path) -> Iterator[str]:
     for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip():
