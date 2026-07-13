@@ -31,6 +31,12 @@ reachable from here — orphans are flagged by the doc-freshness check.
 | [QUALITY.md](./QUALITY.md) | Grading/acceptance criteria (the evaluator's rubric) |
 | [feature_list.json](./feature_list.json) | Machine-checkable features + done-criteria (source of truth) |
 
+## Paper seeds
+
+| Doc | Purpose |
+| --- | --- |
+| [paper/incident_grounding.md](./paper/incident_grounding.md) | Real-incident grounding (Freysa-anchored, Arup scoped-out) for the seam thesis — honest "modeled-on," never "ran-on/prevented" |
+
 ## Reference & generated
 
 | Path | Purpose |
