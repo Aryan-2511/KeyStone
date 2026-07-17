@@ -42,6 +42,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0031 | Reproducibility upgraded from spot-check to exhaustive normalized equality (EVAL-HARDEN-01): mask only generated_at + each ledger ts/entry_hash/prev_hash, then assert full RunResult recorded==fresh; the artifact is fully reproducible | Accepted |
 | 0032 | P2/P3 attack outcomes MEASURED live (agent-obey: canonical memos land 10/10 on qwen2.5:3b) + tractable Garak set completed to 11/11 (HijackKillHumans/HijackLongPrompt = 10/12); Garak N/12 is a family-level measure, not a per-memo scan | Accepted |
 | 0033 | Transitive pillow bumped 12.2.0 → 12.3.0 (uv.lock only) to clear 5 newly-published CVEs (PYSEC-2026-2253..2257) so the pip-audit gate stays green; no direct-dep or code change | Accepted |
+| 0034 | FINETUNE-SPIKE-01 lands a CAPACITY-BOUND negative (FT-EVAL): a specialized on-prem 3B (Unsloth QLoRA, Qwen2.5-3B matched control) scores 77%/76% vs the general-3B baseline 77%/78% on the frozen held-out band — prompting and specialization both fail on the same axis, so the gap is capacity not method; inference conditions matched to the baseline, weights gitignored, Modelfile committed | Accepted |
 
 ---
 
