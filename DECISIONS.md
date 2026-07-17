@@ -1267,3 +1267,67 @@ split into its own PR) at the maintainer's request so the branch's gates go full
 change. A patch-level bump of an imaging library used only by the Streamlit UI / dataviz path; the
 deterministic core and the measurement work are unaffected. If the transitive bump ever needs
 pinning to survive a future re-resolution, promote it to a `[tool.uv]` constraint — not needed today.
+
+---
+
+## ADR-0034 — FINETUNE-SPIKE-01 lands a CAPACITY-BOUND negative: a specialized on-prem 3B does not close the held-out gap (FT-EVAL)
+
+**Status:** Accepted · **Date:** 2026-07-18
+
+**Context.** OPT-A-01b left an open question (ADR-0026, `OPEN_QUESTIONS.md`): qwen2.5:3b routed the
+bounded triage decision unreliably on a held-out probe — *part* prompt artifact, but the model
+ceiling looked real. The feasibility probe (`docs/paper/finetune_feasibility.md`) named a single
+decisive experiment: QLoRA-fine-tune a small base on the policy's own labelled decisions and measure
+held-out threshold-band accuracy vs the general-3B baseline. FINETUNE-SPIKE-01 Phase 1 froze a
+48-case held-out set *before any training data existed* (zero-contamination, asserted), built the
+disjoint training set + a single shared eval harness, and measured the **general-3B baseline: 37/48 =
+77% overall, 35/45 = 78% reserved-band** (`qwen2.5:3b`, 3 calls/case). The user then trained the
+adapter (Unsloth QLoRA, **Qwen2.5-3B-Instruct — the matched control**, 1 epoch, fp16/T4, exported
+q8_0 GGUF) and placed the GGUF + Unsloth Modelfile in the repo. FT-EVAL registers it on-prem and runs
+the decisive measurement.
+
+**Decision — the inference conditions must MATCH the baseline, not the Unsloth defaults.** Unsloth's
+exported Modelfile shipped three eval-corrupting defaults: `temperature 1.5`, `min_p 0.1`, and a
+stock-Qwen `SYSTEM` prompt. The eval harness (`scripts/finetune_eval.py` → `live_triage` →
+`complete()`) supplies its **own** system prompt (`TRIAGE_SYSTEM`) and, critically, its `complete()`
+path sends **no `options.temperature`** — so the *Modelfile* governs sampling. The frozen baseline
+was measured against **stock `qwen2.5:3b`, which pins no sampling parameters at all** (Ollama
+defaults). Therefore an apples-to-apples comparison — "only the MODEL differs" — requires the
+fine-tune to run under the **same Ollama-default sampling**, not `temperature 0`. The committed
+Modelfile: `FROM keystone-triage-ft.Q8_0.gguf`, **`SYSTEM` removed** (harness supplies it),
+**`temperature` and `min_p` stripped** (match the baseline's default sampling), `TEMPLATE` kept
+byte-for-byte, `stop` params kept. NB: the task brief's initial "set `temperature 0`" rested on a
+false premise (that the baseline was deterministic); the baseline was never deterministic, so temp 0
+would have been an *unmatched* comparison favouring the fine-tune — rejected. The 3.1GB GGUF and the
+2GB merged HF checkpoint are **gitignored, never committed**; the Modelfile **is** committed because
+it documents the exact reproducible inference conditions.
+
+**Result (measured 2026-07-18, same frozen 48-case harness, 3 calls/case, matched sampling):**
+
+| | specialized-3B | general-3B baseline |
+| --- | --- | --- |
+| Overall | 37/48 = 77% | 37/48 = 77% |
+| Reserved-band | 34/45 = 76% | 35/45 = 78% |
+| `remediate` | 4/7 (57%) | 2/7 (29%) |
+| `accept` | 13/19 (68%) | 13/19 (68%) |
+| `escalate` | 20/22 (91%) | 22/22 (100%) |
+
+**Verdict: CAPACITY-BOUND — the finding is completed, not a proof-of-concept.** Specialization did
+not close the gap: overall identical (77%), reserved band marginally *worse* (76% vs 78%). The
+fine-tune only **reshuffled** errors — it learned *clean-above-floor ⇒ remediate* for MEDIUM
+severity (`remediate` 4/7 vs 2/7) but **still misreads the sub-0.10 threshold** (`clean/LOW @
+0.12,0.15,0.18` → accept, wrong) and **newly regressed `escalate`** (`open/LOW @ 0.12,0.18` → accept;
+20/22 vs a perfect 22/22). Prompting (OPT-A-01b) **and** task-specialization now both fail on the same
+held-out band → the ceiling is **capacity, not method**.
+
+**Consequences.** The honest, narrow claim: *a specialized small on-prem 3B model does not reliably
+replicate the bounded routing decision general 3B got wrong on held-out cases* — NOT "reasons better
+than the policy" (impossible: the policy is the label ceiling) and NOT "a fine-tuned agent brain."
+The policy stays the deterministic default and fallback, now triply-evidenced (offline policy,
+prompt-rescue, specialization). The on-prem *capability* ask (ADR-0024/0025) stands and is sharpened:
+the compute ask is for a **larger** on-prem model, not a fine-tuned small one — a 3B, even specialized
+on the exact task, is under-capacity for the continuous-threshold routing axis. The Defense-agent
+fine-tune stays unbuilt (its weaker 2-leaf rule was gated on triage answering positively; it did
+not). Frozen held-out eval, training data, protocol, and `route_for` were untouched — the experiment
+is valid. The eval is mildly non-deterministic (Ollama-default sampling, as the baseline was); the
+≈-parity conclusion is robust to that noise.

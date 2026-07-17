@@ -140,7 +140,38 @@ Report **specialized-3B held-out accuracy vs the general-3B baseline**, with spe
 proof-of-concept **or** capacity-bound completion — and update `DECISIONS.md`, `OPEN_QUESTIONS.md`,
 `ROADMAP.md`, and `finetune_feasibility.md` with the outcome.
 
-> **Result:** `<PENDING — Phase 3>`
+> **Result (measured 2026-07-18; Unsloth QLoRA, Qwen2.5-3B-Instruct matched control, 1 epoch,
+> fp16/T4, q8_0 GGUF, on-prem Ollama; same frozen 48-case harness, 3 calls/case):**
+>
+> | | **specialized-3B** | general-3B baseline |
+> | --- | --- | --- |
+> | Overall | **37/48 = 77%** | 37/48 = 77% |
+> | Reserved-band | **34/45 = 76%** | 35/45 = 78% |
+> | route `remediate` | 4/7 (57%) | 2/7 (29%) |
+> | route `accept` | 13/19 (68%) | 13/19 (68%) |
+> | route `escalate` | 20/22 (91%) | 22/22 (100%) |
+>
+> **Verdict: CAPACITY-BOUND (the finding is completed, not a proof-of-concept).** Specialization
+> did **not** close the gap: overall is identical (77%) and the reserved band is *marginally worse*
+> (76% vs 78%). The fine-tune only **reshuffled** the errors — it learned the *clean-above-floor ⇒
+> remediate* distinction for MEDIUM severity (`remediate` 4/7 vs 2/7) but **still misreads the
+> sub-0.10 threshold** (`clean/LOW @ 0.12,0.15,0.18` → accept, wrong) and **newly regressed
+> `escalate`** (`open/LOW @ 0.12,0.18` → accept; 20/22 vs a perfect 22/22). Both prompting (OPT-A-01b)
+> **and** task-specialization now fail on the same held-out band → the ceiling is **capacity, not
+> method**. Honest framing: *a specialized small on-prem 3B model does **not** reliably replicate the
+> bounded routing decision general 3B got wrong on held-out cases.*
+>
+> **Inference conditions (matched to the baseline, not the Unsloth defaults).** Unsloth's exported
+> Modelfile shipped `temperature 1.5` + `min_p 0.1` + a stock-Qwen `SYSTEM` prompt — all three would
+> have corrupted the comparison. The eval harness supplies its **own** system prompt (`TRIAGE_SYSTEM`)
+> and the baseline was measured against **stock `qwen2.5:3b`, which pins no sampling params** (Ollama
+> defaults) via a `complete()` path that sends no `options.temperature`. So the committed Modelfile
+> **removes** `SYSTEM` (harness wins) and **strips** `temperature`/`min_p` so the fine-tune samples
+> under the **same Ollama defaults the baseline used** — only the *model* differs. (Setting
+> `temperature 0` as first assumed would have been an *unmatched* comparison favoring the fine-tune;
+> the baseline was never deterministic. See `DECISIONS.md`.) The eval is therefore mildly
+> non-deterministic run-to-run, exactly as the baseline was; the ≈-parity conclusion is robust to
+> that noise (the fine-tune is not *near* clearly beating 78%).
 
 ---
 

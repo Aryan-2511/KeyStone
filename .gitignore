@@ -45,3 +45,9 @@ Thumbs.db
 # FINETUNE-SPIKE-01: chat dataset is generated (embeds the full system prompt x465, ~1.3MB);
 # reproducible from the committed train.jsonl via `make finetune-data`.
 src/keystone/finetune/data/train_chat.jsonl
+
+# FT-EVAL: the fine-tuned model weights are multi-GB binaries — NEVER commit them.
+# The GGUF (~3.1GB) and the merged HF checkpoint (~2GB) are training artifacts, not source.
+# The *Modelfile* IS committed (it documents the exact on-prem inference conditions).
+*.gguf
+keystone-triage-ft-merged/

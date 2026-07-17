@@ -96,14 +96,22 @@ Each: **what it is · why it's open · what resolving it needs.**
     full set; the deep probes remain the intractable frontier (ADR-0027). *Positive:* the live
     run **caught a real profile-vs-reality drift** (promptinject blocked-in-profile but
     gets-through-live, ADR-0023) — live scanning earns its keep by catching drift.
-  - **The frontier (roadmap, NOT built) — a purpose-fine-tuned small model** for the agents'
-    decisions (triage routing, probe selection): specialized enough to beat general models on
-    our *narrow, bounded* tasks, small enough to run **fully on-prem**, eliminating any
-    external inference dependency. The training signal already exists — the policies'
-    decisions across scenarios are labelled examples. This is the honest resolution of
-    Findings 1 & 2 and the end-state of the data-residency + capability story (on-prem,
-    specialized, no external API); a natural NVIDIA / NeMo / Nemotron fine-tuning
-    mentorship project. **Not built — a named future direction; no fine-tuned model exists.**
+  - **The frontier (NOW TESTED — FINETUNE-SPIKE-01, capacity-bound negative) — a
+    purpose-fine-tuned small model** for the agents' decisions (triage routing). The one-run
+    spike named in the feasibility probe was executed: Unsloth QLoRA on **Qwen2.5-3B-Instruct
+    (matched control)**, 1 epoch, trained on the policy's labelled decisions (synthetic, no PII),
+    exported q8_0 GGUF, deployed on-prem via Ollama, and measured on the **frozen 48-case
+    held-out set with the SAME harness the baseline used** (see ADR-0034, FT-EVAL). **Result:
+    specialized-3B = 37/48 = 77% overall, 34/45 = 76% reserved-band — statistically level with
+    the general-3B baseline (77% / 78%), marginally worse on the band.** The fine-tune only
+    *reshuffled* errors (fixed some `remediate`, regressed `escalate`, still misread the sub-0.10
+    threshold). **Verdict: CAPACITY-BOUND.** Prompting (OPT-A-01b) *and* task-specialization both
+    fail on the same held-out band → the gap is **capacity, not method**. A specialized small
+    on-prem 3B does **not** replicate the bounded decision general 3B got wrong. The honest
+    resolution of Findings 1 & 2: the on-prem *capability* ask stands, but a 3B (even specialized)
+    is not the answer — the compute ask is for a **larger** on-prem model, not a fine-tuned small
+    one. (Defense-agent fine-tune stays unbuilt — triage answered negatively, so it is not
+    warranted.)
 - **Option A — live LLM agents.** The **Triage Agent is now live** (OPT-A-01,
   `KS-0616`): `keystone.agents.triage.live_triage` reasons the route with qwen2.5:3b as
   an opt-in mode (`keystone demo --live`), constrained to the 3-route space, with the
