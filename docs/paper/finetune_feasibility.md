@@ -3,6 +3,16 @@
 **Probe:** `probe-finetune-feasibility` · **Date:** 2026-07-13 · **Mode:** READ-ONLY
 (this doc is the only artifact — **no training, no data generation, no code change**)
 
+> **RESOLVED (2026-07-18) — FINETUNE-SPIKE-01 ran the one-run spike this probe recommended; the
+> verdict is CAPACITY-BOUND (negative).** The spike (§ "Smallest honest next step") was executed
+> end-to-end: Q3 protocol dataset + frozen 48-case held-out eval, Unsloth QLoRA on
+> **Qwen2.5-3B-Instruct (matched control)**, deployed on-prem via Ollama, measured with the same
+> harness as the baseline. **specialized-3B = 77% overall / 76% reserved-band vs general-3B 77% /
+> 78%** — level, marginally worse on the band; the fine-tune only *reshuffled* errors and still
+> misread the sub-0.10 threshold. Specialization did **not** close the held-out gap → the ceiling is
+> **capacity, not method**. Full details in `docs/paper/finetune_spike.md` and **ADR-0034**; the
+> "either outcome is publishable" bet below landed on the honest negative.
+
 **The question this answers.** OPT-A-01b showed a general 3B model (qwen2.5:3b) cannot reliably
 reason Keystone's bounded triage decision: in-distribution it agreed with the policy 6/6, but on
 a held-out anti-parrot probe it dropped to **4/6**, misreading the numeric `failure_rate` and

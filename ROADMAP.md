@@ -195,14 +195,21 @@ designs: `MA-00_REDTEAM_AGENT_DESIGN.md`, `MB-00_TRIAGE_AGENT_DESIGN.md`):
 > frontier — the on-prem NVIDIA ask (ADR-0024/0025): capable inference **inside the trust
 > boundary**, so sensitive data never leaves (data-residency, not "internet").
 
-- **(Frontier, NOT built) A purpose-fine-tuned small model for the agents' decisions** —
-  triage routing + probe selection. Specialized enough to outperform general models on our
-  *narrow, bounded* tasks, and small enough to run **fully on-prem**, eliminating any external
-  inference dependency. The training signal already exists: the policies' decisions across
-  scenarios are labelled examples. This is the honest resolution of Findings 1 & 2 (ADR-0025)
-  and the end-state of the data-residency + capability story (on-prem, specialized, no external
-  API) — a natural NVIDIA / NeMo / Nemotron fine-tuning mentorship project. A named future
-  direction; nothing is built.
+- **(Frontier, NOW TESTED — capacity-bound negative, FINETUNE-SPIKE-01 / ADR-0034) A
+  purpose-fine-tuned small model for the agents' decisions** — triage routing. The one decisive
+  spike the feasibility probe recommended was executed: Unsloth QLoRA on **Qwen2.5-3B-Instruct
+  (matched control)**, 1 epoch, trained on the policy's labelled decisions (synthetic, no PII),
+  exported q8_0 GGUF, deployed **fully on-prem** via Ollama, and measured on the **frozen 48-case
+  held-out set with the same harness the baseline used**. **Result: specialized-3B = 77% overall /
+  76% reserved-band — level with the general-3B baseline (77% / 78%), marginally worse on the
+  band.** The fine-tune only *reshuffled* errors (fixed some `remediate`, regressed `escalate`,
+  still misread the sub-0.10 threshold). **Verdict: CAPACITY-BOUND** — prompting (OPT-A-01b) *and*
+  task-specialization both fail on the same held-out axis, so the gap is **capacity, not method**.
+  The honest resolution of Findings 1 & 2 (ADR-0025): the on-prem capability ask stands, but a 3B
+  (even specialized) is not the answer — the compute ask is for a **larger** on-prem model, not a
+  fine-tuned small one. Probe selection + a Defense-agent fine-tune stay unbuilt (triage answered
+  negatively, so neither is warranted). Still the data-residency end-state (on-prem, no external
+  API); a natural NVIDIA / NeMo / Nemotron mentorship direction, now with a measured baseline.
 
 > **Keystone is now honestly MULTI-AGENT** (as of MB-01): two genuine agents in a
 > supervisor–worker topology — the Red-Team Agent (offensive worker) produces findings; the

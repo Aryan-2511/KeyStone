@@ -59,6 +59,12 @@ demo:  ## Run the real assurance arc offline and narrate it (the console front d
 triage-eval:  ## LLM-vs-policy triage comparison (OPT-A-01; needs Ollama, honest report)
 	uv run python scripts/triage_llm_eval.py
 
+finetune-data:  ## Regenerate the disjoint training set from the frozen held-out eval (FINETUNE-SPIKE-01)
+	uv run python scripts/finetune_gen_data.py train
+
+finetune-eval:  ## Frozen held-out eval vs the configured Ollama model (set KEYSTONE_OLLAMA_MODEL for the fine-tune)
+	uv run python scripts/finetune_eval.py --repeats 3 --verbose
+
 ui:  ## Launch the Streamlit demo app (the visual front door)
 	uv run streamlit run src/keystone/ui/app.py
 

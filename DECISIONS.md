@@ -42,6 +42,8 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0031 | Reproducibility upgraded from spot-check to exhaustive normalized equality (EVAL-HARDEN-01): mask only generated_at + each ledger ts/entry_hash/prev_hash, then assert full RunResult recorded==fresh; the artifact is fully reproducible | Accepted |
 | 0032 | P2/P3 attack outcomes MEASURED live (agent-obey: canonical memos land 10/10 on qwen2.5:3b) + tractable Garak set completed to 11/11 (HijackKillHumans/HijackLongPrompt = 10/12); Garak N/12 is a family-level measure, not a per-memo scan | Accepted |
 | 0033 | Transitive pillow bumped 12.2.0 → 12.3.0 (uv.lock only) to clear 5 newly-published CVEs (PYSEC-2026-2253..2257) so the pip-audit gate stays green; no direct-dep or code change | Accepted |
+| 0034 | FINETUNE-SPIKE-01 lands a CAPACITY-BOUND negative (FT-EVAL): a specialized on-prem 3B (Unsloth QLoRA, Qwen2.5-3B matched control) scores 77%/76% vs the general-3B baseline 77%/78% on the frozen held-out band — prompting and specialization both fail on the same axis, so the gap is capacity not method; inference conditions matched to the baseline, weights gitignored, Modelfile committed | Accepted |
+| 0035 | Transitive setuptools bumped 82.0.1 → 83.0.0 (uv.lock only) to clear PYSEC-2026-3447 so the pip-audit gate stays green; no direct-dep or code change (mirrors ADR-0033) | Accepted |
 
 ---
 
@@ -1267,3 +1269,91 @@ split into its own PR) at the maintainer's request so the branch's gates go full
 change. A patch-level bump of an imaging library used only by the Streamlit UI / dataviz path; the
 deterministic core and the measurement work are unaffected. If the transitive bump ever needs
 pinning to survive a future re-resolution, promote it to a `[tool.uv]` constraint — not needed today.
+
+---
+
+## ADR-0034 — FINETUNE-SPIKE-01 lands a CAPACITY-BOUND negative: a specialized on-prem 3B does not close the held-out gap (FT-EVAL)
+
+**Status:** Accepted · **Date:** 2026-07-18
+
+**Context.** OPT-A-01b left an open question (ADR-0026, `OPEN_QUESTIONS.md`): qwen2.5:3b routed the
+bounded triage decision unreliably on a held-out probe — *part* prompt artifact, but the model
+ceiling looked real. The feasibility probe (`docs/paper/finetune_feasibility.md`) named a single
+decisive experiment: QLoRA-fine-tune a small base on the policy's own labelled decisions and measure
+held-out threshold-band accuracy vs the general-3B baseline. FINETUNE-SPIKE-01 Phase 1 froze a
+48-case held-out set *before any training data existed* (zero-contamination, asserted), built the
+disjoint training set + a single shared eval harness, and measured the **general-3B baseline: 37/48 =
+77% overall, 35/45 = 78% reserved-band** (`qwen2.5:3b`, 3 calls/case). The user then trained the
+adapter (Unsloth QLoRA, **Qwen2.5-3B-Instruct — the matched control**, 1 epoch, fp16/T4, exported
+q8_0 GGUF) and placed the GGUF + Unsloth Modelfile in the repo. FT-EVAL registers it on-prem and runs
+the decisive measurement.
+
+**Decision — the inference conditions must MATCH the baseline, not the Unsloth defaults.** Unsloth's
+exported Modelfile shipped three eval-corrupting defaults: `temperature 1.5`, `min_p 0.1`, and a
+stock-Qwen `SYSTEM` prompt. The eval harness (`scripts/finetune_eval.py` → `live_triage` →
+`complete()`) supplies its **own** system prompt (`TRIAGE_SYSTEM`) and, critically, its `complete()`
+path sends **no `options.temperature`** — so the *Modelfile* governs sampling. The frozen baseline
+was measured against **stock `qwen2.5:3b`, which pins no sampling parameters at all** (Ollama
+defaults). Therefore an apples-to-apples comparison — "only the MODEL differs" — requires the
+fine-tune to run under the **same Ollama-default sampling**, not `temperature 0`. The committed
+Modelfile: `FROM keystone-triage-ft.Q8_0.gguf`, **`SYSTEM` removed** (harness supplies it),
+**`temperature` and `min_p` stripped** (match the baseline's default sampling), `TEMPLATE` kept
+byte-for-byte, `stop` params kept. NB: the task brief's initial "set `temperature 0`" rested on a
+false premise (that the baseline was deterministic); the baseline was never deterministic, so temp 0
+would have been an *unmatched* comparison favouring the fine-tune — rejected. The 3.1GB GGUF and the
+2GB merged HF checkpoint are **gitignored, never committed**; the Modelfile **is** committed because
+it documents the exact reproducible inference conditions.
+
+**Result (measured 2026-07-18, same frozen 48-case harness, 3 calls/case, matched sampling):**
+
+| | specialized-3B | general-3B baseline |
+| --- | --- | --- |
+| Overall | 37/48 = 77% | 37/48 = 77% |
+| Reserved-band | 34/45 = 76% | 35/45 = 78% |
+| `remediate` | 4/7 (57%) | 2/7 (29%) |
+| `accept` | 13/19 (68%) | 13/19 (68%) |
+| `escalate` | 20/22 (91%) | 22/22 (100%) |
+
+**Verdict: CAPACITY-BOUND — the finding is completed, not a proof-of-concept.** Specialization did
+not close the gap: overall identical (77%), reserved band marginally *worse* (76% vs 78%). The
+fine-tune only **reshuffled** errors — it learned *clean-above-floor ⇒ remediate* for MEDIUM
+severity (`remediate` 4/7 vs 2/7) but **still misreads the sub-0.10 threshold** (`clean/LOW @
+0.12,0.15,0.18` → accept, wrong) and **newly regressed `escalate`** (`open/LOW @ 0.12,0.18` → accept;
+20/22 vs a perfect 22/22). Prompting (OPT-A-01b) **and** task-specialization now both fail on the same
+held-out band → the ceiling is **capacity, not method**.
+
+**Consequences.** The honest, narrow claim: *a specialized small on-prem 3B model does not reliably
+replicate the bounded routing decision general 3B got wrong on held-out cases* — NOT "reasons better
+than the policy" (impossible: the policy is the label ceiling) and NOT "a fine-tuned agent brain."
+The policy stays the deterministic default and fallback, now triply-evidenced (offline policy,
+prompt-rescue, specialization). The on-prem *capability* ask (ADR-0024/0025) stands and is sharpened:
+the compute ask is for a **larger** on-prem model, not a fine-tuned small one — a 3B, even specialized
+on the exact task, is under-capacity for the continuous-threshold routing axis. The Defense-agent
+fine-tune stays unbuilt (its weaker 2-leaf rule was gated on triage answering positively; it did
+not). Frozen held-out eval, training data, protocol, and `route_for` were untouched — the experiment
+is valid. The eval is mildly non-deterministic (Ollama-default sampling, as the baseline was); the
+≈-parity conclusion is robust to that noise.
+
+---
+
+## ADR-0035 — Transitive setuptools bumped 82.0.1 → 83.0.0 to clear the pip-audit gate (FT-EVAL)
+
+**Status:** Accepted · **Date:** 2026-07-18
+
+**Context.** While verifying the branch gates for FT-EVAL, the `pip-audit` gate (`make check` /
+`make verify`) went red on a **newly-published setuptools advisory** — PYSEC-2026-3447, fixed in
+setuptools **83.0.0**. `setuptools` is a **transitive** dependency (pulled by `pymilvus`, among
+others), not a direct keystone dependency, and the advisory is unrelated to any code on this branch:
+the failure reproduces on `main`. Per the non-negotiable "strict gates, never weakened — fix the code
+or ask," the honest fix is to advance the vulnerable dependency, not to suppress the finding
+(mirrors ADR-0033).
+
+**Decision.** `uv lock --upgrade-package setuptools` → setuptools **82.0.1 → 83.0.0** (uv.lock only;
+no change to `pyproject.toml`, so setuptools stays transitive and no new direct dependency is
+introduced). `uv sync` installed it; `pip-audit` reports **no known vulnerabilities**. Bundled into
+the FT-EVAL branch so its gates go fully green.
+
+**Consequences.** The security gate is green with the patched setuptools; no source or
+direct-dependency change, and the deterministic core / measurement work is unaffected (setuptools is
+a build/packaging tool, not imported at runtime). If the transitive bump ever needs pinning to
+survive a future re-resolution, promote it to a `[tool.uv]` constraint — not needed today.
