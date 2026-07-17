@@ -43,6 +43,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0032 | P2/P3 attack outcomes MEASURED live (agent-obey: canonical memos land 10/10 on qwen2.5:3b) + tractable Garak set completed to 11/11 (HijackKillHumans/HijackLongPrompt = 10/12); Garak N/12 is a family-level measure, not a per-memo scan | Accepted |
 | 0033 | Transitive pillow bumped 12.2.0 → 12.3.0 (uv.lock only) to clear 5 newly-published CVEs (PYSEC-2026-2253..2257) so the pip-audit gate stays green; no direct-dep or code change | Accepted |
 | 0034 | FINETUNE-SPIKE-01 lands a CAPACITY-BOUND negative (FT-EVAL): a specialized on-prem 3B (Unsloth QLoRA, Qwen2.5-3B matched control) scores 77%/76% vs the general-3B baseline 77%/78% on the frozen held-out band — prompting and specialization both fail on the same axis, so the gap is capacity not method; inference conditions matched to the baseline, weights gitignored, Modelfile committed | Accepted |
+| 0035 | Transitive setuptools bumped 82.0.1 → 83.0.0 (uv.lock only) to clear PYSEC-2026-3447 so the pip-audit gate stays green; no direct-dep or code change (mirrors ADR-0033) | Accepted |
 
 ---
 
@@ -1332,3 +1333,27 @@ fine-tune stays unbuilt (its weaker 2-leaf rule was gated on triage answering po
 not). Frozen held-out eval, training data, protocol, and `route_for` were untouched — the experiment
 is valid. The eval is mildly non-deterministic (Ollama-default sampling, as the baseline was); the
 ≈-parity conclusion is robust to that noise.
+
+---
+
+## ADR-0035 — Transitive setuptools bumped 82.0.1 → 83.0.0 to clear the pip-audit gate (FT-EVAL)
+
+**Status:** Accepted · **Date:** 2026-07-18
+
+**Context.** While verifying the branch gates for FT-EVAL, the `pip-audit` gate (`make check` /
+`make verify`) went red on a **newly-published setuptools advisory** — PYSEC-2026-3447, fixed in
+setuptools **83.0.0**. `setuptools` is a **transitive** dependency (pulled by `pymilvus`, among
+others), not a direct keystone dependency, and the advisory is unrelated to any code on this branch:
+the failure reproduces on `main`. Per the non-negotiable "strict gates, never weakened — fix the code
+or ask," the honest fix is to advance the vulnerable dependency, not to suppress the finding
+(mirrors ADR-0033).
+
+**Decision.** `uv lock --upgrade-package setuptools` → setuptools **82.0.1 → 83.0.0** (uv.lock only;
+no change to `pyproject.toml`, so setuptools stays transitive and no new direct dependency is
+introduced). `uv sync` installed it; `pip-audit` reports **no known vulnerabilities**. Bundled into
+the FT-EVAL branch so its gates go fully green.
+
+**Consequences.** The security gate is green with the patched setuptools; no source or
+direct-dependency change, and the deterministic core / measurement work is unaffected (setuptools is
+a build/packaging tool, not imported at runtime). If the transitive bump ever needs pinning to
+survive a future re-resolution, promote it to a `[tool.uv]` constraint — not needed today.
