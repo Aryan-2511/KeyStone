@@ -84,3 +84,46 @@ class Transaction(BaseModel):
                 f"sender and recipient must differ ({self.sender_account})"
             )
         return self
+
+
+# --------------------------------------------------------------------------- #
+# The untrusted-channel registry                                              #
+# --------------------------------------------------------------------------- #
+# SINGLE SOURCE OF TRUTH for the free-text fields a financial-crime detector must
+# NEVER read. `keystone.assurance.framework.project_financial` blanks every name in
+# this set before handing a stream to any detector, so the independence guarantee is
+# driven from here rather than from a hard-coded field name.
+#
+# Lives in the core, co-located with the model it describes: the set of untrusted
+# fields is a property of `Transaction` itself, and the core may not import the edge
+# (import-linter). The edge consumer imports inward, which is legal.
+#
+# ADDING A FREE-TEXT FIELD TO `Transaction` REQUIRES ADDING IT HERE. A field absent
+# from this set is one the detector can read — that is the whole invariant. The guard
+# below rejects names that are not real, `str`-typed model fields; it cannot detect a
+# free-text field someone forgot to register (see ADR-0035).
+UNTRUSTED_CHANNELS: frozenset[str] = frozenset({"memo"})
+
+
+def _validate_untrusted_channels() -> None:
+    """Fail loudly at import if the registry names a field that cannot be stripped.
+
+    `ValueError`, not `assert`: this must survive `python -O`, where asserts are
+    stripped and a misregistered channel would silently stop being blanked.
+    """
+    for name in sorted(UNTRUSTED_CHANNELS):
+        field = Transaction.model_fields.get(name)
+        if field is None:
+            raise ValueError(
+                f"UNTRUSTED_CHANNELS names {name!r}, which is not a field of "
+                f"Transaction (fields: {sorted(Transaction.model_fields)})"
+            )
+        if field.annotation is not str:
+            raise ValueError(
+                f"UNTRUSTED_CHANNELS names {name!r}, whose type is "
+                f"{field.annotation!r}; only str-typed (free-text) fields can be "
+                "blanked to ''"
+            )
+
+
+_validate_untrusted_channels()

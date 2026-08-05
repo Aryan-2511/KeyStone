@@ -24,7 +24,7 @@ from .generator import (
     sample_stream,
     structuring_cluster,
 )
-from .models import Currency, Transaction, TransactionType
+from .models import UNTRUSTED_CHANNELS, Currency, Transaction, TransactionType
 
 __all__ = [
     "LARGE_SAMPLE_STREAM_CONFIG",
@@ -32,6 +32,7 @@ __all__ = [
     "SAMPLE_STREAM_CONFIG",
     "STRUCTURING_MIN_COUNT",
     "STRUCTURING_THRESHOLD",
+    "UNTRUSTED_CHANNELS",
     "Currency",
     "StreamConfig",
     "Transaction",
