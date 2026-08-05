@@ -1,0 +1,157 @@
+% =====================================================================
+% Keystone paper — bibliography
+% [VERIFIED] = confirmed against a primary/authoritative source in drafting.
+% [CONFIRM AT SUBMISSION] = facts grounded, but citation format (esp. web/
+% incident sources) should be finalized against the live source by a human.
+% =====================================================================
+
+% ---------- Tier 1: agent-security benchmarks (position against) ----------
+
+% [VERIFIED] NeurIPS 2024; arXiv 2406.13352; pages 82895-82920
+@inproceedings{agentdojo,
+  title     = {{AgentDojo}: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for {LLM} Agents},
+  author    = {Debenedetti, Edoardo and Zhang, Jie and Balunovi\'c, Mislav and Beurer-Kellner, Luca and Fischer, Marc and Tram\`er, Florian},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {37},
+  pages     = {82895--82920},
+  year      = {2024}
+}
+
+% [VERIFIED] ICLR 2025; arXiv 2410.02644; full author list + venue confirmed
+@inproceedings{asb,
+  title     = {Agent Security Bench ({ASB}): Formalizing and Benchmarking Attacks and Defenses in {LLM}-based Agents},
+  author    = {Zhang, Hanrong and Huang, Jingyuan and Mei, Kai and Yao, Yifei and Wang, Zhenting and Zhan, Chenlu and Wang, Hongwei and Zhang, Yongfeng},
+  booktitle = {The Thirteenth International Conference on Learning Representations (ICLR)},
+  year      = {2025}
+}
+
+% [VERIFIED] Findings of ACL 2024; pages 10471-10506
+@inproceedings{injecagent,
+  title     = {{InjecAgent}: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents},
+  author    = {Zhan, Qiusi and Liang, Zhixiang and Ying, Zifan and Kang, Daniel},
+  booktitle = {Findings of the Association for Computational Linguistics (ACL)},
+  pages     = {10471--10506},
+  year      = {2024}
+}
+
+% [VERIFIED earlier this project] ICML 2025 Workshop on Computer Use Agents
+@inproceedings{wasp,
+  title     = {{WASP}: Benchmarking Web Agent Security Against Prompt Injection Attacks},
+  author    = {Evtimov, Ivan and Zharmagambetov, Arman and Grattafiori, Aaron and Guo, Chuan and Chaudhuri, Kamalika},
+  booktitle = {ICML 2025 Workshop on Computer Use Agents},
+  year      = {2025}
+}
+
+% ---------- Tier 2: defenses (differentiate from) ----------
+
+% [VERIFIED] arXiv 2503.18813, 2025; full author list confirmed
+@article{camel,
+  title   = {Defeating Prompt Injections by Design},
+  author  = {Debenedetti, Edoardo and Shumailov, Ilia and Fan, Tianqi and Hayes, Jamie and Carlini, Nicholas and Fabian, Daniel and Kern, Christoph and Shi, Chongyang and Terzis, Andreas and Tram\`er, Florian},
+  journal = {arXiv preprint arXiv:2503.18813},
+  year    = {2025}
+}
+
+% [VERIFIED] arXiv 2510.08829, Oct 2025; authors confirmed (was "Anonymous")
+@article{commandsans,
+  title   = {{CommandSans}: Securing AI Agents with Surgical Precision Prompt Sanitization},
+  author  = {Das, Debeshee and Beurer-Kellner, Luca and Fischer, Marc and Baader, Maximilian},
+  journal = {arXiv preprint arXiv:2510.08829},
+  year    = {2025}
+}
+
+% [VERIFIED] arXiv 2502.05174, 2025
+@article{melon,
+  title   = {{MELON}: Indirect Prompt Injection Defense via Masked Re-execution and Tool Comparison},
+  author  = {Zhu, Kaijie and Yang, Xianjun and Wang, Jindong and Guo, Wenbo and Wang, William Yang},
+  journal = {arXiv preprint arXiv:2502.05174},
+  year    = {2025}
+}
+
+% ---------- Tier 3: standards / threat-model anchors ----------
+
+% [VERIFIED earlier this project] AISec 2023 (foundational indirect-PI paper)
+@inproceedings{greshake,
+  title     = {Not What You've Signed Up For: Compromising Real-World {LLM}-Integrated Applications with Indirect Prompt Injection},
+  author    = {Greshake, Kai and Abdelnabi, Sahar and Mishra, Shailesh and Endres, Christoph and Holz, Thorsten and Fritz, Mario},
+  booktitle = {Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security (AISec)},
+  year      = {2023}
+}
+
+% [CONFIRM AT SUBMISSION] cite the specific LLM01:2025 entry/URL as live
+@misc{owasp,
+  title        = {{OWASP} Top 10 for Large Language Model Applications --- {LLM01:2025} Prompt Injection},
+  author       = {{OWASP Foundation}},
+  year         = {2025},
+  howpublished = {\url{https://owasp.org/www-project-top-10-for-large-language-model-applications/}}
+}
+
+% [CONFIRM AT SUBMISSION] FATF Recommendations, current consolidated edition/year
+@misc{fatf,
+  title        = {International Standards on Combating Money Laundering and the Financing of Terrorism \& Proliferation --- The {FATF} Recommendations},
+  author       = {{Financial Action Task Force}},
+  year         = {2023},
+  howpublished = {\url{https://www.fatf-gafi.org/}}
+}
+
+% [CONFIRM AT SUBMISSION] verify regulation number 2024/1689 + Article 15
+@misc{euaiact,
+  title        = {Regulation (EU) 2024/1689 (Artificial Intelligence Act), Article~15: Accuracy, Robustness and Cybersecurity},
+  author       = {{European Parliament and Council}},
+  year         = {2024},
+  howpublished = {Official Journal of the European Union}
+}
+
+% [CONFIRM AT SUBMISSION] fills the previously-empty NeMo Agent Toolkit \cite{}
+@misc{nat,
+  title        = {{NeMo} Agent Toolkit},
+  author       = {{NVIDIA}},
+  year         = {2025},
+  howpublished = {\url{https://developer.nvidia.com/}}
+}
+
+% ---------- Tier 4: real incidents (motivate + ground) ----------
+% Facts grounded in docs/paper/incident_grounding.md; CONFIRM citation form + URL.
+
+@misc{freysa,
+  title        = {The Freysa Challenge: An Autonomous Agent Prompt-Injected into Releasing a Guarded Fund},
+  author       = {Willison, Simon},
+  year         = {2024},
+  howpublished = {\url{https://simonwillison.net/}}
+}
+
+@misc{slowmist,
+  title        = {Behind the Grok Exploitation: An Analysis of AI Agent Permission-Chain Abuse},
+  author       = {{SlowMist}},
+  year         = {2026},
+  howpublished = {\url{https://slowmist.medium.com/}}
+}
+
+@misc{oecdai,
+  title        = {{AI} Incident Monitor: Grok/Bankrbot Unauthorized Token Transfer},
+  author       = {{OECD.AI}},
+  year         = {2026},
+  howpublished = {\url{https://oecd.ai/en/incidents/}}
+}
+
+@misc{zscaler,
+  title        = {{ThreatLabz}: Indirect Prompt Injection Campaigns Against Agentic Systems in the Wild},
+  author       = {{Zscaler ThreatLabz}},
+  year         = {2026},
+  howpublished = {Threat intelligence report}
+}
+
+@misc{arup,
+  title        = {Finance Worker Pays Out \$25 Million After Video Call with Deepfake Chief Financial Officer},
+  author       = {{CNN Business}},
+  year         = {2024},
+  howpublished = {\url{https://www.cnn.com/}}
+}
+
+% [VERIFIED earlier this project] MCP security survey
+@article{mcpsecurity,
+  title   = {Systematic Analysis of {MCP} Security},
+  author  = {Guo, Yongjian and Liu, Puzhuo and Ma, Wanlun and Deng, Zehang and Zhu, Xiaogang and Di, Peng and Xiao, Xi and Wen, Sheng},
+  journal = {arXiv preprint arXiv:2508.12538},
+  year    = {2025}
+}
