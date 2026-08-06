@@ -458,7 +458,7 @@
       "tests": [
         "tests/test_fatf.py::test_structuring_cluster_is_detected",
         "tests/test_fatf.py::test_normal_stream_has_no_findings",
-        "tests/test_fatf.py::test_detection_is_memo_blind",
+        "tests/test_fatf.py::test_detection_is_channel_blind",
         "tests/test_fatf.py::test_large_transfer_threshold_boundary",
         "tests/test_fatf.py::test_record_findings_writes_ledger_entries"
       ]
