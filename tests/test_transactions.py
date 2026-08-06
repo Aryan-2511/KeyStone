@@ -55,9 +55,20 @@ def test_valid_transaction_round_trips() -> None:
 @pytest.mark.parametrize(
     ("field", "value"),
     [
-        ("id", "TX-1"),  # malformed id
+        # NOTE (ADR-0037): the exemplar here was "TX-1" while ids had to match
+        # ^TXN-\d{6}$. Under the additive ISO relaxation "TX-1" is a LEGAL EndToEndId
+        # (1-35 chars, valid charset), so it is no longer a malformed id and cannot
+        # stand as one. The test's intent is unchanged — a malformed id fails loud —
+        # so the exemplar moves to one that is malformed under BOTH regimes: '#' is
+        # outside the ISO Max35Text charset. The cases below widen the negative
+        # coverage the relaxation now has to carry.
+        ("id", "TX#1"),  # illegal character (malformed under legacy AND ISO)
+        ("id", ""),  # empty
+        ("id", " TXN-000001"),  # leading whitespace
+        ("id", "A" * 36),  # over the ISO 35-char ceiling
         ("sender_account", "0001"),  # malformed account
         ("recipient_account", "ACC-1"),  # malformed account
+        ("recipient_account", "DE89"),  # IBAN-ish but too short to be one
         ("amount", -5.0),  # non-positive
         ("amount", 0.0),  # non-positive
         ("currency", "XYZ"),  # bad enum
@@ -68,6 +79,51 @@ def test_malformed_transaction_fails_loud(field: str, value: object) -> None:
     bad = {**_VALID, field: value}
     with pytest.raises(ValidationError):
         Transaction.model_validate(bad)
+
+
+def test_iso_shaped_identifiers_are_accepted() -> None:
+    # ADR-0037: the model is ISO-CAPABLE. An IBAN account pair and an ISO 20022
+    # EndToEndId construct successfully — alongside, not instead of, the legacy shapes
+    # (pinned by `test_valid_transaction_round_trips`, which still uses TXN-/ACC-).
+    txn = Transaction.model_validate(
+        {
+            **_VALID,
+            "id": "E2E-REF-778899",
+            "sender_account": "DE89370400440532013000",
+            "recipient_account": "GB33BUKB20201555555555",
+        }
+    )
+    assert txn.id == "E2E-REF-778899"
+    assert txn.sender_account == "DE89370400440532013000"
+    assert Transaction.model_validate(txn.model_dump(mode="json")) == txn
+
+
+def test_uuid_message_id_is_accepted_in_its_max35text_form() -> None:
+    # An ISO 20022 MsgId is commonly a UUID — but MsgId is `Max35Text`, and the
+    # CANONICAL hyphenated UUID is 36 characters, so it does not fit. ISO senders use
+    # the 32-char hex form, which does. Both halves are asserted here so the ceiling is
+    # understood as ISO's rule, not an arbitrary local choice (ADR-0037).
+    # The RFC 4122 §C.1 example UUID, hyphens stripped. Not a credential — the
+    # allowlist pragma is for detect-secrets' hex-entropy heuristic, which cannot tell
+    # a published example identifier from a key.
+    compact = "f81d4fae7dec11d0a76500a0c91e6bf6"  # 32 chars  # pragma: allowlist secret
+    assert len(compact) == 32
+    txn = Transaction.model_validate({**_VALID, "id": compact})
+    assert txn.id == compact
+
+    canonical = "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"  # 36 chars — over Max35Text
+    assert len(canonical) == 36
+    with pytest.raises(ValidationError):
+        Transaction.model_validate({**_VALID, "id": canonical})
+
+
+def test_legacy_identifiers_still_validate_unchanged() -> None:
+    # The additive half of ADR-0037, asserted directly: the relaxation must not cost
+    # the legacy shapes their validity, which is what keeps recorded_run.json and every
+    # existing TXN-/ACC- fixture untouched by this change.
+    txn = Transaction.model_validate(_VALID)
+    assert txn.id == "TXN-000001"
+    assert (txn.sender_account, txn.recipient_account) == ("ACC-0001", "ACC-0002")
 
 
 def test_self_transfer_is_rejected() -> None:

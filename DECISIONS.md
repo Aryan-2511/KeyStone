@@ -45,6 +45,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0034 | FINETUNE-SPIKE-01 lands a CAPACITY-BOUND negative (FT-EVAL): a specialized on-prem 3B (Unsloth QLoRA, Qwen2.5-3B matched control) scores 77%/76% vs the general-3B baseline 77%/78% on the frozen held-out band — prompting and specialization both fail on the same axis, so the gap is capacity not method; inference conditions matched to the baseline, weights gitignored, Modelfile committed | Accepted |
 | 0035 | Transitive setuptools bumped 82.0.1 → 83.0.0 (uv.lock only) to clear PYSEC-2026-3447 so the pip-audit gate stays green; no direct-dep or code change (mirrors ADR-0033) | Accepted |
 | 0036 | The untrusted-channel registry (ISO 20022 Phase 1): the memo-blind strip generalized to a registry-driven, channel-agnostic FLAT SET (`UNTRUSTED_CHANNELS`) in the core, co-located with `Transaction`; disjointness enforced behaviourally via parametrized tests; behaviour-preserving at `{memo}` (recorded_run.json not re-recorded) | Accepted |
+| 0037 | Identifier validators relaxed ADDITIVELY (ISO 20022 Phase 2): accept legacy `TXN-######`/`ACC-####` AND ISO shapes (Max35Text EndToEndId, IBAN) — the model becomes ISO-CAPABLE, not ISO-shaped; the generator still emits legacy ids and recorded_run.json is unchanged; the model validator and the narrative id tokenizer are kept in documented lockstep (Trap 1) | Accepted |
 
 ---
 
@@ -1447,3 +1448,87 @@ it automatically. The un-guarded risk is forgetting the registry line (Finding #
 Phase-2 tripwire above is what catches it in practice. An intra-core import-linter contract
 (`core.transactions ⇏ core.fatf`) was considered and deliberately **deferred** — it guards
 the Phase-3 ingester and needs its own verification that nothing currently violates it.
+
+---
+
+## ADR-0037 — Identifier validators relaxed ADDITIVELY: the substrate becomes ISO-capable, not ISO-shaped (ISO 20022 Phase 2)
+
+**Status:** Accepted · **Date:** 2026-08-07
+
+**Context.** `Transaction` validated identifiers against two exact synthetic shapes —
+`_ID_RE = ^TXN-\d{6}$` and `_ACCOUNT_RE = ^ACC-\d{4}$`. Nothing an ISO 20022 message
+carries satisfies either: an IBAN is `DE89370400440532013000`, an EndToEndId is free-form
+`Max35Text`, a MsgId is often a UUID. Phase 3 introduces an ingester that must construct
+`Transaction`s from real ISO payloads, so the validators have to widen before then.
+
+Widening them by REPLACEMENT would have forced churn across 101 live `TXN-`/`ACC-`
+literals plus 87 identifiers inside `recorded_run.json`, and would have re-recorded the
+demo artifact — destroying, in the same commit, the canary that tells us whether anything
+substantive moved. That cost buys nothing this phase actually needs.
+
+**Decision.**
+
+*(i) Additive relaxation — accept BOTH, change nothing that works.* Each validator now
+admits the legacy shape **and** the ISO shape:
+
+    _ID_RE      = ^(?=.{1,35}$)
+                  [A-Za-z0-9]
+                  (?:[A-Za-z0-9/\-?:().,'+ ]*[A-Za-z0-9])?$
+
+    _ACCOUNT_RE = ^(?:ACC-\d{4}|[A-Za-z]{2}\d{2}[A-Za-z0-9]{1,30})$
+
+(`_ID_RE` is wrapped across lines so that a closing square bracket never sits directly
+against an opening parenthesis: that two-character sequence reads as the start of a
+markdown link and trips the relative-link checker in `tests/test_docs.py`.)
+
+Every existing fixture validates unchanged, `recorded_run.json` is untouched, and no
+positive test literal moved. The account rule stays an ALTERNATION of two strictly
+structured shapes rather than a permissive charset, so the screen remains positive
+validation, not "accept anything": empty, all-punctuation, leading/trailing-whitespace and
+over-length ids still fail loud, and the `sender != recipient` check is untouched.
+
+*(ii) The generator is NOT changed.* `generate_stream` still emits `TXN-{i:06d}` /
+`ACC-{i:04d}`. The model is ISO-**capable**; the substrate is not yet ISO-**shaped**.
+Making the generator emit ISO identifiers is explicitly DEFERRED — it changes the seam
+transaction's identity (findings sort on `(typology, account)`; transfers sort on
+`(timestamp, id)`, so id format selects which transfer is `transaction_ids[0]`), and it
+forces the re-record. That belongs in its own commit with its own verification.
+
+*(iii) Two regexes, kept in documented lockstep.* `core/reporting/facts.py::_ID_RE` is a
+SECOND, independent identifier regex — the narrative tokenizer. `_numbers()` strips ids
+from a narrative before parsing amounts, so an id shape the tokenizer does not recognise
+keeps its digit-run, that run reads as a phantom amount absent from the facts, and
+`narrative_is_faithful` returns False. Nothing raises: the report still files, but always
+with the template narrative and the LLM narrative silently discarded ("Trap 1"). Both
+sites now carry a cross-reference comment naming the other, and the coupling is pinned
+behaviourally by `tests/test_faithfulness_guard.py`, which was committed one commit EARLIER
+carrying `xfail(strict=True)` so the trap was demonstrated failing before it was fixed.
+
+*(iv) The tokenizer is deliberately NARROWER than the validator, permanently.* The model
+validates one field already known to be an identifier, so it can accept the full
+`Max35Text` charset. The tokenizer scans free prose, where that charset — which includes
+spaces, commas and periods — would swallow whole sentences, amounts included, and blind the
+guard completely. The tokenizer therefore matches only shapes that are unambiguously
+identifiers in running text: legacy `TXN-`/`ACC-`, IBAN, UUID, and hyphenated uppercase
+references. An ISO id outside those shapes is not stripped; that is a conservative failure
+(over-strict guard, never a silent pass) and it is what the tripwire test fences.
+
+**Consequences.** `recorded_run.json` is byte-unchanged and was not re-recorded — the Phase-1
+canary still works, and still means something for the Axis A/C/D commits that follow. Two
+deliberate test changes were required, neither a positive-fixture edit:
+
+- `test_malformed_transaction_fails_loud` carried `("id", "TX-1")` as its malformed
+  exemplar. Under ISO, `TX-1` is a **legal** EndToEndId (1–35 chars, valid charset), so it
+  is no longer malformed and cannot stand as the exemplar. Inventing a minimum-length floor
+  purely to keep rejecting it would have been fake rigor, not an ISO rule. The exemplar
+  moved to `TX#1` (`#` is outside `Max35Text`), malformed under BOTH regimes, and empty /
+  leading-whitespace / over-length / short-IBAN cases were added so the negative coverage is
+  strictly wider than before.
+- ISO `MsgId` is `Max35Text`, and a **canonical hyphenated UUID is 36 characters** — so it
+  is not a valid MsgId at all. Only the 32-char hex form fits. The test asserts both
+  directions, so the 35-char ceiling is understood as ISO's rule rather than a local choice.
+
+Deferred to later Phase-2 commits: `amount: float → Decimal` (Axis A, which breaks the
+ledger's `json.dumps` and silently breaks this same faithfulness guard through a
+`Decimal`/`float` set comparison), jurisdiction fields (Axis C), ISO free-text channels
+(Axis D), and the single re-record that closes the phase.

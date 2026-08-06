@@ -26,8 +26,6 @@ from __future__ import annotations
 
 import datetime
 
-import pytest
-
 from keystone.core.reporting import ReportFacts, narrative_is_faithful
 
 _T0 = datetime.datetime(2026, 3, 1, 12, 0, tzinfo=datetime.UTC)
@@ -84,25 +82,17 @@ def test_faithful_narrative_with_legacy_ids_is_faithful() -> None:
     assert narrative_is_faithful(narrative, facts) is True
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Trap 1: facts.py id-tokenizer does not strip ISO-shaped ids yet; "
-        "fixed in commit 2 of this PR"
-    ),
-)
 def test_faithful_narrative_with_iso_shaped_ids_is_faithful() -> None:
-    # THE TRAP. This narrative is faithful by construction: every amount it cites
-    # (9011.52) is in the facts, and every id it cites is in the facts. The ONLY
+    # THE TRAP, now closed. This narrative is faithful by construction: every amount it
+    # cites (9011.52) is in the facts, and every id it cites is in the facts. The ONLY
     # difference from the baseline above is the SHAPE of the identifiers.
     #
-    # Against the current tokenizer this returns False, because `_ID_RE` matches only
-    # `(?:TXN|ACC)-\d+`. The IBAN's "89370400440532013000" and the reference's "778899"
-    # are therefore never stripped, `_NUMBER_RE` reads them as amounts, and the subset
-    # check `_numbers(narrative) <= _allowed_numbers(facts)` fails.
-    #
-    # strict=True: the moment commit 2 widens the tokenizer this test PASSES, pytest
-    # reports XPASS-as-failure, and the stale marker cannot be forgotten.
+    # Before the tokenizer was widened this returned False: `_ID_RE` matched only
+    # `(?:TXN|ACC)-\d+`, so the IBAN's "89370400440532013000" and the reference's
+    # "778899" were never stripped, `_NUMBER_RE` read them as amounts, and the subset
+    # check `_numbers(narrative) <= _allowed_numbers(facts)` failed. It carried
+    # xfail(strict=True) for exactly one commit; the marker came off when the tokenizer
+    # learned the IBAN / UUID / hyphenated-reference shapes.
     facts = _facts(
         account=_IBAN,
         transaction_id=_END_TO_END_ID,
