@@ -43,7 +43,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from keystone.core.fatf import Finding, Typology
-from keystone.core.transactions import Transaction
+from keystone.core.transactions import UNTRUSTED_CHANNELS, Transaction
 
 from .signature import VulnerabilitySignature
 
@@ -84,8 +84,9 @@ class FinancialProjection:
 
     Constructed solely by `project_financial`. A `CrimeSide.detect` is typed to take
     this wrapper — never a raw `Transaction` stream — so the detector structurally
-    cannot read the attack-bearing field. `channel` records which carrier was
-    stripped (audit / the framework-level independence test).
+    cannot read the attack-bearing field. `channel` records the pair's DECLARED
+    carrier, for audit and the framework-level independence test; it does not decide
+    what gets stripped (the registry does — see `project_financial`).
     """
 
     transactions: tuple[Transaction, ...]
@@ -95,15 +96,25 @@ class FinancialProjection:
 def project_financial(
     stream: Sequence[Transaction], channel: AttackChannel
 ) -> FinancialProjection:
-    """Strip every attack channel from `stream`, leaving only the financial signal.
+    """Strip every untrusted channel from `stream`, leaving only the financial signal.
 
     The financial signal is amounts, timing, accounts, recipients, type — never the
-    free-text `memo` (the only attack-bearing field a `Transaction` carries; the
-    tool-call / exfil channels do not ride the transaction record at all). Blanking
-    the memo regardless of `channel` makes the independence guarantee structural:
-    whatever the attack rode, the detector receives a memo-free event.
+    free-text fields registered in `keystone.core.transactions.UNTRUSTED_CHANNELS`,
+    which is the single source of truth for what a detector must not read. Today that
+    registry is `{"memo"}`.
+
+    The strip is a FLAT SET, applied unconditionally — `channel` is recorded on the
+    projection for audit but never consulted to decide what gets blanked. That is
+    deliberate, and it is what makes the guarantee structural rather than
+    bookkeeping: a pair's declared `channel` and the field its attack physically
+    rides can differ (P5 declares `TOOL_CALL` yet plants into `memo`, `seam_p5.py`;
+    P4 declares `EXFIL` and its recognizer reads `memo`). Keying the strip on
+    `channel` would leave those attacks in the projection. Blanking every registered
+    field regardless of channel means whatever the attack rode, the detector receives
+    an event free of every untrusted channel. See ADR-0036.
     """
-    stripped = tuple(txn.model_copy(update={"memo": ""}) for txn in stream)
+    blanked = {field: "" for field in UNTRUSTED_CHANNELS}
+    stripped = tuple(txn.model_copy(update=blanked) for txn in stream)
     return FinancialProjection(transactions=stripped, channel=channel)
 
 

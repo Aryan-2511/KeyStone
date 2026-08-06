@@ -26,6 +26,7 @@ from keystone.assurance.framework import (
     SeamPair,
     financial_projection_for,
 )
+from keystone.core.transactions import UNTRUSTED_CHANNELS
 
 # Modules on the DETECTION path the offense agent must never reach into.
 _FORBIDDEN_IMPORTS = (
@@ -61,15 +62,17 @@ def test_agent_module_has_no_path_to_the_detector() -> None:
     assert not any(m.startswith("keystone.core") for m in imports)
 
 
+@pytest.mark.parametrize("field", sorted(UNTRUSTED_CHANNELS))
 @pytest.mark.parametrize("pair", REGISTERED_PAIRS, ids=lambda p: p.pair_id)
-def test_independence_holds_with_the_agent_present(pair: SeamPair) -> None:
+def test_independence_holds_with_the_agent_present(pair: SeamPair, field: str) -> None:
     # Run the agent (offense) FIRST, then assert the detector still receives a
-    # memo-blind projection for every registered pair — the agent changes nothing
-    # about the independence guarantee (locks at framework.py project_financial/detect).
+    # channel-blind projection for every (registered pair × registered untrusted
+    # channel) — the agent changes nothing about the independence guarantee (locks at
+    # framework.py project_financial/detect).
     run_red_team(profile_observe(red_team.RECORDED_DEFENSE_PROFILE))
     projection = financial_projection_for(pair)
     assert isinstance(projection, FinancialProjection)
-    assert all(txn.memo == "" for txn in projection.transactions)
+    assert all(getattr(txn, field) == "" for txn in projection.transactions)
 
 
 def test_agent_attack_probes_never_appear_in_a_financial_projection() -> None:

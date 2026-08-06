@@ -130,6 +130,13 @@ bound on the shared transaction id — and the two detections are held *independ
 memo-blind boundary (the FATF detector never reads the attack channel), which is what keeps
 the convergence result trustworthy rather than circular.
 
+The boundary is enforced by `project_financial` (`keystone.assurance.framework`), which blanks
+every field named in `keystone.core.transactions.UNTRUSTED_CHANNELS` — a registry co-located
+with the `Transaction` model, and the single source of truth for what a detector must not read
+(`ADR-0036`). The strip is unconditional and channel-agnostic, so it is not tied to any one
+field name; today the registry holds `{"memo"}`, which is why the property is still called
+memo-blindness throughout these docs.
+
 ```mermaid
 flowchart LR
     RTX["AI-security side (L2): Red-Team Agent finds a memo prompt-injection (latentinjection, OWASP LLM01)"]

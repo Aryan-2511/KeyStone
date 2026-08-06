@@ -44,6 +44,7 @@ then `**Context.**` / `**Decision.**` / `**Consequences.**` paragraphs.
 | 0033 | Transitive pillow bumped 12.2.0 → 12.3.0 (uv.lock only) to clear 5 newly-published CVEs (PYSEC-2026-2253..2257) so the pip-audit gate stays green; no direct-dep or code change | Accepted |
 | 0034 | FINETUNE-SPIKE-01 lands a CAPACITY-BOUND negative (FT-EVAL): a specialized on-prem 3B (Unsloth QLoRA, Qwen2.5-3B matched control) scores 77%/76% vs the general-3B baseline 77%/78% on the frozen held-out band — prompting and specialization both fail on the same axis, so the gap is capacity not method; inference conditions matched to the baseline, weights gitignored, Modelfile committed | Accepted |
 | 0035 | Transitive setuptools bumped 82.0.1 → 83.0.0 (uv.lock only) to clear PYSEC-2026-3447 so the pip-audit gate stays green; no direct-dep or code change (mirrors ADR-0033) | Accepted |
+| 0036 | The untrusted-channel registry (ISO 20022 Phase 1): the memo-blind strip generalized to a registry-driven, channel-agnostic FLAT SET (`UNTRUSTED_CHANNELS`) in the core, co-located with `Transaction`; disjointness enforced behaviourally via parametrized tests; behaviour-preserving at `{memo}` (recorded_run.json not re-recorded) | Accepted |
 
 ---
 
@@ -1357,3 +1358,92 @@ the FT-EVAL branch so its gates go fully green.
 direct-dependency change, and the deterministic core / measurement work is unaffected (setuptools is
 a build/packaging tool, not imported at runtime). If the transitive bump ever needs pinning to
 survive a future re-resolution, promote it to a `[tool.uv]` constraint — not needed today.
+
+---
+
+## ADR-0036 — The untrusted-channel registry: the memo-blind strip generalized to a registry-driven, channel-agnostic flat set (ISO 20022 Phase 1)
+
+**Status:** Accepted · **Date:** 2026-08-07
+
+**Context.** The sacred independence guarantee (`ADR-0016`) — the FATF crime detector never
+reads the field the attack rides — was implemented in `project_financial` as a literal,
+single-field strip (`txn.model_copy(update={"memo": ""})`). That was exactly right while
+`Transaction` had exactly one free-text field. The ISO 20022 migration adds more free-text
+channels to the transaction record, and a hard-coded `memo=""` silently stops covering the
+boundary the moment one lands: a new free-text field would ride straight into the
+`FinancialProjection` and the detector could read it. What the strip lacked was a **single
+source of truth** that a new free-text field must be added to.
+
+Two findings shaped the design.
+
+**Finding #1 — channel ≠ field.** `AttackChannel` (the pair's DECLARED carrier) and the
+field the attack physically rides are not the same thing. P5 declares
+`AttackChannel.TOOL_CALL` but plants its marker into `memo` (`seam_p5.py:101`) and
+recognises it via `txn.memo` (`seam_p5.py:123`); P4 declares `EXFIL` and its recogniser
+likewise reads `txn.memo` (`seam_p4.py:82`). The tool-call and exfil channels are
+*synthetically represented* in the memo — an honest caveat already recorded in those
+modules. A per-channel strip map keyed on the declared channel would therefore leave P4's
+and P5's actual attack content sitting in the projection.
+
+**Finding #2 — a guard cannot detect omission.** A registry can validate that every name it
+lists is a real, `str`-typed field of `Transaction`. It cannot detect a free-text field
+somebody added to `Transaction` and forgot to register. That residual risk is carried by the
+docstring contract and by a behavioural tripwire, not by the type system.
+
+**Decision.**
+
+*(i) A FLAT SET, not a per-channel map.* `UNTRUSTED_CHANNELS: frozenset[str] =
+frozenset({"memo"})`. `project_financial` blanks EVERY registered field **unconditionally**,
+regardless of the pair's declared channel. `channel` remains on `FinancialProjection` for
+audit — recorded, never consulted to decide what gets blanked (which is what the code
+already did). Finding #1 is the rationale: keying the strip on the declared channel would
+under-strip P4/P5. The signature `(stream, channel)` is unchanged.
+
+*(ii) Placement in the core, co-located with the model.* The registry lives in
+`src/keystone/core/transactions/models.py`, directly below `Transaction`. The set of
+untrusted fields is a property of the model itself, so it belongs beside the model whose
+fields it names; and the import-linter contract forbids core → edge, so the registry could
+not live in `keystone.assurance` and still be a core-owned truth. Its consumer
+(`project_financial`) is edge and imports **inward**, which is legal — no new contract
+violation. A module-level guard raises `ValueError` — **not** `assert`, which `python -O`
+strips, letting a misregistered channel silently stop being blanked — if a registered name
+is not a field of `Transaction`, or is not `str`-typed (only free text can be blanked
+to `""`).
+
+*(iii) The disjointness invariant is enforced BEHAVIOURALLY, not by inspection.* The
+independence tests are parametrized over `UNTRUSTED_CHANNELS`, so registering a new field
+automatically subjects the real engine to the same bar rather than requiring someone to
+remember to write a test. `test_detection_is_channel_blind` and
+`test_unauthorized_recipient_is_memo_blind` (`tests/test_fatf.py`) assert
+`detect(blank) == detect(filled)` per registered field against the real FATF engine; the
+four projection-emptiness assertions become (pair × registered field) products
+(`test_seam_framework.py`, `test_defense_boundary.py`, `test_red_team_boundary.py`,
+`test_triage_boundary.py`).
+
+*(iv) `financial_detection_gap` is deliberately NOT converted to a stripper-based path.* It
+takes a raw `Sequence[Transaction]` and never routes through `project_financial` — it is
+engine-blind by construction rather than by projection. Reshaping it to consume a
+`FinancialProjection` would have been a real behaviour change on the Movement-C remediation
+path for no gain. Instead it is held to the same channel-blind bar behaviourally, by
+`test_applying_c_is_memo_blind_blank_equals_injected` (`tests/test_defense_boundary.py`),
+now parametrized over the registry.
+
+*(v) The recognise / plant / guardrail paths stay memo-specific — a Phase-2 concern.*
+`seam_p*.recognize`, the planters, and the input-rail guard (`guard.py:79`) still read and
+write `memo` by name. That is deliberate scope: this phase generalizes only the
+DETECTION-side strip, which is the sacred boundary.
+`test_seam_framework.py::test_projection_strips_real_attack_content` is left unparametrized
+on purpose — it routes through the *recogniser* rather than `.memo`, which makes it the
+Phase-2 tripwire: it fails if a future attack plants into a new field that was never
+registered.
+
+**Consequences.** Behaviour-preserving at one registered field: `frozenset({"memo"})` makes
+`project_financial` do exactly what the literal `memo=""` did. `recorded_run.json` was **not**
+re-recorded, and the exhaustive normalized-equality reproducibility test (`ADR-0031`) passes
+against the unchanged artifact — that is the canary proving this was a refactor, not a
+behaviour change. Adding an ISO 20022 free-text channel is now a two-line change (add the
+field to `Transaction`, add its name to the registry) and every independence test extends to
+it automatically. The un-guarded risk is forgetting the registry line (Finding #2); the
+Phase-2 tripwire above is what catches it in practice. An intra-core import-linter contract
+(`core.transactions ⇏ core.fatf`) was considered and deliberately **deferred** — it guards
+the Phase-3 ingester and needs its own verification that nothing currently violates it.

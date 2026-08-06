@@ -36,6 +36,7 @@ from keystone.assurance.framework import (
     SeamPair,
     financial_projection_for,
 )
+from keystone.core.transactions import UNTRUSTED_CHANNELS
 
 # The triage SUBMODULE — fetched via importlib because the package namespace binds the
 # name ``triage`` to the function (re-exported in keystone.agents.__init__), not the
@@ -90,12 +91,15 @@ def test_neither_agent_reaches_the_detector() -> None:
         assert not any(m.startswith("keystone.core.fatf") for m in imports)
 
 
+@pytest.mark.parametrize("field", sorted(UNTRUSTED_CHANNELS))
 @pytest.mark.parametrize("pair", REGISTERED_PAIRS, ids=lambda p: p.pair_id)
-def test_independence_holds_with_both_agents_present(pair: SeamPair) -> None:
+def test_independence_holds_with_both_agents_present(
+    pair: SeamPair, field: str
+) -> None:
     # Run BOTH agents — the offense (Red-Team) AND the supervisor (Triage) — then
-    # assert the detector still receives a memo-blind projection for every registered
-    # pair. Neither agent changes the independence guarantee (locks at framework.py
-    # project_financial / detect).
+    # assert the detector still receives a channel-blind projection for every
+    # (registered pair × registered untrusted channel). Neither agent changes the
+    # independence guarantee (locks at framework.py project_financial / detect).
     run_red_team(profile_observe(red_team.RECORDED_DEFENSE_PROFILE))
     run_triage(
         TriageSignals(
@@ -106,7 +110,7 @@ def test_independence_holds_with_both_agents_present(pair: SeamPair) -> None:
     )
     projection = financial_projection_for(pair)
     assert isinstance(projection, FinancialProjection)
-    assert all(txn.memo == "" for txn in projection.transactions)
+    assert all(getattr(txn, field) == "" for txn in projection.transactions)
 
 
 def test_triage_signals_carry_no_attack_channel_content() -> None:

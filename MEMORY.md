@@ -644,8 +644,10 @@
   + resolvable attack implicate the SAME operative tx id), and build-failing drift
   (disagreement raises `SeamDriftError`). **The independence guarantee is a framework
   PROPERTY, not a per-pair test:** `bind` only ever hands the crime detector a
-  `FinancialProjection` (the event with the memo/attack channel stripped, via
-  `project_financial`), and `CrimeSide.detect` is *typed* to accept that wrapper and
+  `FinancialProjection` (the event with every untrusted channel stripped, via
+  `project_financial` — since `ADR-0036` a registry-driven strip over
+  `core.transactions.UNTRUSTED_CHANNELS`, not a hard-coded `memo`), and
+  `CrimeSide.detect` is *typed* to accept that wrapper and
   nothing else — so the detector structurally cannot read the attack channel. A
   BOUNDARY pair's result IS the negative (`bind` asserts ZERO typologies fire; P4 will
   slot in here). P1 is re-expressed as `P1_PAIR` (in `keystone.assurance.seam`) and
@@ -1176,3 +1178,21 @@
   agency tests); latentinjection still exploited (tie-break); seam still binds; triage still
   ESCALATE (failure_rate now the accurate 0.92). recorded_run.json regenerated; recorded==fresh.
   (`ADR-0023`.)
+- **The memo-blind boundary is now REGISTRY-DRIVEN (ISO 20022 Phase 1, `ADR-0036`).**
+  `UNTRUSTED_CHANNELS: frozenset[str] = frozenset({"memo"})` lives in
+  `core/transactions/models.py` directly below `Transaction` — the SINGLE SOURCE OF TRUTH for
+  the free-text fields the crime detector must never read. `project_financial` blanks EVERY
+  registered field unconditionally; `channel` is still recorded on `FinancialProjection` but
+  (as before) never consulted to decide what gets stripped. The strip is a FLAT SET, not a
+  per-channel map, because **channel ≠ field**: P5 declares `TOOL_CALL` yet plants into
+  `memo` (`seam_p5.py:101`) and P4 declares `EXFIL` yet recognises via `txn.memo`
+  (`seam_p4.py:82`), so a channel-keyed map would under-strip both. A module-level guard
+  raises `ValueError` (NOT `assert` — must survive `python -O`) if a registered name is not a
+  `str`-typed field of `Transaction`; it CANNOT detect a free-text field someone forgot to
+  register, so **adding a free-text field to `Transaction` REQUIRES adding it here**.
+  Disjointness is enforced BEHAVIOURALLY: the independence tests are parametrized over the
+  registry, so a new channel is auto-subjected to the same bar. `financial_detection_gap`
+  stays a raw-stream (non-stripper) path, held channel-blind by test instead.
+  `seam_p*.recognize` / the planters / `guard.py:79` remain memo-specific — Phase 2.
+  BEHAVIOUR-PRESERVING at one registered field: 558 passed / 2 skipped before and after, and
+  **recorded_run.json was NOT re-recorded** (that equality test is the canary). (`ADR-0036`.)
