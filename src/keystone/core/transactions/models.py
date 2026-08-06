@@ -101,7 +101,7 @@ class Transaction(BaseModel):
 # ADDING A FREE-TEXT FIELD TO `Transaction` REQUIRES ADDING IT HERE. A field absent
 # from this set is one the detector can read — that is the whole invariant. The guard
 # below rejects names that are not real, `str`-typed model fields; it cannot detect a
-# free-text field someone forgot to register (see ADR-0035).
+# free-text field someone forgot to register (see ADR-0036).
 UNTRUSTED_CHANNELS: frozenset[str] = frozenset({"memo"})
 
 

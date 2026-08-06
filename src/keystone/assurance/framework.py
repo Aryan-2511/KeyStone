@@ -111,7 +111,7 @@ def project_financial(
     P4 declares `EXFIL` and its recognizer reads `memo`). Keying the strip on
     `channel` would leave those attacks in the projection. Blanking every registered
     field regardless of channel means whatever the attack rode, the detector receives
-    an event free of every untrusted channel. See ADR-0035.
+    an event free of every untrusted channel. See ADR-0036.
     """
     blanked = {field: "" for field in UNTRUSTED_CHANNELS}
     stripped = tuple(txn.model_copy(update=blanked) for txn in stream)

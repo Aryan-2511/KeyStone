@@ -36,17 +36,20 @@ from keystone.assurance import (
 )
 from keystone.assurance.seam import P1_PAIR
 from keystone.core.fatf import Typology, detect
+from keystone.core.transactions import UNTRUSTED_CHANNELS
 
 # --- (i) the uniform independence property, for EVERY registered pair ----------
 
 
+@pytest.mark.parametrize("field", sorted(UNTRUSTED_CHANNELS))
 @pytest.mark.parametrize("pair", REGISTERED_PAIRS, ids=lambda p: p.pair_id)
-def test_detector_never_receives_the_attack_channel(pair: SeamPair) -> None:
+def test_detector_never_receives_the_attack_channel(pair: SeamPair, field: str) -> None:
     projection = financial_projection_for(pair)
     assert isinstance(projection, FinancialProjection)
-    # The financial projection carries NO attack-bearing field: every memo is blank,
-    # whatever channel this pair's attack rides.
-    assert all(txn.memo == "" for txn in projection.transactions)
+    # The financial projection carries NO attack-bearing field: every registered
+    # untrusted channel is blank, whatever channel this pair's attack DECLARES. The
+    # product (pair × channel) is the point — the strip is channel-agnostic.
+    assert all(getattr(txn, field) == "" for txn in projection.transactions)
 
 
 @pytest.mark.parametrize(

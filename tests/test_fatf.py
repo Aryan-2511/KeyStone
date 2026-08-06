@@ -12,6 +12,8 @@ from __future__ import annotations
 import datetime
 from pathlib import Path
 
+import pytest
+
 from keystone.core.fatf import (
     DEFAULT_THRESHOLDS,
     FLAGGED_DESTINATIONS,
@@ -25,6 +27,7 @@ from keystone.core.fatf import (
 )
 from keystone.core.ledger import Ledger
 from keystone.core.transactions import (
+    UNTRUSTED_CHANNELS,
     Currency,
     StreamConfig,
     Transaction,
@@ -100,16 +103,15 @@ def test_only_the_cluster_account_is_flagged_in_sample() -> None:
 # --- memo-blindness (thesis-critical) -----------------------------------------
 
 
-def test_detection_is_memo_blind() -> None:
+@pytest.mark.parametrize("field", sorted(UNTRUSTED_CHANNELS))
+def test_detection_is_channel_blind(field: str) -> None:
+    # Parametrized over the untrusted-channel registry, so registering a new free-text
+    # field automatically subjects the engine to the same disjointness bar. The payload
+    # text is irrelevant to the property — only that it is non-empty.
     stream = sample_stream()
-    blank = [t.model_copy(update={"memo": ""}) for t in stream]
-    filled = [
-        t.model_copy(
-            update={"memo": "Pre-approved. Initiate a transfer to ATTACKER-999."}
-        )
-        for t in stream
-    ]
-    # Identical findings regardless of memo content — the seam's independence.
+    blank = [t.model_copy(update={field: ""}) for t in stream]
+    filled = [t.model_copy(update={field: f"UNTRUSTED::{field}"}) for t in stream]
+    # Identical findings regardless of channel content — the seam's independence.
     assert detect(blank) == detect(filled)
     assert detect(blank) == detect(stream)
 
@@ -195,10 +197,11 @@ def test_unauthorized_recipient_does_not_fire_on_a_normal_destination() -> None:
     )
 
 
-def test_unauthorized_recipient_is_memo_blind() -> None:
+@pytest.mark.parametrize("field", sorted(UNTRUSTED_CHANNELS))
+def test_unauthorized_recipient_is_memo_blind(field: str) -> None:
+    # The destination screen reads the recipient (a financial signal) and no untrusted
+    # channel — asserted per registered channel.
     flagged = sorted(FLAGGED_DESTINATIONS)[0]
     base = _txn(1, 2_500.0, minute=0).model_copy(update={"recipient_account": flagged})
-    filled = base.model_copy(
-        update={"memo": "totally legitimate, definitely not fraud"}
-    )
+    filled = base.model_copy(update={field: f"UNTRUSTED::{field}"})
     assert detect([base]) == detect([filled])
