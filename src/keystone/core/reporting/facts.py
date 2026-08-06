@@ -99,7 +99,36 @@ def template_narrative(facts: ReportFacts) -> str:
 
 # Number/id tokenizers for the faithfulness check.
 _NUMBER_RE = re.compile(r"\d[\d,]*(?:\.\d+)?")
-_ID_RE = re.compile(r"\b(?:TXN|ACC)-\d+\b")
+
+# KEEP IN SYNC with the identifier validators at
+# `keystone.core.transactions.models._ID_RE` / `._ACCOUNT_RE`. This regex must strip
+# from narrative prose the same identifiers those admit; an id shape it fails to
+# recognise keeps its digit-run, `_NUMBER_RE` reads that run as a phantom amount absent
+# from the facts, and `narrative_is_faithful` silently returns False — the report still
+# files, but always with the template narrative (Trap 1, pinned by
+# `tests/test_faithfulness_guard.py`). See ADR-0037.
+#
+# DELIBERATELY NARROWER than the model validators, and it must stay that way. The model
+# validates ONE field known to be an identifier, so it can accept the full ISO
+# `Max35Text` charset. This regex scans FREE PROSE, where that charset (which includes
+# spaces, commas and periods) would swallow whole sentences — amounts included — and
+# blind the guard entirely. So it matches only shapes that are unambiguously
+# identifiers in running text:
+#   1. legacy `TXN-000016` / `ACC-0004`;
+#   2. IBAN — 2 alpha + 2 digits + up to 30 alphanumeric (`DE89370400440532013000`);
+#   3. UUID-style MsgId;
+#   4. hyphenated uppercase references — `E2E-REF-778899`, the EndToEndId shape as it
+#      actually appears in prose (a letter-led token with at least one hyphen).
+# An ISO id outside these shapes is not stripped; that is a conservative failure, and
+# it is what the tripwire test guards.
+_ID_RE = re.compile(
+    r"\b(?:"
+    r"(?:TXN|ACC)-\d+"
+    r"|[A-Z]{2}\d{2}[A-Z0-9]{1,30}"
+    r"|[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}"
+    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+"
+    r")\b"
+)
 
 
 def _numbers(text: str) -> set[float]:

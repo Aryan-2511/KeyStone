@@ -42,9 +42,33 @@ class TransactionType(enum.StrEnum):
     PAYMENT = "PAYMENT"
 
 
-# Stable id patterns: TXN-<6 digits>, accounts ACC-<4 digits>. A misformed id fails.
-_ID_RE = re.compile(r"^TXN-\d{6}$")
-_ACCOUNT_RE = re.compile(r"^ACC-\d{4}$")
+# Identifier patterns — ADDITIVE (ADR-0037). Each accepts BOTH the legacy synthetic
+# shape AND the ISO 20022 shape, so the model is ISO-CAPABLE without being ISO-shaped:
+# every existing `TXN-######` / `ACC-####` fixture still validates unchanged, and the
+# generator still emits those shapes. A misformed id still fails loud.
+#
+# KEEP IN SYNC with the narrative id tokenizer at
+# `keystone.core.reporting.facts._ID_RE`. That regex must strip from report prose the
+# same identifiers this one admits, or an id's digit-run is parsed as a phantom amount
+# and the faithfulness guard silently falls back to the template narrative (Trap 1,
+# pinned by `tests/test_faithfulness_guard.py`). The two are deliberately NOT identical
+# — see the note at that site for why a prose tokenizer must be narrower — but they
+# must be changed together. See ADR-0037.
+
+# `id`: legacy `TXN-<6 digits>`, or an ISO 20022 EndToEndId / InstrId / MsgId. ISO
+# permits up to 35 characters from [A-Za-z0-9/-?:().,'+ ] (`Max35Text`). Anchored on an
+# alphanumeric at BOTH ends so empty, all-punctuation, and leading/trailing-whitespace
+# ids are still rejected. NOTE the 35-char ceiling is ISO's own: a UUID MsgId fits only
+# in its 32-char hex form — the canonical hyphenated UUID is 36 chars and is therefore
+# NOT a valid Max35Text MsgId (asserted both ways in `tests/test_transactions.py`).
+_ID_RE = re.compile(
+    r"^(?=.{1,35}$)[A-Za-z0-9](?:[A-Za-z0-9/\-?:().,'+ ]*[A-Za-z0-9])?$"
+)
+
+# Accounts: legacy `ACC-<4 digits>`, or an IBAN (2 alpha country + 2 check digits + up
+# to 30 alphanumeric, ISO 13616). An alternation rather than a charset class, because
+# both shapes are strictly structured — this keeps the screen positive, not permissive.
+_ACCOUNT_RE = re.compile(r"^(?:ACC-\d{4}|[A-Za-z]{2}\d{2}[A-Za-z0-9]{1,30})$")
 
 
 class Transaction(BaseModel):
@@ -73,11 +97,18 @@ class Transaction(BaseModel):
     @model_validator(mode="after")
     def _check(self) -> Self:
         if not _ID_RE.match(self.id):
-            raise ValueError(f"id {self.id!r} must match {_ID_RE.pattern}")
+            raise ValueError(
+                f"id {self.id!r} is not a valid identifier: expected the legacy "
+                "'TXN-<6 digits>' shape or an ISO 20022 EndToEndId/InstrId/MsgId "
+                "(1-35 chars from [A-Za-z0-9/-?:().,'+ ], starting and ending "
+                "alphanumeric)"
+            )
         for account in (self.sender_account, self.recipient_account):
             if not _ACCOUNT_RE.match(account):
                 raise ValueError(
-                    f"account {account!r} must match {_ACCOUNT_RE.pattern}"
+                    f"account {account!r} is not a valid account identifier: expected "
+                    "the legacy 'ACC-<4 digits>' shape or an IBAN (2 alpha country "
+                    "code + 2 check digits + up to 30 alphanumeric)"
                 )
         if self.sender_account == self.recipient_account:
             raise ValueError(

@@ -39,7 +39,10 @@
   Pydantic `Transaction` {id `TXN-NNNNNN`, timestamp, sender_account/recipient_account
   `ACC-NNNN`, amount>0, currency, tx_type, **memo (free text, default "")**} with
   fail-loud validators (mirrors obligations/ledger). The generator labels NOTHING as
-  fraud — that's KS-0402.
+  fraud — that's KS-0402. **Since `ADR-0037` the id/account validators are ADDITIVE:
+  they accept those legacy shapes AND ISO 20022 ones (Max35Text EndToEndId, IBAN), so
+  the model is ISO-CAPABLE. The generator still EMITS the legacy shapes — the substrate
+  is not yet ISO-shaped, and that deferral is what keeps `recorded_run.json` unchanged.**
 - **Two seam-enabling capabilities exist ON PURPOSE (the KS-0403 seam depends on
   both, independently):** (1) the **`memo`** field carries arbitrary untrusted text —
   the same field the Layer-2 agent trusted, where KS-0403 will plant
@@ -102,7 +105,15 @@
   number; the deterministic check can.
 - **Guard subtlety (avoid over-fallback):** the number check strips ACC-/TXN- ids
   first (their digits are validated by the separate id check), so a narrative that
-  legitimately CITES a transaction id is not mistaken for an invented amount. The
+  legitimately CITES a transaction id is not mistaken for an invented amount.
+  **This tokenizer (`core/reporting/facts.py::_ID_RE`) is a SECOND, independent id
+  regex, and it is a SILENT-failure surface ("Trap 1", `ADR-0037`): an id shape it
+  fails to strip keeps its digit-run, that run reads as a phantom amount, and the
+  report quietly files with the template instead of the LLM narrative — nothing
+  raises. It must be changed in lockstep with the model validators; both sites carry
+  a cross-reference comment, and `tests/test_faithfulness_guard.py` fences it. It is
+  deliberately NARROWER than the model validator (a prose tokenizer cannot use the
+  full Max35Text charset without swallowing sentences and amounts).** The
   live 3B model produces a faithful narrative most runs (kept); on temperature
   variance it deviates and falls back — the guard keeps the LLM value when faithful.
 - **Format-agnostic core (the pluggable-connector pitch):** facts assembled ONCE,
